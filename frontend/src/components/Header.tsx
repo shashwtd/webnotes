@@ -4,6 +4,7 @@ import classNames from "classnames";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronRight } from "lucide-react";
+import AnimatedText from "./AnimatedText";
 
 const links: {
     href: string;
@@ -61,17 +62,9 @@ export default function Header() {
                                 >
                                     ●
                                 </span>
-                                <div className="tracking-tight lowercase font-semibold font-mono relative w-max h-max overflow-hidden">
-                                    <span className="opacity-0">
-                                        {link.label}
-                                    </span>
-                                    <span className="absolute left-0 top-0 group-hover:-top-full group-hover:opacity-0 duration-300 delay-50">
-                                        {link.label}
-                                    </span>
-                                    <span className="absolute left-0 top-full group-hover:top-0 duration-300 delay-50">
-                                        {link.label}
-                                    </span>
-                                </div>
+                                <AnimatedText className="tracking-tight lowercase font-semibold font-mono">
+                                    {link.label}
+                                </AnimatedText>
                             </Link>
                         );
                     })}
@@ -79,15 +72,9 @@ export default function Header() {
                         href="/login"
                         className="group ml-4 flex items-center font-sans font-medium text-smitems-center justify-center gap-2 bg-neutral-200 rounded-full text-neutral-900 px-6 py-1.5 pb-2 transition-colors"
                     >
-                        <div className="relative w-max h-max overflow-hidden">
-                            <span className="opacity-0">register</span>
-                            <span className="absolute left-0 top-0 group-hover:-top-full group-hover:opacity-0 duration-300 delay-50">
-                                register
-                            </span>
-                            <span className="absolute left-0 top-full group-hover:top-0 duration-300 delay-50">
-                                register
-                            </span>
-                        </div>
+                        <AnimatedText>
+                            register
+                        </AnimatedText>
                         <ChevronRight
                             className="-mr-1 group-hover:translate-x-1 duration-200"
                             size={16}
