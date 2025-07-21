@@ -134,7 +134,41 @@ export default function Home() {
                     </div>
                 </div>
 
-               
+                {/* Bottom Bar - App Integrations */}
+                <div className="absolute bottom-0 left-0 right-0">
+                    <div className="max-w-5xl mx-auto px-6 py-4">
+                        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-4">
+                            <span className="font-sans text-sm font-medium text-neutral-500">
+                                Seamlessly works with:
+                            </span>
+                            <div className="flex flex-wrap items-center gap-6">
+                                <div className="flex items-center gap-2 px- rounded-xl">
+                                    <Image
+                                        src="/assets/apple-notes.svg"
+                                        alt="Google Keep"
+                                        width={28}
+                                        height={28}
+                                        className="border bg-black/10 p-px rounded-lg"
+                                    />
+                                    <span className="font-sans text-sm font-medium text-neutral-900">
+                                        Apple Notes
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2 px- rounded-xl">
+                                    <Image
+                                        src="/assets/google-keep.svg"
+                                        alt="Google Keep"
+                                        width={24}
+                                        height={24}
+                                    />
+                                    <span className="font-sans text-sm font-medium text-neutral-900">
+                                        Google Keep <span className="opacity-50">(soon)</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </section>
         </main>
     );
