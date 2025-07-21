@@ -12,6 +12,41 @@ export default function Home() {
                     <div className="absolute right-20 bottom-20 w-[250px] h-[250px] bg-neutral-200/30 rounded-full blur-[80px]"></div>
                 </div>
 
+                <div className="relative w-full max-w-[1400px] mx-auto px-6 h-full flex">
+                    {/* Left Side - Floating Elements */}
+                    <div className="hidden lg:block relative w-[300px]">
+                        {/* Google Keep "Card" */}
+                        <div className="absolute left-10 top-20 w-40 h-48 bg-white rounded-2xl shadow-lg transform -rotate-6 hover:rotate-0 transition-transform duration-300">
+                            <div className="w-full h-full p-4 flex flex-col gap-3">
+                                <div className="w-8 h-8">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        className="w-full h-full"
+                                    >
+                                        <path
+                                            fill="#FBBC04"
+                                            d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"
+                                        />
+                                    </svg>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="w-full h-2 bg-neutral-100 rounded-full"></div>
+                                    <div className="w-2/3 h-2 bg-neutral-100 rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                        {/* Floating Note Preview */}
+                        <div className="absolute left-20 top-52 w-48 h-32 bg-white rounded-2xl shadow-lg p-4 transform rotate-3 hover:rotate-0 transition-transform duration-300">
+                            <div className="space-y-2">
+                                <div className="w-3/4 h-2 bg-blue-100 rounded-full"></div>
+                                <div className="w-full h-2 bg-neutral-100 rounded-full"></div>
+                                <div className="w-5/6 h-2 bg-neutral-100 rounded-full"></div>
+                            </div>
+                        </div>
+                        {/* Small Decorative Square */}
+                        <div className="absolute left-0 top-40 w-8 h-8 bg-blue-100 rounded-lg transform rotate-12"></div>
+                    </div>
+
                     {/* Center Content */}
                     <div className="flex-1 flex flex-col items-center justify-center gap-2">
                         <div className="flex items-center justify-center gap-2 mb-6 font-sans">
@@ -55,6 +90,49 @@ export default function Home() {
                             </Link>
                         </div>
                     </div>
+
+                    {/* Right Side - Floating Elements */}
+                    <div className="hidden lg:block relative w-[300px]">
+                        {/* Apple Notes "Card" */}
+                        <div className="absolute right-10 top-20 w-40 h-48 bg-white rounded-2xl shadow-lg transform rotate-6 hover:rotate-0 transition-transform duration-300">
+                            <div className="w-full h-full p-4 flex flex-col gap-3">
+                                <div className="w-8 h-8">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        className="w-full h-full"
+                                    >
+                                        <rect
+                                            x="2"
+                                            y="2"
+                                            width="20"
+                                            height="20"
+                                            rx="5"
+                                            fill="#FF9F0A"
+                                        />
+                                        <path
+                                            fill="white"
+                                            d="M6 7h12v2H6zM6 11h12v2H6zM6 15h8v2H6z"
+                                        />
+                                    </svg>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="w-full h-2 bg-neutral-100 rounded-full"></div>
+                                    <div className="w-2/3 h-2 bg-neutral-100 rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                        {/* Floating Web Preview */}
+                        <div className="absolute right-20 top-52 w-48 h-32 bg-white rounded-2xl shadow-lg p-4 transform -rotate-3 hover:rotate-0 transition-transform duration-300">
+                            <div className="space-y-2">
+                                <div className="w-3/4 h-2 bg-blue-100 rounded-full"></div>
+                                <div className="w-full h-2 bg-neutral-100 rounded-full"></div>
+                                <div className="w-5/6 h-2 bg-neutral-100 rounded-full"></div>
+                            </div>
+                        </div>
+                        {/* Small Decorative Square */}
+                        <div className="absolute right-4 top-40 w-8 h-8 bg-neutral-200 rounded-lg transform -rotate-12"></div>
+                    </div>
+                </div>
 
                
             </section>
