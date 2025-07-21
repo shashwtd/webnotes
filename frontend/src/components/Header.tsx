@@ -24,11 +24,24 @@ const links: {
     },
 ];
 
-export default function Header() {
+interface HeaderProps {
+    bg?: string;
+    isAuthPage?: boolean;
+}
+
+export default function Header({
+    bg = "bg-neutral-100",
+    isAuthPage = false,
+}: HeaderProps) {
     const path = usePathname();
 
     return (
-        <div className="fixed z-50 bg-neutral-100 top-0 w-screen h-max px-6 md:px-12 flex items-start py-4 justify-center">
+        <div
+            className={classNames(
+                "fixed z-50 top-0 w-screen h-max px-6 md:px-12 flex items-start py-4 justify-center",
+                bg ? bg : "bg-neutral-100"
+            )}
+        >
             <div className="w-full flex items-start justify-between">
                 <Link
                     href="/"
@@ -57,7 +70,7 @@ export default function Header() {
                                 <span
                                     className={classNames(
                                         "text-sm group-hover:opacity-50",
-                                        isActive ? "opacity-100!" : "opacity-0"
+                                        isActive ? "!opacity-100" : "opacity-0"
                                     )}
                                 >
                                     ●
@@ -69,12 +82,10 @@ export default function Header() {
                         );
                     })}
                     <Link
-                        href="/login"
-                        className="group ml-4 flex items-center font-sans font-medium text-smitems-center justify-center gap-2 bg-neutral-200 rounded-full text-neutral-900 px-6 py-1.5 pb-2 transition-colors"
+                        href="/register"
+                        className="group ml-4 flex font-sans font-medium items-center justify-center gap-2 bg-neutral-200 rounded-full text-neutral-900 px-6 py-1.5 pb-2 transition-colors"
                     >
-                        <AnimatedText>
-                            register
-                        </AnimatedText>
+                        <AnimatedText>register</AnimatedText>
                         <ChevronRight
                             className="-mr-1 group-hover:translate-x-1 duration-200"
                             size={16}
