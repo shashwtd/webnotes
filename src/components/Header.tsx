@@ -26,7 +26,7 @@ export default function Header() {
     const path = usePathname();
 
     return (
-        <div className="fixed top-0 w-screen h-16 bg-neutral-200 px-12 flex items-center justify-between">
+        <div className="fixed top-0 w-screen h-max px-6 md:px-12 flex items-start pt-4 justify-between">
             <Link
                 href="/"
                 className="group text-lg font-mono font-semibold text-neutral-900 flex items-center justify-center gap-0.5"
@@ -35,7 +35,7 @@ export default function Header() {
                 <span className="duration-200 group-hover:w-6 h-0.5 w-2 bg-black"></span>
                 <span>2287</span>
             </Link>
-            <nav className="flex space-x-8">
+            <nav className="flex flex-col md:flex-row gap-0 md:gap-8 items-start">
                 {links.map((link, i) => {
                     const isActive = path === link.href;
                     return (
