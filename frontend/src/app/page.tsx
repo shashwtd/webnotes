@@ -136,7 +136,7 @@ export default function Home() {
                 </div>
 
                 {/* Bottom Bar - App Integrations */}
-                <div className="absolute bottom-0 left-0 right-0">
+                <div className="absolute bottom-3 left-0 right-0">
                     <div className="max-w-5xl mx-auto px-6 py-4">
                         <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-4">
                             <span className="font-sans text-sm font-medium text-neutral-500">
@@ -172,6 +172,85 @@ export default function Home() {
                             </div>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <section className="w-full py-24 flex flex-col items-center justify-center gap-16 bg-white">
+                <div className="flex flex-col items-center gap-2">
+                    <h2 className="font-sans text-3xl font-semibold tracking-tighter opacity-90">
+                        Write Once, Share Everywhere
+                    </h2>
+                    <p className="font-sans text-lg max-w-lg text-center font-medium opacity-75">
+                        Your notes automatically transform into clean,
+                        professional web pages. No extra steps needed.
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl px-6">
+                    <div className="group p-6 bg-neutral-50 rounded-2xl hover:bg-neutral-100 transition-colors duration-200">
+                        <div className="w-10 h-10 mb-4 rounded-full bg-blue-100 flex items-center justify-center">
+                            <span className="text-blue-600 font-mono font-bold">
+                                1
+                            </span>
+                        </div>
+                        <h3 className="font-sans text-xl font-semibold mb-2">
+                            Write Naturally
+                        </h3>
+                        <p className="font-sans text-neutral-600 leading-relaxed">
+                            Use your favorite note-taking app. Webnotes works
+                            seamlessly with your existing workflow.
+                        </p>
+                    </div>
+                    <div className="group p-6 bg-neutral-50 rounded-2xl hover:bg-neutral-100 transition-colors duration-200">
+                        <div className="w-10 h-10 mb-4 rounded-full bg-blue-100 flex items-center justify-center">
+                            <span className="text-blue-600 font-mono font-bold">
+                                2
+                            </span>
+                        </div>
+                        <h3 className="font-sans text-xl font-semibold mb-2">
+                            Auto-Sync
+                        </h3>
+                        <p className="font-sans text-neutral-600 leading-relaxed">
+                            Your notes sync automatically. No manual uploads or
+                            formatting required.
+                        </p>
+                    </div>
+                    <div className="group p-6 bg-neutral-50 rounded-2xl hover:bg-neutral-100 transition-colors duration-200">
+                        <div className="w-10 h-10 mb-4 rounded-full bg-blue-100 flex items-center justify-center">
+                            <span className="text-blue-600 font-mono font-bold">
+                                3
+                            </span>
+                        </div>
+                        <h3 className="font-sans text-xl font-semibold mb-2">
+                            Share Instantly
+                        </h3>
+                        <p className="font-sans text-neutral-600 leading-relaxed">
+                            Get a beautiful webpage instantly. Share with
+                            anyone, anywhere.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section className="w-full py-24 flex flex-col items-center justify-center gap-8">
+                <div className="flex flex-col items-center gap-2 max-w-2xl px-6">
+                    <h2 className="font-sans text-3xl font-semibold tracking-tighter text-center">
+                        Start sharing your thoughts with the world
+                    </h2>
+                    <p className="font-sans text-lg text-center font-medium opacity-75">
+                        Join thousands of writers, researchers, and
+                        professionals who use Webnotes to share their ideas.
+                    </p>
+                    <Link
+                        href="/login"
+                        className="mt-6 group flex font-sans font-medium items-center justify-center gap-2 bg-gradient-to-b from-blue-500 hover:from-blue-600 duration-200 to-blue-700 rounded-full text-white px-8 py-3 transition-colors"
+                    >
+                        Create Your First Note{" "}
+                        <ChevronRight
+                            className="-mr-1 group-hover:translate-x-1 duration-200"
+                            size={20}
+                        />
+                    </Link>
                 </div>
             </section>
         </main>
