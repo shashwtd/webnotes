@@ -27,7 +27,7 @@ export default function Header() {
     const path = usePathname();
 
     return (
-        <div className="fixed top-0 w-screen h-max px-6 md:px-12 flex items-start pt-4 justify-center">
+        <div className="fixed z-50 bg-neutral-100 top-0 w-screen h-max px-6 md:px-12 flex items-start py-4 justify-center">
             <div className="w-full flex items-start justify-between">
                 <Link
                     href="/"
