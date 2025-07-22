@@ -2,16 +2,17 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log/slog"
 	"os"
 	"time"
 )
 
 var isWorker bool
+var isFakeWorker bool
 
 func init() {
 	flag.BoolVar(&isWorker, "worker", false, "Run as a worker") // this is for the cron job invocation
+	flag.BoolVar(&isFakeWorker, "worker-fake", false, "Run as a fake worker (for testing purposes)")
 	flag.Parse()
 }
 
@@ -19,6 +20,8 @@ func main() {
 	var err error
 	if isWorker {
 		err = runWorker()
+	} else if isFakeWorker {
+		err = doWorker()
 	} else {
 		err = createJob()
 	}
@@ -30,24 +33,12 @@ func main() {
 }
 
 func runWorker() error {
-	doWorker()
+	doWorker() // will ask for permissions to run the AppleScript
 	for range time.Tick(time.Second * 250) {
 		err := doWorker()
 		if err != nil {
 			slog.Error("worker error", "error", err, "time", time.Now().Format(time.RFC3339))
 		}
-	}
-	return nil
-}
-
-func doWorker() error {
-	notes, err := extractNotes()
-	if err != nil {
-		return fmt.Errorf("extraction: %w", err)
-	}
-	slog.Info("extracted notes", "count", len(notes), "time", time.Now().Format(time.RFC3339))
-	for _, note := range notes {
-		slog.Info("note", "id", note.ID, "title", note.Title, "created", note.Created, "updated", note.Updated)
 	}
 	return nil
 }
