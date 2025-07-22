@@ -1,12 +1,17 @@
 package api
 
 import (
-	"github.com/ajiteshkumar/webnotes/backend/env"
 	"github.com/gofiber/fiber/v2"
+	"github.com/shashwtd/webnotes/backend/env"
+	"github.com/shashwtd/webnotes/backend/session"
 )
 
-func SetGroup(group fiber.Router) {
+func SetAPIGroup(group fiber.Router) {
 	v1 := group.Group("/v1")
+
+	sessionMiddleware := session.SessionMiddleware()
+	accountsRouter := v1.Group("/accounts")
+	setAccountsGroup(accountsRouter, sessionMiddleware)
 
 	v1.Get("/supabase", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{

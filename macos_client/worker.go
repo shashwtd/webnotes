@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/shashwtd/webnotes/database"
 	"github.com/supabase-community/supabase-go"
 )
 
@@ -58,7 +59,7 @@ func doWorker() error {
 	return nil
 }
 
-func writeDB(keys SupabaseKeys, notes []Note) error {
+func writeDB(keys SupabaseKeys, notes []database.Note) error {
 	sbclient, err := supabase.NewClient(keys.URL, keys.AnonKey, &supabase.ClientOptions{
 		Headers: map[string]string{
 			// "Prefer": "return=representation",
@@ -68,7 +69,7 @@ func writeDB(keys SupabaseKeys, notes []Note) error {
 		return fmt.Errorf("creating supabase client: %w", err)
 	}
 	for _, note := range notes {
-		var ret []Note
+		var ret []database.Note
 		_, err := sbclient.From("notes").Insert(map[string]any{
 			"user_id":           "352ecb4c-f39e-4c83-891d-5f10bd5653b5",
 			"source":            "macos_apple_notes",

@@ -1,10 +1,12 @@
-module github.com/ajiteshkumar/webnotes
+module github.com/shashwtd/webnotes
 
 go 1.24.2
 
 require (
 	github.com/gofiber/fiber/v2 v2.52.9
+	github.com/golang-jwt/jwt/v5 v5.2.3
 	github.com/supabase-community/supabase-go v0.0.4
+	golang.org/x/crypto v0.14.0
 )
 
 require (

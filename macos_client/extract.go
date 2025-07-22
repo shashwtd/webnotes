@@ -6,18 +6,12 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+
+	"github.com/shashwtd/webnotes/database"
 )
 
 // helps and hints from the apple-notes-to-sqlite project (python):
 // github.com/dogsheep/apple-notes-to-sqlite
-
-type Note struct {
-	ID      string `json:"id"`
-	Created string `json:"created"`
-	Updated string `json:"updated"`
-	Title   string `json:"title"`
-	Body    string `json:"body"`
-}
 
 // script returns an AppleScript that extracts notes from the Notes app.
 func script(delim string) string {
@@ -46,7 +40,7 @@ end tell
 }
 
 // extractNotes runs the AppleScript and parses the output to extract notes.
-func extractNotes() ([]Note, error) {
+func extractNotes() ([]database.Note, error) {
 	delim := randomHex(8) // delim to separate fields in the output reliably
 	s := script(delim)    // AppleScript to extract notes
 
@@ -59,8 +53,8 @@ func extractNotes() ([]Note, error) {
 
 	// start parsin'
 	scanner := bufio.NewScanner(bytes.NewReader(output))
-	var notes []Note
-	note := Note{}
+	var notes []database.Note
+	note := database.Note{}
 	bodyLines := []string{}
 
 	for scanner.Scan() {
@@ -75,7 +69,7 @@ func extractNotes() ([]Note, error) {
 				}
 				notes = append(notes, note)
 			}
-			note = Note{}
+			note = database.Note{}
 			bodyLines = []string{}
 			continue
 		}
