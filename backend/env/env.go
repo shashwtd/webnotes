@@ -27,7 +27,7 @@ func Load() error {
 
 	rawSigningKey := os.Getenv("JWT_SIGNING_KEY")
 	if rawSigningKey == "" {
-		return nil // No JWT signing key set, skipping
+		return fmt.Errorf("JWT_SIGNING_KEY environment variable is not set")
 	}
 	Default.JWTSigningKey = make([]byte, hex.DecodedLen(len(rawSigningKey)))
 	_, err := hex.Decode(Default.JWTSigningKey, []byte(rawSigningKey))
