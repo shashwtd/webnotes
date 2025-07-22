@@ -2,14 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { Menu } from "lucide-react";
+import { useRouter } from "next/navigation";
 import Sidebar from "@/components/dashboard/Sidebar";
 import AccountMenu from "@/components/dashboard/AccountMenu";
-
-// Mock user data - this would come from your auth context
-const mockUser = {
-    name: "John Doe",
-    email: "john@example.com",
-};
+import { useAuth } from "@/context/AuthContext";
 
 export default function DashboardLayout({
     children,
@@ -34,10 +30,27 @@ export default function DashboardLayout({
         return () => window.removeEventListener("resize", checkMobile);
     }, []);
 
-    const handleLogout = () => {
-        // Handle logout logic
-        console.log("Logging out...");
+    const router = useRouter();
+    const { user, logout } = useAuth();
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+            router.push('/login');
+        } catch (error) {
+            console.error('Failed to logout:', error);
+        }
     };
+
+    useEffect(() => {
+        if (!user) {
+            router.push('/login');
+        }
+    }, [user, router]);
+
+    if (!user) {
+        return null;
+    }
 
     return (
         <div className="min-h-screen w-full font-sans bg-neutral-50/50">
@@ -66,7 +79,7 @@ export default function DashboardLayout({
 
                         {/* Right Side - Account Menu */}
                         <div className="ml-auto">
-                            <AccountMenu user={mockUser} onLogout={handleLogout} />
+                            <AccountMenu user={user} onLogout={handleLogout} />
                         </div>
                     </div>
                 </header>
