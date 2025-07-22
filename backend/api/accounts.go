@@ -148,4 +148,11 @@ func setAccountsGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
 			"error": nil,
 		})
 	}))
+
+	router.Get("/logout", func(c *fiber.Ctx) error {
+		session.LogoutSession(c)
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"error": nil,
+		})
+	})
 }

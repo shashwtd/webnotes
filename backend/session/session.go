@@ -10,9 +10,22 @@ import (
 	"github.com/shashwtd/webnotes/backend/env"
 )
 
+const CookieName string = "session_token"
+
 type Claims struct {
 	UserID string `json:"user_id"`
 	jwt.RegisteredClaims
+}
+
+func LogoutSession(c *fiber.Ctx) {
+	c.Cookie(&fiber.Cookie{
+		Name:     CookieName,
+		Value:    "",
+		HTTPOnly: true,
+		Secure:   true,
+		MaxAge:   -1,                         // Set MaxAge to -1 to delete the cookie
+		Expires:  time.Now().Add(-time.Hour), // Set Expires to a time in the past
+	})
 }
 
 // NewSession creates a new session JWT and sets it as an HTTP only cookie in the response.
@@ -35,7 +48,7 @@ func NewSession(c *fiber.Ctx, userID string, validityDuration time.Duration) err
 	}
 
 	c.Cookie(&fiber.Cookie{
-		Name:     "session_token",
+		Name:     CookieName,
 		Value:    signedToken,
 		HTTPOnly: true,
 		Secure:   true,
@@ -48,7 +61,7 @@ func SessionMiddleware() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		claims := &Claims{}
 
-		token, err := jwt.ParseWithClaims(c.Cookies("session_token"), claims, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.ParseWithClaims(c.Cookies(CookieName), claims, func(token *jwt.Token) (interface{}, error) {
 			return env.Default.JWTSigningKey, nil
 		})
 		if err != nil {
