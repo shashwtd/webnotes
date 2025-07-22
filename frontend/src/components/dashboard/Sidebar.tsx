@@ -78,15 +78,19 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
                         initial={{ x: -300, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         exit={{ x: -300, opacity: 0 }}
-                        transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-                        className="fixed left-0 top-0 bottom-0 w-72 bg-white border-r border-neutral-200 px-6 py-8 overflow-y-auto z-30"
+                        transition={{
+                            type: "spring",
+                            bounce: 0,
+                            duration: 0.4,
+                        }}
+                        className="fixed left-0 top-0 bottom-0 w-72 bg-white border-r border-neutral-200 px-6 py-8 pt-4 overflow-y-auto z-30"
                     >
-                        <div className="flex items-center justify-between mb-8">
+                        <div className="flex items-center justify-between -mb-1">
                             <Link
                                 href="/dashboard"
-                                className="text-lg font-semibold tracking-tight"
+                                className="text-lg font-semibold font-mono tracking-tight"
                             >
-                                webnotes
+                                Webnotes <span className="opacity-75 text-sm">[dashboard]</span>
                             </Link>
                             {isMobile && (
                                 <button
@@ -98,22 +102,7 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
                             )}
                         </div>
 
-                        {/* Quick Actions */}
-                        <div className="p-3 bg-neutral-50/80 rounded-xl mb-8">
-                            <div className="flex flex-col gap-2">
-                                <button className="w-full flex items-center justify-center gap-2 bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-2.5 px-4 rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/20 cursor-pointer">
-                                    <Rocket size={18} />
-                                    <AnimatedText>Deploy Note</AnimatedText>
-                                </button>
-                                <button className="w-full flex items-center justify-center gap-2 bg-white border border-neutral-200 hover:border-neutral-300 text-neutral-900 py-2.5 px-4 rounded-lg transition-colors group cursor-pointer">
-                                    <CloudCog size={18} className="text-blue-500 group-hover:rotate-180 transition-transform duration-700" />
-                                    <AnimatedText>Sync Now</AnimatedText>
-                                </button>
-                                <div className="text-xs text-center text-neutral-500 mt-1">
-                                    Last synced: {lastSync}
-                                </div>
-                            </div>
-                        </div>
+                        <div className="w-full h-px bg-black opacity-15 my-4"></div>
 
                         {/* Navigation */}
                         <nav className="space-y-1">
@@ -134,20 +123,44 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
                                             {item.label}
                                         </AnimatedText>
                                         {item.isNew && (
-                                            <span className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-xs font-medium">
+                                            <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-xs font-medium">
                                                 New
                                             </span>
                                         )}
                                         <ChevronRight
                                             size={16}
                                             className={`absolute right-3 top-1/2 -translate-y-1/2 transition-opacity ${
-                                                isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                                                isActive
+                                                    ? "opacity-100"
+                                                    : "opacity-0 group-hover:opacity-100"
                                             }`}
                                         />
                                     </Link>
                                 );
                             })}
                         </nav>
+
+                        <div className="w-full h-px bg-black opacity-15 my-4"></div>
+
+                        {/* Quick Actions */}
+                        <div className="p-3 bg-neutral-0/80 rounded-xl mb-8">
+                            <div className="flex flex-col gap-2">
+                                <button className="group w-full flex items-center justify-center gap-2 bg-gradient-to-b from-blue-500 to-blue-700 hover:from-blue-600 text-white py-2.5 px-4 rounded-lg transition-colors duration-200 cursor-pointer">
+                                    <Rocket size={18} />
+                                    <AnimatedText>Deploy Note</AnimatedText>
+                                </button>
+                                <button className="w-full flex items-center justify-center gap-2 bg-white border border-neutral-200 hover:border-neutral-300 text-neutral-900 py-2.5 px-4 rounded-lg transition-colors group cursor-pointer">
+                                    <CloudCog
+                                        size={18}
+                                        className="text-blue-500 group-hover:rotate-180 transition-transform duration-700"
+                                    />
+                                    <AnimatedText>Sync Now</AnimatedText>
+                                </button>
+                                <div className="text-xs text-center text-neutral-500 mt-1">
+                                    Last synced: {lastSync}
+                                </div>
+                            </div>
+                        </div>
 
                         {/* Settings Link */}
                         <Link
@@ -159,11 +172,15 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
                             }`}
                         >
                             <Settings size={18} />
-                            <span className="text-sm font-medium">Settings</span>
+                            <span className="text-sm font-medium">
+                                Settings
+                            </span>
                             <ChevronRight
                                 size={16}
                                 className={`ml-auto transition-opacity ${
-                                    pathname === "/dashboard/settings" ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                                    pathname === "/dashboard/settings"
+                                        ? "opacity-100"
+                                        : "opacity-0 group-hover:opacity-100"
                                 }`}
                             />
                         </Link>
