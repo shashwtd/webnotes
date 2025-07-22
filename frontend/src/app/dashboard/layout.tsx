@@ -56,7 +56,7 @@ export default function DashboardLayout({
             >
                 {/* Header */}
                 <header className="sticky top-0 z-10 bg-white border-b border-neutral-200">
-                    <div className="px-6 py-4 flex items-center gap-4">
+                    <div className="px-6 py-2 flex items-center gap-4">
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                             className="text-neutral-500 hover:text-neutral-900 cursor-pointer"
