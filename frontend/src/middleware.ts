@@ -2,24 +2,28 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const SERVER_URL = process.env.SERVER_URL;
+const COOKIE_NAME = "session_token";
 
 export async function middleware(request: NextRequest) {
-    // Get session cookie
-    const session = request.cookies.get("session");
+    const session = request.cookies.get(COOKIE_NAME);
 
-    // If trying to access auth pages while logged in, redirect to dashboard
-    if (request.nextUrl.pathname.startsWith("/login") || request.nextUrl.pathname.startsWith("/register")) {
+    if (
+        request.nextUrl.pathname.startsWith("/login") ||
+        request.nextUrl.pathname.startsWith("/register")
+    ) {
         if (session) {
             try {
-                // Verify session with backend
-                const response = await fetch(`${SERVER_URL}accounts/me`, {
+                const response = await fetch(`${SERVER_URL}/accounts/me`, {
                     headers: {
-                        Cookie: `session=${session.value}`,
+                        Cookie: `${COOKIE_NAME}=${session.value}`,
                     },
+                    credentials: "include",
                 });
 
                 if (response.ok) {
-                    return NextResponse.redirect(new URL("/dashboard", request.url));
+                    return NextResponse.redirect(
+                        new URL("/dashboard", request.url)
+                    );
                 }
             } catch (error) {
                 console.error("Auth check error:", error);
@@ -28,31 +32,35 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
-    // If trying to access protected routes without session, redirect to login
     if (request.nextUrl.pathname.startsWith("/dashboard")) {
         if (!session) {
-            const response = NextResponse.redirect(new URL("/login", request.url));
-            response.cookies.delete("session");
+            const response = NextResponse.redirect(
+                new URL("/login", request.url)
+            );
+            response.cookies.delete(COOKIE_NAME);
             return response;
         }
-
         try {
-            // Verify session with backend
-            const response = await fetch(`${SERVER_URL}accounts/me`, {
+            const response = await fetch(`${SERVER_URL}/accounts/me`, {
                 headers: {
-                    Cookie: `session=${session.value}`,
+                    Cookie: `${COOKIE_NAME}=${session.value}`,
                 },
+                credentials: "include",
             });
 
             if (!response.ok) {
-                const redirectResponse = NextResponse.redirect(new URL("/login", request.url));
-                redirectResponse.cookies.delete("session");
+                const redirectResponse = NextResponse.redirect(
+                    new URL("/login", request.url)
+                );
+                redirectResponse.cookies.delete(COOKIE_NAME);
                 return redirectResponse;
             }
         } catch (error) {
             console.error("Auth check error:", error);
-            const response = NextResponse.redirect(new URL("/login", request.url));
-            response.cookies.delete("session");
+            const response = NextResponse.redirect(
+                new URL("/login", request.url)
+            );
+            response.cookies.delete(COOKIE_NAME);
             return response;
         }
     }
