@@ -9,10 +9,10 @@ import (
 // NOTE: json tag must match the column names in supabase
 
 type User struct {
-	ID        string `json:"id"`
-	CreatedAt string `json:"created_at"`
+	ID        string `json:"id,omitempty"`
+	CreatedAt string `json:"created_at,omitempty"`
 	Username  string `json:"username"`
-	Email     string `json:"email"`
+	Email     string `json:"email_address"`
 
 	HashedPassword string `json:"password_b64_hash"`
 
