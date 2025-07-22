@@ -51,13 +51,21 @@ func (db *DB) GetUserByEmail(email string) (*User, error) {
 	return &user, nil
 }
 
-func (db *DB) GetUserByUsername(email string) (*User, error) {
+func (db *DB) GetUserByUsername(username string) (*User, error) {
 	var user User
-	_, err := db.client.From("users").Select("*", "", false).Eq("username", email).Single().ExecuteTo(&user)
+	_, err := db.client.From("users").Select("*", "", false).Eq("username", username).Single().ExecuteTo(&user)
 	if err != nil {
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (db *DB) UsernameExists(username string) (bool, error) {
+	_, ct, err := db.client.From("users").Select("*", "exact", true).Eq("username", username).Execute()
+	if err != nil {
+		return true, err // fail closed (assume exists)
+	}
+	return ct > 0, nil
 }
 
 func (db *DB) InsertUser(user *User) error {
