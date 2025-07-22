@@ -26,6 +26,26 @@ func setAccountsGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
 		})
 	})
 
+	router.Get("/usernameExists", func(c *fiber.Ctx) error {
+		username := c.Query("username")
+		if username == "" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "missing username query parameter",
+			})
+		}
+		exists, err := env.Default.Database.UsernameExists(username)
+		if err != nil {
+			slog.Error("check if username exists", "error", err)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "failed to check if username exists",
+			})
+		}
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"error":  nil,
+			"exists": exists,
+		})
+	})
+
 	type loginExpectedBody struct {
 		Username string `json:"username"`
 		Email    string `json:"email"`
@@ -128,4 +148,11 @@ func setAccountsGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
 			"error": nil,
 		})
 	}))
+
+	router.Get("/logout", func(c *fiber.Ctx) error {
+		session.LogoutSession(c)
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"error": nil,
+		})
+	})
 }
