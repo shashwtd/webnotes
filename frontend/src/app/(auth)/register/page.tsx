@@ -77,7 +77,7 @@ export default function RegisterPage() {
 
                 <button
                     type="submit"
-                    className="group w-full flex items-center justify-center gap-2 bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/20 mt-6 cursor-pointer"
+                    className="group w-full flex focus:outline-none focus:ring hover:ring ring-blue-300 ring-offset-2 items-center justify-center gap-2 bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/20 mt-6 cursor-pointer"
                 >
                     <AnimatedText>Create Account</AnimatedText>
                     <ChevronRight size={18} className="ml-1" />
