@@ -68,27 +68,21 @@ func setAccountsGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
 		}
 		if err != nil {
 			slog.Error("get user by username/email", "error", err)
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "failed to get user by username/email",
-			})
+			sendError(c, err)
 		}
 
 		// check password
 		err = bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(body.Password))
 		if err != nil {
 			slog.Error("compare password hash", "error", err)
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "invalid username/email or password",
-			})
+			sendError(c, err)
 		}
 
 		// issue a session jwt
 		err = session.NewSession(c, user.ID, time.Hour*24*7) // expires in 7 days
 		if err != nil {
 			slog.Error("create new session", "error", err)
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "failed to create session",
-			})
+			sendError(c, err)
 		}
 
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -113,9 +107,7 @@ func setAccountsGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
 		if err != nil {
 			slog.Error("hash password", "error", err)
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "failed to hash password",
-			})
+			sendError(c, err)
 		}
 
 		// write user to database
@@ -130,18 +122,14 @@ func setAccountsGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
 		err = env.Default.Database.InsertUser(user)
 		if err != nil { // NOTE: we need to be able to tell when its a unique constraint error for username or email
 			slog.Error("insert user", "error", err)
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "could not register user",
-			})
+			return sendError(c, err)
 		}
 
 		// issue a session jwt
 		err = session.NewSession(c, user.ID, time.Hour*24*7)
 		if err != nil {
 			slog.Error("create new session", "error", err)
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "failed to create session",
-			})
+			return sendError(c, err)
 		}
 
 		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
