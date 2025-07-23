@@ -25,7 +25,7 @@ func doWorker() error {
 	}
 	slog.Info("extracted notes", "count", len(notes), "time", time.Now().Format(time.RFC3339))
 	for _, note := range notes {
-		slog.Info("note", "id", note.ID, "title", note.Title, "created", note.Created, "updated", note.Updated)
+		slog.Info("note", "id", note.ID, "title", note.Title, "created", note.CreatedAt, "updated", note.UpdatedAt)
 	}
 
 	// get supabase keys
@@ -74,8 +74,8 @@ func writeDB(keys SupabaseKeys, notes []database.Note) error {
 			"user_id":           "352ecb4c-f39e-4c83-891d-5f10bd5653b5",
 			"source":            "macos_apple_notes",
 			"source_identifier": note.ID,
-			"created_at":        note.Created,
-			"updated_at":        note.Updated,
+			"created_at":        note.CreatedAt,
+			"updated_at":        note.UpdatedAt,
 			"title":             note.Title,
 			"body":              note.Body,
 		}, true, "", "", "").ExecuteTo(&ret)
