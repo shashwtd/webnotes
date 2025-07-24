@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Eye, EyeOff, ChevronRight, Check, Loader2 } from "lucide-react";
 import AnimatedText from "@/components/AnimatedText";
@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import debounce from "lodash/debounce";
 
 export default function RegisterPage() {
-    const { register, error } = useAuth();
+    const { register } = useAuth();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -28,48 +28,53 @@ export default function RegisterPage() {
         error: null,
     });
 
-    const checkUsername = useCallback(
-        debounce(async (username: string) => {
+    const debouncedUsernameCheck = useMemo(
+        () => debounce(async (username: string) => {
             if (!username) {
-                setUsernameStatus({
+                return {
                     loading: false,
                     valid: false,
                     error: "Username is required"
-                });
-                return;
+                };
             }
 
             // Check minimum length before making API call
             if (username.length < 4) {
-                setUsernameStatus({
+                return {
                     loading: false,
                     valid: false,
                     error: "Username must be at least 4 characters long"
-                });
-                return;
+                };
             }
 
-            setUsernameStatus(prev => ({ ...prev, loading: true }));
             try {
                 const response = await fetch(`/api/auth/usernameExists?username=${username}`);
                 const data = await response.json();
 
-                setUsernameStatus({
+                return {
                     loading: false,
                     valid: !data.exists,
                     error: data.error || (data.exists ? "Username is already taken" : null)
-                });
+                };
             } catch (error) {
                 console.error("Username check error:", error);
-                setUsernameStatus({
+                return {
                     loading: false,
                     valid: false,
                     error: "Failed to check username"
-                });
+                };
             }
         }, 500),
         []
     );
+
+    const checkUsername = useCallback(async (username: string) => {
+        setUsernameStatus(prev => ({ ...prev, loading: true }));
+        const result = await debouncedUsernameCheck(username);
+        if (result) {
+            setUsernameStatus(result);
+        }
+    }, [debouncedUsernameCheck]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

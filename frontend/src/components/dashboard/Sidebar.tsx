@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -57,7 +57,7 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
     const pathname = usePathname();
-    const [lastSync, setLastSync] = useState("2 hours ago"); // This would come from your state management
+    const [lastSync] = useState("2 hours ago");
 
     return (
         <AnimatePresence mode="wait">
