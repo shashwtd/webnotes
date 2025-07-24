@@ -1,0 +1,38 @@
+name: Build macos_client
+
+on:
+  push:
+    paths:
+      - "macos_client/**"
+      - "database/**"
+      - "go.mod"
+      - "go.sum"
+      - ".github/workflows/build-macos-client.yml"
+
+jobs:
+  build:
+    name: Build macos_client for multiple OS/ARCH
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        goos: [darwin, linux, windows]
+        goarch: [amd64, arm64]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22" # Adjust this to your Go version
+
+      - name: Build for ${{ matrix.goos }}/${{ matrix.goarch }}
+        run: |
+          mkdir -p builds
+          ext=""
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            ext=".exe"
+          fi
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o builds/${{ matrix.goos }}-${{ matrix.goarch }}${ext} ./macos_client
