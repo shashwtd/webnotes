@@ -24,7 +24,7 @@ func doWorker(session_token string) error {
 	}
 	slog.Info("extracted notes", "count", len(notes), "time", time.Now().Format(time.RFC3339))
 	for _, note := range notes {
-		slog.Info("note", "id", note.ID, "title", note.Title, "created", note.CreatedAt, "updated", note.UpdatedAt)
+		slog.Info("note", "id", note.SourceIdentifier, "title", note.Title, "created", note.CreatedAt, "updated", note.UpdatedAt)
 	}
 
 	// write to DB

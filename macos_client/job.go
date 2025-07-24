@@ -54,6 +54,8 @@ func initializeService() error {
 		return fmt.Errorf("creating job: %w", err)
 	}
 
+	doWorker(getSessionTokenFromKR()) // will ask for permissions to run the AppleScript
+
 	return nil
 }
 
@@ -95,7 +97,7 @@ func getLongLivedSessionToken() error {
 	}
 	go srv.Serve(listener) // start the server in a goroutine
 
-	url := fmt.Sprintf("%s/authorize_client?redirectURL=%s", FRONTEND_URL, url.QueryEscape(fmt.Sprintf("http://127.0.0.1:%d", port)))
+	url := fmt.Sprintf("%s/authorize-client?redirect_uri=%s", FRONTEND_URL, url.QueryEscape(fmt.Sprintf("http://127.0.0.1:%d", port)))
 	fmt.Printf("Please open the following URL in your browser to authorize the client:\n%s\n", url)
 
 	<-ctx.Done()
@@ -109,13 +111,15 @@ func exchangeAuthCode(code string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("parsing URL: %w", err)
 	}
+
+	b, _ := json.Marshal(map[string]string{"code": code})
 	resp, err := http.DefaultClient.Do(&http.Request{
 		Method: http.MethodPost,
 		URL:    u,
 		Header: http.Header{
 			"Content-Type": {"application/json"},
 		},
-		Body: io.NopCloser(bytes.NewReader([]byte(fmt.Sprintf("{'code': %s}", code)))),
+		Body: io.NopCloser(bytes.NewReader(b)),
 	})
 	if err != nil {
 		return "", fmt.Errorf("post exchange auth code request: %w", err)

@@ -64,7 +64,7 @@ func extractNotes() ([]database.Note, error) {
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if line == delim+delim {
-			if note.ID != "" {
+			if note.SourceIdentifier != "" {
 				note.Body = strings.TrimSpace(strings.Join(bodyLines, "\n"))
 				if note.Body == "" {
 					// if body is empty, we're going to skip this note
@@ -85,7 +85,7 @@ func extractNotes() ([]database.Note, error) {
 				val := strings.TrimPrefix(line, prefix)
 				switch field {
 				case "id":
-					note.ID = val
+					note.SourceIdentifier = val
 				case "created":
 					note.CreatedAt = val
 				case "updated":

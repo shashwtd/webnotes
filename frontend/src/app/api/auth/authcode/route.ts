@@ -22,7 +22,7 @@ export async function POST(request: Request) {
         }
 
         const response = await fetch(`${SERVER_URL}/accounts/authcode`, {
-            method: "POST",
+            method: "GET",
             headers: {
                 Cookie: `session_token=${sessionCookie.value}`,
             },
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
                     { status: 401 }
                 );
             }
-            throw new Error("Failed to generate auth code");
+            throw new Error("Failed to generate auth code", await response.json());
         }
 
         const data = await response.json();
