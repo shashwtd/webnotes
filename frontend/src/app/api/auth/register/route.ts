@@ -1,9 +1,12 @@
 
 import { NextResponse } from "next/server";
+import { setCorsHeaders, corsMiddleware } from "@/lib/cors";
 
 const SERVER_URL = process.env.SERVER_URL;
 
 export async function POST(request: Request) {
+    const corsCheck = await corsMiddleware(request);
+    if (corsCheck) return corsCheck;
     try {
         const body = await request.json();
 
@@ -41,12 +44,18 @@ export async function POST(request: Request) {
             successResponse.headers.set("Set-Cookie", sessionCookie);
         }
 
-        return successResponse;
+        return setCorsHeaders(successResponse);
     } catch (error) {
         console.error("Registration error:", error);
-        return NextResponse.json(
-            { error: "Internal server error" },
-            { status: 500 }
+        return setCorsHeaders(
+            NextResponse.json(
+                { error: "Internal server error" },
+                { status: 500 }
+            )
         );
     }
+}
+
+export async function OPTIONS(request: Request) {
+    return corsMiddleware(request);
 }

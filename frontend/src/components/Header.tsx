@@ -25,9 +25,7 @@ interface HeaderProps {
     bg?: string;
 }
 
-export default function Header({
-    bg = "bg-neutral-100",
-}: HeaderProps) {
+export default function Header({ bg = "bg-neutral-100" }: HeaderProps) {
     const path = usePathname();
     const { user } = useAuth();
 
@@ -65,8 +63,7 @@ export default function Header({
                             >
                                 <span
                                     className={classNames(
-                                        "text-sm group-hover:opacity-50",
-                                        isActive ? "!opacity-100" : "opacity-0"
+                                        "text-sm group-hover:opacity-50 opacity-0",
                                     )}
                                 >
                                     ●
@@ -87,6 +84,21 @@ export default function Header({
                         </Link>
                     ) : (
                         <>
+                            <Link
+                                href="/login"
+                                className="group flex items-center justify-center gap-2 text-neutral-600 hover:text-neutral-700"
+                            >
+                                <span
+                                    className={classNames(
+                                        "text-sm group-hover:opacity-50 opacity-0",
+                                    )}
+                                >
+                                    ●
+                                </span>
+                                <AnimatedText className="tracking-tight lowercase font-semibold font-mono">
+                                    login
+                                </AnimatedText>
+                            </Link>
                             <Link
                                 href="/register"
                                 className="group ml-4 flex font-sans font-medium items-center justify-center gap-2 bg-neutral-200 rounded-full text-neutral-900 px-6 py-1.5 pb-2 transition-colors hover:bg-neutral-300"

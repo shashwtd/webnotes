@@ -1,9 +1,12 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { setCorsHeaders, corsMiddleware } from "@/lib/cors";
 
 const SERVER_URL = process.env.SERVER_URL;
 
-export async function GET() {
+export async function GET(request: Request) {
+    const corsCheck = await corsMiddleware(request);
+    if (corsCheck) return corsCheck;
     try {
         const cookieStore = await cookies();
         const sessionCookie = cookieStore
@@ -35,12 +38,18 @@ export async function GET() {
         }
 
         const data = await response.json();
-        return NextResponse.json(data);
+        return setCorsHeaders(NextResponse.json(data));
     } catch (error) {
         console.error("Get user error:", error);
-        return NextResponse.json(
-            { error: "Internal server error" },
-            { status: 500 }
+        return setCorsHeaders(
+            NextResponse.json(
+                { error: "Internal server error" },
+                { status: 500 }
+            )
         );
     }
+}
+
+export async function OPTIONS(request: Request) {
+    return corsMiddleware(request);
 }

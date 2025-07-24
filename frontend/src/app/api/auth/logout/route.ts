@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { setCorsHeaders, corsMiddleware } from "@/lib/cors";
 
 const SERVER_URL = process.env.SERVER_URL;
 
-export async function POST() {
+export async function POST(request: Request) {
+    const corsCheck = await corsMiddleware(request);
+    if (corsCheck) return corsCheck;
     try {
         const response = await fetch(`${SERVER_URL}/accounts/logout`, {
             method: "GET",
@@ -19,12 +22,18 @@ export async function POST() {
         const res = NextResponse.json({ error: null });
         res.cookies.delete("session_token");
 
-        return res;
+        return setCorsHeaders(res);
     } catch (error) {
         console.error("Logout error:", error);
-        return NextResponse.json(
-            { error: "Failed to logout" },
-            { status: 500 }
+        return setCorsHeaders(
+            NextResponse.json(
+                { error: "Failed to logout" },
+                { status: 500 }
+            )
         );
     }
+}
+
+export async function OPTIONS(request: Request) {
+    return corsMiddleware(request);
 }
