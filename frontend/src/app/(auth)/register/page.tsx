@@ -90,6 +90,14 @@ export default function RegisterPage() {
 
         try {
             await register(formData);
+            
+            // we gotta redirect to the next parameter if it's there
+            const params = new URLSearchParams(window.location.search);
+            const nextUrl = params.get('next');
+            
+            if (nextUrl) {
+                window.location.href = nextUrl;
+            }
         } catch (err) {
             console.error("Registration error:", err);
             setFormError("Registration failed. Please try again.");

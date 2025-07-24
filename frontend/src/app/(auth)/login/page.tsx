@@ -23,6 +23,14 @@ export default function LoginPage() {
 
         try {
             await login(formData.usernameOrEmail, formData.password);
+            
+            // we gotta redirect to the next parameter if it's there
+            const params = new URLSearchParams(window.location.search);
+            const nextUrl = params.get('next');
+            
+            if (nextUrl) {
+                window.location.href = nextUrl;
+            }
         } catch (err) {
             setFormError("Invalid username/email or password");
         } finally {
