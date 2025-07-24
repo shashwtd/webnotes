@@ -35,5 +35,6 @@ export async function POST(request: Request) {
 }
 
 export async function OPTIONS(request: Request) {
-    return corsMiddleware(request);
+    const corsResponse = await corsMiddleware(request);
+    return corsResponse || new Response(null, { status: 200 });
 }
