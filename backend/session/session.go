@@ -96,7 +96,7 @@ func JWTOAuthCode(c *fiber.Ctx) (string, error) {
 func ExchangeAuthCode(c *fiber.Ctx, code string) (string, error) {
 	claims := &Claims{}
 
-	token, err := jwt.ParseWithClaims(code, claims, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(code, claims, func(token *jwt.Token) (any, error) {
 		return env.Default.JWTSigningKey, nil
 	})
 	if err != nil {

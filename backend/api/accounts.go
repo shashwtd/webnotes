@@ -35,21 +35,23 @@ func setAccountsGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
 				"error": "failed to create oauth code",
 			})
 		}
-		slog.Info("issued oauth code", "code", code, "time", time.Now().Format(time.RFC3339))
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"error": nil,
 			"code":  code,
 		})
 	})
 
-	router.Get("/exchangeAuthCode", func(c *fiber.Ctx) error {
-		code := c.Query("code")
-		if code == "" {
+	type exchangeAuthCodeExpectedBody struct {
+		Code string `json:"code"`
+	}
+	router.Post("/exchangeAuthCode", handler(func(c *fiber.Ctx, body exchangeAuthCodeExpectedBody) error {
+		if body.Code == "" {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "missing code query parameter",
+				"error": "missing code field",
 			})
 		}
-		sessionToken, err := session.ExchangeAuthCode(c, code)
+		// exchange the code for a session token
+		sessionToken, err := session.ExchangeAuthCode(c, body.Code)
 		if err != nil {
 			slog.Error("exchange auth code for long-lived session", "error", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -60,7 +62,7 @@ func setAccountsGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
 			"error":         nil,
 			"session_token": sessionToken,
 		})
-	})
+	}))
 
 	router.Get("/usernameExists", func(c *fiber.Ctx) error {
 		username := c.Query("username")
