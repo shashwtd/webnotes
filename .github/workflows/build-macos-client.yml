@@ -36,3 +36,9 @@ jobs:
             ext=".exe"
           fi
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o builds/${{ matrix.goos }}-${{ matrix.goarch }}${ext} ./macos_client
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.goos }}-${{ matrix.goarch }}-build
+          path: builds/${{ matrix.goos }}-${{ matrix.goarch }}*
