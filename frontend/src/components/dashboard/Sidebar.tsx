@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -10,9 +10,10 @@ import {
     Clock,
     Laptop,
     ChevronRight,
-    CloudCog,
+    RotateCw,
     Rocket,
     Globe,
+    BookOpen,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import AnimatedText from "@/components/AnimatedText";
@@ -56,7 +57,7 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
     const pathname = usePathname();
-    const [lastSync, setLastSync] = useState("2 hours ago"); // This would come from your state management
+    const [lastSync] = useState("2 hours ago");
 
     return (
         <AnimatePresence mode="wait">
@@ -150,7 +151,7 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
                                     <AnimatedText>Deploy Note</AnimatedText>
                                 </button>
                                 <button className="w-full flex items-center justify-center gap-2 bg-white border border-neutral-200 hover:border-neutral-300 text-neutral-900 py-2.5 px-4 rounded-lg transition-colors group cursor-pointer">
-                                    <CloudCog
+                                    <RotateCw
                                         size={18}
                                         className="text-blue-500 group-hover:rotate-180 transition-transform duration-700"
                                     />
@@ -162,28 +163,43 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
                             </div>
                         </div>
 
-                        {/* Settings Link */}
-                        <Link
-                            href="/dashboard/settings"
-                            className={`absolute bottom-8 left-6 right-6 flex items-center gap-3 py-2 px-3 rounded-lg transition-colors group cursor-pointer ${
-                                pathname === "/dashboard/settings"
-                                    ? "bg-neutral-100 text-neutral-900"
-                                    : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100"
-                            }`}
-                        >
-                            <Settings size={18} />
-                            <span className="text-sm font-medium">
-                                Settings
-                            </span>
-                            <ChevronRight
-                                size={16}
-                                className={`ml-auto transition-opacity ${
+                        {/* Bottom Links */}
+                        <div className="absolute bottom-8 left-6 right-6 space-y-1">
+                            <Link
+                                href="/guide"
+                                className="flex items-center gap-3 py-2 px-3 rounded-lg transition-colors group cursor-pointer text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100"
+                            >
+                                <BookOpen size={18} />
+                                <span className="text-sm font-medium">
+                                    User Guide
+                                </span>
+                                <ChevronRight
+                                    size={16}
+                                    className="ml-auto opacity-0 group-hover:opacity-100"
+                                />
+                            </Link>
+                            <Link
+                                href="/dashboard/settings"
+                                className={`flex items-center gap-3 py-2 px-3 rounded-lg transition-colors group cursor-pointer ${
                                     pathname === "/dashboard/settings"
-                                        ? "opacity-100"
-                                        : "opacity-0 group-hover:opacity-100"
+                                        ? "bg-neutral-100 text-neutral-900"
+                                        : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100"
                                 }`}
-                            />
-                        </Link>
+                            >
+                                <Settings size={18} />
+                                <span className="text-sm font-medium">
+                                    Settings
+                                </span>
+                                <ChevronRight
+                                    size={16}
+                                    className={`ml-auto transition-opacity ${
+                                        pathname === "/dashboard/settings"
+                                            ? "opacity-100"
+                                            : "opacity-0 group-hover:opacity-100"
+                                    }`}
+                                />
+                            </Link>
+                        </div>
                     </motion.aside>
                 </>
             )}
