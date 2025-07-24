@@ -93,12 +93,13 @@ func getLongLivedSessionToken() error {
 			fmt.Fprintf(w, "Session token stored successfully. You can close this window.")
 		}),
 	}
-	go srv.Serve(listener)
+	go srv.Serve(listener) // start the server in a goroutine
 
 	url := fmt.Sprintf("%s/authorize_client?redirectURL=%s", FRONTEND_URL, url.QueryEscape(fmt.Sprintf("http://127.0.0.1:%d", port)))
 	fmt.Printf("Please open the following URL in your browser to authorize the client:\n%s\n", url)
 
 	<-ctx.Done()
+	srv.Shutdown(context.Background()) // shut down the server gracefully
 	fmt.Println("Authorization complete.")
 	return nil
 }
