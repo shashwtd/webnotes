@@ -26,6 +26,42 @@ func setAccountsGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
 		})
 	})
 
+	router.Get("/authcode", sessionMiddleware, func(c *fiber.Ctx) error {
+		// issue oauth code jwt
+		code, err := session.JWTOAuthCode(c)
+		if err != nil {
+			slog.Error("create oauth code", "error", err)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "failed to create oauth code",
+			})
+		}
+		slog.Info("issued oauth code", "code", code, "time", time.Now().Format(time.RFC3339))
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"error": nil,
+			"code":  code,
+		})
+	})
+
+	router.Get("/exchangeAuthCode", func(c *fiber.Ctx) error {
+		code := c.Query("code")
+		if code == "" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "missing code query parameter",
+			})
+		}
+		sessionToken, err := session.ExchangeAuthCode(c, code)
+		if err != nil {
+			slog.Error("exchange auth code for long-lived session", "error", err)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "failed to exchange auth code",
+			})
+		}
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"error":         nil,
+			"session_token": sessionToken,
+		})
+	})
+
 	router.Get("/usernameExists", func(c *fiber.Ctx) error {
 		username := c.Query("username")
 		if username == "" {
@@ -79,7 +115,7 @@ func setAccountsGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
 		}
 
 		// issue a session jwt
-		err = session.NewSession(c, user.ID, time.Hour*24*7) // expires in 7 days
+		err = session.SetSession(c, user.ID, time.Hour*24*7) // expires in 7 days
 		if err != nil {
 			slog.Error("create new session", "error", err)
 			sendError(c, err)
@@ -125,8 +161,8 @@ func setAccountsGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
 			return sendError(c, err)
 		}
 
-		// issue a session jwt
-		err = session.NewSession(c, user.ID, time.Hour*24*7)
+		// issue a session jwt and set it as a cookie
+		err = session.SetSession(c, user.ID, time.Hour*24*7)
 		if err != nil {
 			slog.Error("create new session", "error", err)
 			return sendError(c, err)

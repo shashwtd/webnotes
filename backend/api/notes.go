@@ -11,10 +11,11 @@ import (
 func setNotesGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
 	// /api/v1/notes
 
-	router.Get("/list", sessionMiddleware, listNotes()) // listNotes
+	router.Get("/list", sessionMiddleware, listNotes())  // GET /api/v1/notes/list (list all notes for the user)
+	router.Post("/list", sessionMiddleware, saveNotes()) // POST /api/v1/notes/list (save a list of notes)
 
-	router.Post("/", sessionMiddleware, createNote()) // createNote
-	router.Get("/:id", sessionMiddleware, getNote())  // getNote by ID
+	router.Post("/", sessionMiddleware, createNote()) // POST /api/v1/notes (create a new note)
+	router.Get("/:id", sessionMiddleware, getNote())  // GET /api/v1/notes/:id (get a note by ID)
 }
 
 func listNotes() fiber.Handler {
@@ -27,6 +28,24 @@ func listNotes() fiber.Handler {
 		}
 		return c.JSON(notes) // defaults to 200 OK
 	}
+}
+
+func saveNotes() fiber.Handler {
+	return handler(func(c *fiber.Ctx, body []database.Note) error {
+		if len(body) == 0 {
+			return sendStringError(c, fiber.StatusBadRequest, "no notes provided")
+		}
+		user := c.Locals("user").(*database.User) // ensure user is set in context by session middleware
+		err := env.Default.Database.InsertNotesForUser(user.ID, body)
+		if err != nil {
+			slog.Error("insert notes for user", "error", err)
+			return sendError(c, err)
+		}
+		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+			"message": "notes saved successfully",
+			"error":   nil,
+		})
+	})
 }
 
 func createNote() fiber.Handler {

@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"os"
 	"time"
+
+	"github.com/zalando/go-keyring"
 )
 
 var isWorker bool
@@ -19,11 +21,11 @@ func init() {
 func main() {
 	var err error
 	if isWorker {
-		err = runWorker()
+		err = runWorker(getSessionTokenFromKR())
 	} else if isFakeWorker {
-		err = doWorker()
+		err = doWorker(getSessionTokenFromKR())
 	} else {
-		err = createJob()
+		err = initializeService()
 	}
 	if err != nil {
 		slog.Error("error occurred", "error", err, "time", time.Now().Format(time.RFC3339))
@@ -32,10 +34,19 @@ func main() {
 	slog.Info("operation completed successfully", "time", time.Now().Format(time.RFC3339))
 }
 
-func runWorker() error {
-	doWorker() // will ask for permissions to run the AppleScript
-	for range time.Tick(time.Second * 250) {
-		err := doWorker()
+func getSessionTokenFromKR() string {
+	token, err := keyring.Get("webnotes", "session_token")
+	if err != nil {
+		slog.Error("get token from keyring", "error", err, "time", time.Now().Format(time.RFC3339))
+		os.Exit(1)
+	}
+	return token
+}
+
+func runWorker(session_token string) error {
+	doWorker(session_token) // will ask for permissions to run the AppleScript
+	for range time.Tick(time.Second * 50) {
+		err := doWorker(session_token)
 		if err != nil {
 			slog.Error("worker error", "error", err, "time", time.Now().Format(time.RFC3339))
 		}

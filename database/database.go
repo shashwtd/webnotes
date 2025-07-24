@@ -8,6 +8,7 @@ import (
 
 // NOTE: json tag must match the column names in supabase
 
+// User represents a user in the database.
 type User struct {
 	ID        string `json:"id,omitempty"`
 	CreatedAt string `json:"created_at,omitempty"`
@@ -21,6 +22,7 @@ type User struct {
 	ProfilePictureURL string `json:"profile_picture_url"`
 }
 
+// Note represents a note in the database.
 type Note struct {
 	ID               string `json:"id,omitempty"`
 	UserID           string `json:"user_id"` // fk to users
@@ -33,10 +35,12 @@ type Note struct {
 	Body             string `json:"body,omitempty"`
 }
 
+// DB is a wrapper around the Supabase client for database operations.
 type DB struct {
 	client *supabase.Client
 }
 
+// GetUserByID retrieves a user by their ID.
 func (db *DB) GetUserByID(userID string) (*User, error) {
 	var user User
 	_, err := db.client.From("users").Select("*", "", false).Eq("id", userID).Single().ExecuteTo(&user)
@@ -46,6 +50,7 @@ func (db *DB) GetUserByID(userID string) (*User, error) {
 	return &user, nil
 }
 
+// GetUserByEmail retrieves a user by their email address.
 func (db *DB) GetUserByEmail(email string) (*User, error) {
 	var user User
 	_, err := db.client.From("users").Select("*", "", false).Eq("email", email).Single().ExecuteTo(&user)
@@ -55,6 +60,7 @@ func (db *DB) GetUserByEmail(email string) (*User, error) {
 	return &user, nil
 }
 
+// GetUserByUsername retrieves a user by their username.
 func (db *DB) GetUserByUsername(username string) (*User, error) {
 	var user User
 	_, err := db.client.From("users").Select("*", "", false).Eq("username", username).Single().ExecuteTo(&user)
@@ -64,6 +70,7 @@ func (db *DB) GetUserByUsername(username string) (*User, error) {
 	return &user, nil
 }
 
+// UsernameExists checks if a username already exists in the database.
 func (db *DB) UsernameExists(username string) (bool, error) {
 	_, ct, err := db.client.From("users").Select("*", "exact", true).Eq("username", username).Execute()
 	if err != nil {
@@ -72,6 +79,7 @@ func (db *DB) UsernameExists(username string) (bool, error) {
 	return ct > 0, nil
 }
 
+// InsertUser inserts a new user into the database and populated the given user with its ID.
 func (db *DB) InsertUser(user *User) error {
 	var ret []User
 	_, err := db.client.From("users").Insert(user, false, "", "", "").ExecuteTo(&ret)
@@ -122,6 +130,20 @@ func (db *DB) InsertNote(note *Note) error {
 	return nil
 }
 
+// InsertNotesForUser inserts multiple notes for a specific user.
+func (db *DB) InsertNotesForUser(userID string, notes []Note) error {
+	for i := range notes {
+		notes[i].UserID = userID
+	}
+
+	_, _, err := db.client.From("notes").Insert(notes, true, "", "", "").Execute()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// GetSourceIdentifiersByUserID retrieves all source identifiers for a specific user.
 func (db *DB) GetSourceIdentifiersByUserID(userID string) ([]string, error) {
 	var identifiers []string
 	_, err := db.client.From("notes").Select("source_identifier", "", false).Eq("user_id", userID).ExecuteTo(&identifiers)
