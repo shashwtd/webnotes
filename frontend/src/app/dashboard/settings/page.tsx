@@ -2,22 +2,23 @@
 
 import { useState } from "react";
 import { Camera, Save } from "lucide-react";
+import Image from "next/image";
 
 interface SettingsForm {
+    username: string;
     name: string;
-    email: string;
-    urlHandle: string;
-    blogTitle: string;
-    blogDescription: string;
+    email_address: string;
+    description: string;
+    profile_picture_url: string;
 }
 
 export default function SettingsPage() {
     const [form, setForm] = useState<SettingsForm>({
-        name: "John Doe",
-        email: "john@example.com",
-        urlHandle: "johndoe",
-        blogTitle: "John's Notes",
-        blogDescription: "Thoughts and notes about technology and life.",
+        username: "",
+        name: "",
+        email_address: "",
+        description: "",
+        profile_picture_url: "",
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -27,11 +28,11 @@ export default function SettingsPage() {
     };
 
     return (
-        <div className="max-w-2xl mx-auto space-y-8">
+        <div className="max-w-4xl mx-auto space-y-8">
             <div>
-                <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
+                <h1 className="text-2xl font-semibold tracking-tight">Account Settings</h1>
                 <p className="text-neutral-500 mt-1">
-                    Manage your account and blog preferences.
+                    Manage your profile and account preferences.
                 </p>
             </div>
 
@@ -41,9 +42,19 @@ export default function SettingsPage() {
                     <h2 className="text-lg font-medium mb-4">Profile</h2>
                     <div className="flex items-start gap-6 mb-6">
                         <div className="relative group">
-                            <div className="h-20 w-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-2xl text-white font-medium">
-                                {form.name[0]}
-                            </div>
+                            {form.profile_picture_url ? (
+                                <Image
+                                    src={form.profile_picture_url}
+                                    alt={form.name}
+                                    width={80}
+                                    height={80}
+                                    className="rounded-full object-cover"
+                                />
+                            ) : (
+                                <div className="h-20 w-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-2xl text-white font-medium">
+                                    {form.name[0]}
+                                </div>
+                            )}
                             <button
                                 type="button"
                                 className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
@@ -70,99 +81,86 @@ export default function SettingsPage() {
                                         }))
                                     }
                                     className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                    placeholder="Your full name"
                                 />
+                            </div>
+                            <div>
+                                <label
+                                    htmlFor="username"
+                                    className="block text-sm font-medium text-neutral-700 mb-1"
+                                >
+                                    Username
+                                </label>
+                                <div className="flex items-center">
+                                    <span className="text-neutral-500 mr-2">
+                                        @
+                                    </span>
+                                    <input
+                                        type="text"
+                                        id="username"
+                                        value={form.username}
+                                        onChange={(e) =>
+                                            setForm((prev) => ({
+                                                ...prev,
+                                                username: e.target.value,
+                                            }))
+                                        }
+                                        className="flex-1 px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                        placeholder="your-username"
+                                    />
+                                </div>
+                                <p className="mt-1 text-sm text-neutral-500">
+                                    This will be your unique URL: webnotes.co/@{form.username}
+                                </p>
                             </div>
                             <div>
                                 <label
                                     htmlFor="email"
                                     className="block text-sm font-medium text-neutral-700 mb-1"
                                 >
-                                    Email
+                                    Email Address
                                 </label>
                                 <input
                                     type="email"
                                     id="email"
-                                    value={form.email}
+                                    value={form.email_address}
                                     onChange={(e) =>
                                         setForm((prev) => ({
                                             ...prev,
-                                            email: e.target.value,
+                                            email_address: e.target.value,
                                         }))
                                     }
                                     className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                                    placeholder="you@example.com"
                                 />
                             </div>
                         </div>
                     </div>
                 </section>
 
-                {/* Blog Settings */}
+                {/* Additional Info */}
                 <section className="bg-white border border-neutral-200 rounded-xl p-6">
-                    <h2 className="text-lg font-medium mb-4">Blog Settings</h2>
+                    <h2 className="text-lg font-medium mb-4">About You</h2>
                     <div className="space-y-4">
                         <div>
                             <label
-                                htmlFor="urlHandle"
+                                htmlFor="description"
                                 className="block text-sm font-medium text-neutral-700 mb-1"
                             >
-                                URL Handle
-                            </label>
-                            <div className="flex items-center">
-                                <span className="text-neutral-500 mr-2">
-                                    webnotes.co/
-                                </span>
-                                <input
-                                    type="text"
-                                    id="urlHandle"
-                                    value={form.urlHandle}
-                                    onChange={(e) =>
-                                        setForm((prev) => ({
-                                            ...prev,
-                                            urlHandle: e.target.value,
-                                        }))
-                                    }
-                                    className="flex-1 px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                                />
-                            </div>
-                        </div>
-                        <div>
-                            <label
-                                htmlFor="blogTitle"
-                                className="block text-sm font-medium text-neutral-700 mb-1"
-                            >
-                                Blog Title
-                            </label>
-                            <input
-                                type="text"
-                                id="blogTitle"
-                                value={form.blogTitle}
-                                onChange={(e) =>
-                                    setForm((prev) => ({
-                                        ...prev,
-                                        blogTitle: e.target.value,
-                                    }))
-                                }
-                                className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                            />
-                        </div>
-                        <div>
-                            <label
-                                htmlFor="blogDescription"
-                                className="block text-sm font-medium text-neutral-700 mb-1"
-                            >
-                                Blog Description
+                                Bio
                             </label>
                             <textarea
-                                id="blogDescription"
-                                value={form.blogDescription}
+                                id="description"
+                                value={form.description}
                                 onChange={(e) =>
                                     setForm((prev) => ({
                                         ...prev,
-                                        blogDescription: e.target.value,
+                                        description: e.target.value,
                                     }))
                                 }
-                                rows={3}
+                                rows={4}
                                 className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 resize-none"
+                                placeholder="Tell us a bit about yourself..."
                             />
                         </div>
                     </div>

@@ -3,10 +3,11 @@
 import classNames from "classnames";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ArrowRight } from "lucide-react";
 import AnimatedText from "./AnimatedText";
+import { useAuth } from "@/context/AuthContext";
 
-const links: {
+const publicLinks: {
     href: string;
     label: string;
 }[] = [
@@ -18,10 +19,6 @@ const links: {
         href: "/get-started",
         label: "guide",
     },
-    {
-        href: "/login",
-        label: "login",
-    },
 ];
 
 interface HeaderProps {
@@ -29,11 +26,9 @@ interface HeaderProps {
     isAuthPage?: boolean;
 }
 
-export default function Header({
-    bg = "bg-neutral-100",
-    isAuthPage = false,
-}: HeaderProps) {
+export default function Header({ bg = "bg-neutral-100", isAuthPage = false }: HeaderProps) {
     const path = usePathname();
+    const { user } = useAuth();
 
     return (
         <div
@@ -55,42 +50,72 @@ export default function Header({
                     <span>web</span>
                 </Link>
                 <nav className="flex flex-col md:flex-row gap-0 md:gap-4 items-start md:items-center">
-                    {links.map((link, i) => {
-                        const isActive = path === link.href;
-                        return (
+                    {!isAuthPage && (
+                        <>
+                            {publicLinks.map((link, i) => {
+                                const isActive = path === link.href;
+                                return (
+                                    <Link
+                                        key={i}
+                                        href={link.href}
+                                        className={`group flex items-center justify-center gap-2 ${
+                                            isActive
+                                                ? "text-neutral-900 pointer-events-none"
+                                                : "text-neutral-600 hover:text-neutral-700"
+                                        }`}
+                                    >
+                                        <span
+                                            className={classNames(
+                                                "text-sm group-hover:opacity-50 opacity-0",
+                                            )}
+                                        >
+                                            ●
+                                        </span>
+                                        <AnimatedText className="tracking-tight lowercase font-semibold font-mono">
+                                            {link.label}
+                                        </AnimatedText>
+                                    </Link>
+                                );
+                            })}
+                        </>
+                    )}
+                    {!isAuthPage && (user ? (
+                        <Link
+                            href="/dashboard"
+                            className="group ml-4 flex font-sans font-medium items-center justify-center gap-2 bg-neutral-200 rounded-full text-neutral-900 px-6 py-1.5 pb-2 transition-colors hover:bg-neutral-300"
+                        >
+                            <AnimatedText>dashboard</AnimatedText>
+                            <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
+                        </Link>
+                    ) : (
+                        <>
                             <Link
-                                key={i}
-                                href={link.href}
-                                className={`group flex items-center justify-center gap-2 ${
-                                    isActive
-                                        ? "text-neutral-900 pointer-events-none"
-                                        : "text-neutral-600 hover:text-neutral-700"
-                                }`}
+                                href="/login"
+                                className="group flex items-center justify-center gap-2 text-neutral-600 hover:text-neutral-700"
                             >
                                 <span
                                     className={classNames(
-                                        "text-sm group-hover:opacity-50",
-                                        isActive ? "!opacity-100" : "opacity-0"
+                                        "text-sm group-hover:opacity-50 opacity-0",
                                     )}
                                 >
                                     ●
                                 </span>
                                 <AnimatedText className="tracking-tight lowercase font-semibold font-mono">
-                                    {link.label}
+                                    login
                                 </AnimatedText>
                             </Link>
-                        );
-                    })}
-                    <Link
-                        href="/register"
-                        className="group ml-4 flex font-sans font-medium items-center justify-center gap-2 bg-neutral-200 rounded-full text-neutral-900 px-6 py-1.5 pb-2 transition-colors"
-                    >
-                        <AnimatedText>register</AnimatedText>
-                        <ChevronRight
-                            className="-mr-1 group-hover:translate-x-1 duration-200"
-                            size={16}
-                        />
-                    </Link>
+                            <Link
+                                href="/register"
+                                className="group ml-4 flex font-sans font-medium items-center justify-center gap-2 bg-neutral-200 rounded-full text-neutral-900 px-6 py-1.5 pb-2 transition-colors hover:bg-neutral-300"
+                            >
+                                <AnimatedText>register</AnimatedText>
+                                <ChevronRight
+                                    className="-mr-1 group-hover:translate-x-1 duration-200"
+                                    size={16}
+                                />
+                            </Link>
+                        </>
+                    ))}
                 </nav>
             </div>
         </div>
