@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
-export default function AuthorizeClientPage() {
+function AuthorizeClientContent() {
     const { user, isLoading } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -69,5 +68,20 @@ export default function AuthorizeClientPage() {
                 <p className="text-neutral-600">Authorizing client...</p>
             </div>
         </div>
+    );
+}
+
+export default function AuthorizeClientPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex flex-col items-center justify-center min-h-[60vh] p-6">
+                <div className="flex items-center gap-3">
+                    <div className="w-5 h-5 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+                    <p className="text-neutral-600">Loading...</p>
+                </div>
+            </div>
+        }>
+            <AuthorizeClientContent />
+        </Suspense>
     );
 }

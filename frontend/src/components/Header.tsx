@@ -23,9 +23,10 @@ const publicLinks: {
 
 interface HeaderProps {
     bg?: string;
+    isAuthPage?: boolean;
 }
 
-export default function Header({ bg = "bg-neutral-100" }: HeaderProps) {
+export default function Header({ bg = "bg-neutral-100", isAuthPage = false }: HeaderProps) {
     const path = usePathname();
     const { user } = useAuth();
 
@@ -49,32 +50,36 @@ export default function Header({ bg = "bg-neutral-100" }: HeaderProps) {
                     <span>web</span>
                 </Link>
                 <nav className="flex flex-col md:flex-row gap-0 md:gap-4 items-start md:items-center">
-                    {publicLinks.map((link, i) => {
-                        const isActive = path === link.href;
-                        return (
-                            <Link
-                                key={i}
-                                href={link.href}
-                                className={`group flex items-center justify-center gap-2 ${
-                                    isActive
-                                        ? "text-neutral-900 pointer-events-none"
-                                        : "text-neutral-600 hover:text-neutral-700"
-                                }`}
-                            >
-                                <span
-                                    className={classNames(
-                                        "text-sm group-hover:opacity-50 opacity-0",
-                                    )}
-                                >
-                                    ●
-                                </span>
-                                <AnimatedText className="tracking-tight lowercase font-semibold font-mono">
-                                    {link.label}
-                                </AnimatedText>
-                            </Link>
-                        );
-                    })}
-                    {user ? (
+                    {!isAuthPage && (
+                        <>
+                            {publicLinks.map((link, i) => {
+                                const isActive = path === link.href;
+                                return (
+                                    <Link
+                                        key={i}
+                                        href={link.href}
+                                        className={`group flex items-center justify-center gap-2 ${
+                                            isActive
+                                                ? "text-neutral-900 pointer-events-none"
+                                                : "text-neutral-600 hover:text-neutral-700"
+                                        }`}
+                                    >
+                                        <span
+                                            className={classNames(
+                                                "text-sm group-hover:opacity-50 opacity-0",
+                                            )}
+                                        >
+                                            ●
+                                        </span>
+                                        <AnimatedText className="tracking-tight lowercase font-semibold font-mono">
+                                            {link.label}
+                                        </AnimatedText>
+                                    </Link>
+                                );
+                            })}
+                        </>
+                    )}
+                    {!isAuthPage && (user ? (
                         <Link
                             href="/dashboard"
                             className="group ml-4 flex font-sans font-medium items-center justify-center gap-2 bg-neutral-200 rounded-full text-neutral-900 px-6 py-1.5 pb-2 transition-colors hover:bg-neutral-300"
@@ -110,7 +115,7 @@ export default function Header({ bg = "bg-neutral-100" }: HeaderProps) {
                                 />
                             </Link>
                         </>
-                    )}
+                    ))}
                 </nav>
             </div>
         </div>
