@@ -8,6 +8,7 @@ import (
 	"github.com/shashwtd/webnotes/database"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func main() {
@@ -26,6 +27,17 @@ func main() {
 	}
 
 	app := fiber.New()
+	if env.Default.Debug {
+		app.Use(cors.New(cors.Config{
+			AllowOrigins:     "http://localhost:3000",
+			AllowCredentials: true,
+		}))
+	} else {
+		app.Use(cors.New(cors.Config{
+			AllowOrigins:     "https://webnotes-murex.vercel.app",
+			AllowCredentials: true,
+		}))
+	}
 
 	apiGroup := app.Group("/api")
 	api.SetAPIGroup(apiGroup)

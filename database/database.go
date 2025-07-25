@@ -2,7 +2,12 @@ package database
 
 import (
 	"fmt"
+	"io"
+	"mime"
+	"path/filepath"
 
+	"github.com/google/uuid"
+	storage_go "github.com/supabase-community/storage-go"
 	"github.com/supabase-community/supabase-go"
 )
 
@@ -37,7 +42,8 @@ type Note struct {
 
 // DB is a wrapper around the Supabase client for database operations.
 type DB struct {
-	client *supabase.Client
+	client        *supabase.Client
+	pfps_bucketid string
 }
 
 // GetUserByID retrieves a user by their ID.
@@ -153,6 +159,42 @@ func (db *DB) GetSourceIdentifiersByUserID(userID string) ([]string, error) {
 	return identifiers, nil
 }
 
+// UpdateUserDescription updates the description of a user in the database. It expects the user
+// to have the new description set.
+func (db *DB) UpdateUserDescription(user *User) error {
+	_, _, err := db.client.From("users").Update(map[string]string{
+		"description": user.Description,
+	}, "", "").Eq("id", user.ID).Execute()
+	return err
+}
+
+// UpdateUserProfilePictureURL updates the profile picture URL of a user in the database.
+// It expects the user to have the new profile picture URL set.
+func (db *DB) UpdateUserProfilePictureURL(user *User) error {
+	_, _, err := db.client.From("users").Update(map[string]string{
+		"profile_picture_url": user.ProfilePictureURL,
+	}, "", "").Eq("id", user.ID).Execute()
+	return err
+}
+
+// SaveProfilePicture saves a profile picture to the storage and returns its blob URL.
+func (db *DB) SaveProfilePicture(file io.Reader, name string) (string, error) {
+	id := uuid.New()
+	ext := filepath.Ext(name)
+	filename := id.String() + ext
+	ct := mime.TypeByExtension(ext)
+	_, err := db.client.Storage.UpdateFile(db.pfps_bucketid, filename, file, storage_go.FileOptions{
+		ContentType: &ct,
+	})
+	if err != nil {
+		return "", fmt.Errorf("save profile picture: %w", err)
+	}
+	return db.client.Storage.GetPublicUrl(
+		db.pfps_bucketid,
+		filename,
+		storage_go.UrlOptions{}).SignedURL, nil
+}
+
 // Database returns a new instance of DB initialized with the Supabase client.
 func Database(sbURL, sbKey string) (*DB, error) {
 	client, err := supabase.NewClient(sbURL, sbKey, nil)
@@ -160,7 +202,12 @@ func Database(sbURL, sbKey string) (*DB, error) {
 		return nil, err
 	}
 
-	db := &DB{client: client}
+	pfpBucketInfo, err := client.Storage.GetBucket("pfps")
+	if err != nil {
+		return nil, fmt.Errorf("get pfps bucket info: %w", err)
+	}
+
+	db := &DB{client: client, pfps_bucketid: pfpBucketInfo.Id}
 
 	return db, nil
 }
