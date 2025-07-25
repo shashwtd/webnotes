@@ -18,22 +18,26 @@ func script(delim string) string {
 	return fmt.Sprintf(`
 tell application "Notes"
 	repeat with eachNote in every note
-		set noteId to the id of eachNote
-		set noteTitle to the name of eachNote
-		set noteBody to the body of eachNote
-		set noteCreatedDate to the creation date of eachNote
-		set noteCreated to (noteCreatedDate as «class isot» as string)
-		set noteUpdatedDate to the modification date of eachNote
-		set noteUpdated to (noteUpdatedDate as «class isot» as string)
 		set noteContainer to container of eachNote
-		set noteFolderId to the id of noteContainer
-		log "%s-id: " & noteId
-		log "%s-created: " & noteCreated
-		log "%s-updated: " & noteUpdated
-		log "%s-folder: " & noteFolderId
-		log "%s-title: " & noteTitle
-		log noteBody
-		log "%s%s"
+		set folderName to the name of noteContainer
+
+		if folderName is not "Recently Deleted" then
+			set noteId to the id of eachNote
+			set noteTitle to the name of eachNote
+			set noteBody to the body of eachNote
+			set noteCreatedDate to the creation date of eachNote
+			set noteCreated to (noteCreatedDate as «class isot» as string)
+			set noteUpdatedDate to the modification date of eachNote
+			set noteUpdated to (noteUpdatedDate as «class isot» as string)
+			set noteFolderId to the id of noteContainer
+			log "%s-id: " & noteId
+			log "%s-created: " & noteCreated
+			log "%s-updated: " & noteUpdated
+			log "%s-folder: " & noteFolderId
+			log "%s-title: " & noteTitle
+			log noteBody
+			log "%s%s"
+		end if
 	end repeat
 end tell
 `, delim, delim, delim, delim, delim, delim, delim)
@@ -60,7 +64,7 @@ func extractNotes() ([]database.Note, error) {
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if line == delim+delim {
-			if note.ID != "" {
+			if note.SourceIdentifier != "" {
 				note.Body = strings.TrimSpace(strings.Join(bodyLines, "\n"))
 				if note.Body == "" {
 					// if body is empty, we're going to skip this note
@@ -81,11 +85,11 @@ func extractNotes() ([]database.Note, error) {
 				val := strings.TrimPrefix(line, prefix)
 				switch field {
 				case "id":
-					note.ID = val
+					note.SourceIdentifier = val
 				case "created":
-					note.Created = val
+					note.CreatedAt = val
 				case "updated":
-					note.Updated = val
+					note.UpdatedAt = val
 				case "title":
 					note.Title = val
 				}

@@ -9,6 +9,8 @@ import (
 )
 
 type Environment struct {
+	Debug bool // DEBUG
+
 	SupabaseURL            string // SUPABASE_URL
 	SupabaseServiceRoleKey string // SUPABASE_SR_KEY
 	SupabaseAnonKey        string // SUPABASE_ANON_KEY
@@ -21,6 +23,7 @@ type Environment struct {
 var Default Environment
 
 func Load() error {
+	Default.Debug = os.Getenv("DEBUG") == "true"
 	Default.SupabaseURL = os.Getenv("SUPABASE_URL")
 	Default.SupabaseServiceRoleKey = os.Getenv("SUPABASE_SR_KEY")
 	Default.SupabaseAnonKey = os.Getenv("SUPABASE_ANON_KEY")
