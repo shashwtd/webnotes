@@ -33,6 +33,10 @@ func sendError(c *fiber.Ctx, err error) error {
 		statusCode = fiber.StatusNotFound
 		newErrorMessage = "the requested resource was not found"
 	}
+	if strings.Contains(errMessage, "request Content-Type has bad boundary or is not multipart/form-data") {
+		statusCode = fiber.StatusBadRequest
+		newErrorMessage = "the request is not a valid multipart/form-data request (hint: no file uploaded or invalid content type)"
+	}
 	return c.Status(statusCode).JSON(fiber.Map{
 		"error": newErrorMessage,
 	})

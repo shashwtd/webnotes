@@ -27,7 +27,6 @@ func setAccountsGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
 	router.Post("/login", loginHandler())
 	router.Post("/register", registerHandler())
 	router.Get("/logout", logoutHandler())
-
 }
 
 func getMeHandler() fiber.Handler {
@@ -98,7 +97,7 @@ func usernameExistsHandler() fiber.Handler {
 		if err != nil {
 			slog.Error("check if username exists", "error", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "failed to check if username exists",
+				"exists": false,
 			})
 		}
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{

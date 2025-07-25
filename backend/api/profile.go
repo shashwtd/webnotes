@@ -46,33 +46,25 @@ func editProfilePictureHandler() fiber.Handler {
 		fh, err := c.FormFile("profile_picture")
 		if err != nil {
 			slog.Error("get profile picture file", "error", err)
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "could not get profile picture file",
-			})
+			return sendError(c, err)
 		}
 
 		file, err := fh.Open()
 		if err != nil {
 			slog.Error("open profile picture file", "error", err)
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "could not open profile picture file",
-			})
+			sendError(c, err)
 		}
 
 		pfpURL, err := env.Default.Database.SaveProfilePicture(file, fh.Filename)
 		if err != nil {
 			slog.Error("save profile picture", "error", err)
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "could not save profile picture",
-			})
+			sendError(c, err)
 		}
 		user.ProfilePictureURL = pfpURL
 		err = env.Default.Database.UpdateUserProfilePictureURL(user)
 		if err != nil {
 			slog.Error("update user profile picture URL", "error", err)
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "could not update profile picture URL",
-			})
+			sendError(c, err)
 		}
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"error":               nil,

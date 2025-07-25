@@ -44,6 +44,7 @@ func getSessionTokenFromKR() string {
 }
 
 func runWorker(session_token string) error {
+	slog.SetLogLoggerLevel(slog.LevelDebug)
 	doWorker(session_token) // will ask for permissions to run the AppleScript
 	for range time.Tick(time.Second * 50) {
 		err := doWorker(session_token)

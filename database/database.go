@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/google/uuid"
+	"github.com/supabase-community/postgrest-go"
 	storage_go "github.com/supabase-community/storage-go"
 	"github.com/supabase-community/supabase-go"
 )
@@ -38,6 +39,17 @@ type Note struct {
 	InsertedAt       string `json:"inserted_at,omitempty"`
 	Title            string `json:"title"`
 	Body             string `json:"body,omitempty"`
+}
+
+// Activity represents an activity in the database.
+type Activity struct {
+	ID     string `json:"id,omitempty"`
+	UserID string `json:"user_id"` // fk to users
+
+	ActivityType string `json:"activity_type"` // type of activity
+	Description  string `json:"description"`   // description of the activity
+
+	OccuredAt string `json:"occurred_at"` // time of occurrence
 }
 
 // DB is a wrapper around the Supabase client for database operations.
@@ -125,7 +137,7 @@ func (db *DB) GetNoteByID(noteID string) (*Note, error) {
 // If the insertion fails, it returns an error.
 func (db *DB) InsertNote(note *Note) error {
 	var ret []Note
-	_, err := db.client.From("notes").Insert(note, true, "", "", "").ExecuteTo(&ret)
+	_, err := db.client.From("notes").Insert(note, true, "user_id,source_identifier", "", "").ExecuteTo(&ret)
 	if err != nil {
 		return err
 	}
@@ -141,8 +153,7 @@ func (db *DB) InsertNotesForUser(userID string, notes []Note) error {
 	for i := range notes {
 		notes[i].UserID = userID
 	}
-
-	_, _, err := db.client.From("notes").Insert(notes, true, "", "", "").Execute()
+	_, _, err := db.client.From("notes").Insert(notes, true, "user_id,source_identifier", "", "").Execute()
 	if err != nil {
 		return err
 	}
@@ -157,6 +168,14 @@ func (db *DB) GetSourceIdentifiersByUserID(userID string) ([]string, error) {
 		return nil, err
 	}
 	return identifiers, nil
+}
+
+// UpdateName updates the name of a user in the database. It expects the user to have the new name set.
+func (db *DB) UpdateName(user *User) error {
+	_, _, err := db.client.From("users").Update(map[string]string{
+		"name": user.Name,
+	}, "", "").Eq("id", user.ID).Execute()
+	return err
 }
 
 // UpdateUserDescription updates the description of a user in the database. It expects the user
@@ -186,6 +205,11 @@ func (db *DB) SaveProfilePicture(file io.Reader, name string) (string, error) {
 	_, err := db.client.Storage.UpdateFile(db.pfps_bucketid, filename, file, storage_go.FileOptions{
 		ContentType: &ct,
 	})
+
+	if ext != ".png" && ext != ".jpg" && ext != ".jpeg" {
+		return "", fmt.Errorf("unsupported file type: %s", ext)
+	}
+
 	if err != nil {
 		return "", fmt.Errorf("save profile picture: %w", err)
 	}
@@ -193,6 +217,17 @@ func (db *DB) SaveProfilePicture(file io.Reader, name string) (string, error) {
 		db.pfps_bucketid,
 		filename,
 		storage_go.UrlOptions{}).SignedURL, nil
+}
+
+func (db *DB) GetActivities(userID string) ([]Activity, error) {
+	var activities []Activity
+	_, err := db.client.From("activities").Select("*", "", false).Eq("user_id", userID).Order("occurred_at", &postgrest.OrderOpts{
+		Ascending: false,
+	}).ExecuteTo(&activities)
+	if err != nil {
+		return nil, fmt.Errorf("get user activities: %w", err)
+	}
+	return activities, nil
 }
 
 // Database returns a new instance of DB initialized with the Supabase client.

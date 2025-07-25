@@ -52,14 +52,16 @@ func extractNotes() ([]database.Note, error) {
 	cmd := exec.Command("osascript", "-e", s)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
+		fmt.Println("output of applescript")
+		fmt.Println(string(output))
 		return nil, fmt.Errorf("running AppleScript: %w", err)
 	}
 
 	// start parsin'
 	scanner := bufio.NewScanner(bytes.NewReader(output))
 	var notes []database.Note
-	note := database.Note{}
 	bodyLines := []string{}
+	note := database.Note{}
 
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
@@ -73,7 +75,9 @@ func extractNotes() ([]database.Note, error) {
 				}
 				notes = append(notes, note)
 			}
-			note = database.Note{}
+			note = database.Note{
+				Source: "apple-notes",
+			}
 			bodyLines = []string{}
 			continue
 		}
