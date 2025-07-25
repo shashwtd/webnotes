@@ -15,6 +15,8 @@ func SetAPIGroup(group fiber.Router) {
 	setAccountsGroup(accountsRouter, sessionMiddleware)
 	notesRouter := v1.Group("/notes")
 	setNotesGroup(notesRouter, sessionMiddleware)
+	profileRouter := v1.Group("/profile")
+	setProfileGroup(profileRouter, sessionMiddleware)
 
 	v1.Get("/supabase", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
