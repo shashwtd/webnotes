@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { Eye, EyeOff, ChevronRight, Check, Loader2 } from "lucide-react";
 import AnimatedText from "@/components/AnimatedText";
 import { useAuth } from "@/context/AuthContext";
-import debounce from "lodash/debounce";
 
 export default function RegisterPage() {
     const { register } = useAuth();
@@ -18,6 +17,8 @@ export default function RegisterPage() {
         password: "",
     });
     const [formError, setFormError] = useState<string | null>(null);
+
+    const [usernameTouched, setUsernameTouched] = useState(false);
     const [usernameStatus, setUsernameStatus] = useState<{
         loading: boolean;
         valid: boolean;
@@ -28,59 +29,48 @@ export default function RegisterPage() {
         error: null,
     });
 
-    const debouncedUsernameCheck = useMemo(
-        () => debounce(async (username: string) => {
-            if (!username) {
-                return {
-                    loading: false,
-                    valid: false,
-                    error: "Username is required"
-                };
-            }
-
-            // Check minimum length before making API call
-            if (username.length < 4) {
-                return {
-                    loading: false,
-                    valid: false,
-                    error: "Username must be at least 4 characters long"
-                };
-            }
-
-            try {
-                const response = await fetch(`/api/auth/usernameExists?username=${username}`);
-                const data = await response.json();
-
-                return {
-                    loading: false,
-                    valid: !data.exists,
-                    error: data.error || (data.exists ? "Username is already taken" : null)
-                };
-            } catch (error) {
-                console.error("Username check error:", error);
-                return {
-                    loading: false,
-                    valid: false,
-                    error: "Failed to check username"
-                };
-            }
-        }, 500),
-        []
-    );
 
     const checkUsername = useCallback(async (username: string) => {
-        setUsernameStatus(prev => ({ ...prev, loading: true }));
-        const result = await debouncedUsernameCheck(username);
-        if (result) {
-            setUsernameStatus(result);
+        if (!usernameTouched) return;
+
+        if (username.length >= 3) {
+            setUsernameStatus({
+                loading: true,
+                valid: false,
+                error: null
+            });
+        } else {
+            setUsernameStatus({
+                loading: false,
+                valid: false,
+                error: null
+            });
+            return;
         }
-    }, [debouncedUsernameCheck]);
+
+        try {
+            const response = await fetch(`/api/auth/usernameExists?username=${username}`);
+            const data = await response.json();
+
+            setUsernameStatus({
+                loading: false,
+                valid: !data.exists,
+                error: data.exists ? "Username is already taken" : null
+            });
+        } catch (error) {
+            setUsernameStatus({
+                loading: false,
+                valid: false,
+                error: "Failed to check username"
+            });
+            console.error("Username check error:", error);
+        }
+    }, [usernameTouched]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setFormError(null);
 
-        // Validate username first
         if (!formData.username) {
             setFormError("Username is required");
             return;
@@ -112,13 +102,18 @@ export default function RegisterPage() {
     };
 
     useEffect(() => {
-        if (formData.username) {
+        const timer = setTimeout(() => {
             checkUsername(formData.username);
-        }
+        }, 500);
+        
+        return () => clearTimeout(timer);
     }, [formData.username, checkUsername]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
+        if (name === 'username' && !usernameTouched) {
+            setUsernameTouched(true);
+        }
         setFormData((prev) => ({
             ...prev,
             [name]: value,
@@ -179,7 +174,7 @@ export default function RegisterPage() {
                             }`}
                             placeholder="johndoe"
                             required
-                            minLength={4}
+                            minLength={3}
                         />
                         <div className="absolute right-3 p-1 top-1/2 -translate-y-1/2 [&:has(~[data-bw-frame])]:right-8">
                             {usernameStatus.loading ? (
@@ -190,7 +185,7 @@ export default function RegisterPage() {
                         </div>
                     </div>
                     <p className="mt-1.5 text-xs text-neutral-500">
-                        Must be at least 4 characters
+                        Must be at least 3 characters, letters and numbers only
                     </p>
                     {usernameStatus.error && (
                         <p className="mt-1 text-xs text-red-500">
