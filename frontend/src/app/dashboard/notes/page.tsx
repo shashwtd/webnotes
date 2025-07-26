@@ -2,113 +2,97 @@
 
 import { useState, useEffect } from "react";
 import { Note, listNotes } from "@/lib/api/notes";
-import { MoreHorizontal, FileText, Rocket, ExternalLink, Trash2, Edit } from "lucide-react";
+import { FileText, Clock, ChevronDown } from "lucide-react";
+import { usePopup } from "@/context/usePopup";
+import { RecentNoteCard } from "@/components/notes/RecentNoteCard";
+import { DeployedNoteCard, DeployedNote } from "@/components/notes/DeployedNoteCard";
 
 export default function NotesPage() {
     const [notes, setNotes] = useState<Note[]>([]);
     const [loading, setLoading] = useState(true);
-    const [activeMenu, setActiveMenu] = useState<string | null>(null);
+    const [sortBy, setSortBy] = useState<"latest" | "oldest" | "title">("latest");
+    const { showDeployPopup } = usePopup();
 
     useEffect(() => {
+        let mounted = true;
+
         const fetchNotes = async () => {
             try {
                 const notesList = await listNotes();
-                setNotes(notesList);
+                if (mounted) {
+                    setNotes(notesList);
+                }
             } catch (error) {
-                console.error('Failed to fetch notes:', error);
+                console.error("Failed to fetch notes:", error);
             } finally {
-                setLoading(false);
+                if (mounted) {
+                    setLoading(false);
+                }
             }
         };
 
         fetchNotes();
 
-        // Close menu when clicking outside
-        const handleClickOutside = () => setActiveMenu(null);
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
-    }, []);
+        return () => {
+            mounted = false;
+        };
+    }, []); // Empty dependency array - fetch only once
 
-    const deployedNotes = notes.filter(note => note.source === 'deployed');
-    const otherNotes = notes.filter(note => note.source !== 'deployed');
+    const getSortedNotes = (notesToSort: Note[]) => {
+        switch (sortBy) {
+            case "latest":
+                return [...notesToSort].sort(
+                    (a, b) =>
+                        new Date(b.updated_at).getTime() -
+                        new Date(a.updated_at).getTime()
+                );
+            case "oldest":
+                return [...notesToSort].sort(
+                    (a, b) =>
+                        new Date(a.updated_at).getTime() -
+                        new Date(b.updated_at).getTime()
+                );
+            case "title":
+                return [...notesToSort].sort((a, b) =>
+                    (a.title || "Untitled").localeCompare(b.title || "Untitled")
+                );
+            default:
+                return notesToSort;
+        }
+    };
+
+    const deployedNotes = getSortedNotes(
+        notes.filter((note) => note.source === "deployed")
+    ) as DeployedNote[];
+    const otherNotes = getSortedNotes(
+        notes.filter((note) => note.source !== "deployed")
+    );
 
     if (loading) {
         return (
-            <div className="max-w-7xl mx-auto p-8">
+            <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
                 <div className="animate-pulse space-y-8">
                     <div className="h-12 bg-neutral-100 rounded-lg w-1/3"></div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {[1, 2, 3].map((i) => (
-                            <div key={i} className="h-48 bg-neutral-100 rounded-xl"></div>
-                        ))}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div className="lg:col-span-2">
+                            <div className="space-y-4">
+                                {[1, 2].map((i) => (
+                                    <div
+                                        key={i}
+                                        className="h-24 bg-neutral-100 rounded-xl"
+                                    ></div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="h-64 bg-neutral-100 rounded-xl"></div>
                     </div>
                 </div>
             </div>
         );
     }
 
-    const NoteCard = ({ note }: { note: Note }) => (
-        <div className="bg-white border border-neutral-200 rounded-xl p-6 hover:border-neutral-300 transition-colors group">
-            <div className="flex items-start justify-between">
-                <div className="flex-1">
-                    <h3 className="font-medium text-neutral-900 truncate">
-                        {note.title || 'Untitled Note'}
-                    </h3>
-                    <p className="mt-2 text-sm text-neutral-600 line-clamp-3">
-                        {note.body}
-                    </p>
-                </div>
-                <div className="relative">
-                    <button 
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveMenu(activeMenu === note.id ? null : note.id);
-                        }}
-                        className="p-2 rounded-lg hover:bg-neutral-100 transition-colors opacity-0 group-hover:opacity-100"
-                    >
-                        <MoreHorizontal size={20} className="text-neutral-500" />
-                    </button>
-                    {activeMenu === note.id && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-10">
-                            <button 
-                                onClick={() => console.log('Edit', note.id)}
-                                className="w-full px-4 py-2 text-sm text-left text-neutral-700 hover:bg-neutral-50 flex items-center gap-2"
-                            >
-                                <Edit size={16} />
-                                Edit
-                            </button>
-                            <button 
-                                onClick={() => console.log('Share', note.id)}
-                                className="w-full px-4 py-2 text-sm text-left text-neutral-700 hover:bg-neutral-50 flex items-center gap-2"
-                            >
-                                <ExternalLink size={16} />
-                                Share
-                            </button>
-                            <button 
-                                onClick={() => console.log('Delete', note.id)}
-                                className="w-full px-4 py-2 text-sm text-left text-red-600 hover:bg-red-50 flex items-center gap-2"
-                            >
-                                <Trash2 size={16} />
-                                Delete
-                            </button>
-                        </div>
-                    )}
-                </div>
-            </div>
-            <div className="mt-4 pt-4 border-t border-neutral-100 flex items-center justify-between">
-                <span className="text-xs text-neutral-500">
-                    Updated {new Date(note.updated_at).toLocaleDateString()}
-                </span>
-                <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-neutral-100 text-neutral-600">
-                    <FileText size={14} />
-                    <span className="text-xs">{note.source}</span>
-                </div>
-            </div>
-        </div>
-    );
-
     return (
-        <div className="max-w-7xl mx-auto p-8 space-y-8">
+        <div className="max-w-7xl mx-auto px-2 py-2 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-semibold tracking-tight">
@@ -118,43 +102,80 @@ export default function NotesPage() {
                         Manage and organize all your notes in one place.
                     </p>
                 </div>
+                <div className="relative">
+                    <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                        className="appearance-none bg-white border border-neutral-200 hover:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-200 focus:border-neutral-300 px-4 py-2 pr-10 rounded-lg transition-colors text-sm font-medium cursor-pointer"
+                    >
+                        <option value="latest">Sort by: Latest</option>
+                        <option value="oldest">Sort by: Oldest</option>
+                        <option value="title">Sort by: Title</option>
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-neutral-500 pointer-events-none" />
+                </div>
             </div>
 
-            <section className="space-y-6">
-                <div className="flex items-center gap-2">
-                    <Rocket size={20} className="text-amber-600" />
-                    <h2 className="text-lg font-semibold">Deployed Notes</h2>
-                </div>
-                {deployedNotes.length === 0 ? (
-                    <p className="text-neutral-500 bg-white border border-neutral-200 rounded-xl p-8 text-center">
-                        No deployed notes yet. Deploy a note to see it here.
-                    </p>
-                ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {deployedNotes.map((note) => (
-                            <NoteCard key={note.id} note={note} />
-                        ))}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8 w-full">
+                {/* Deployed Notes Section - First on mobile */}
+                <section className="order-first col-span-2 lg:order-last space-y-4 lg:space-y-6">
+                    <div className="flex items-center gap-2">
+                        <FileText size={20} className="text-blue-600" />
+                        <h2 className="text-lg font-semibold">
+                            Deployed Notes
+                        </h2>
                     </div>
-                )}
-            </section>
+                    {deployedNotes.length === 0 ? (
+                        <div className="bg-white border-2 border-dashed border-neutral-200 rounded-xl p-6 sm:p-8 text-center space-y-4">
+                            <div className="w-16 h-16 mx-auto rounded-full bg-blue-50 flex items-center justify-center">
+                                <FileText
+                                    size={24}
+                                    className="text-blue-400"
+                                />
+                            </div>
+                            <div>
+                                <h3 className="font-medium text-neutral-900">
+                                    No deployed notes
+                                </h3>
+                                <p className="text-sm text-neutral-500 mt-1">
+                                    Deploy your first note to make it accessible
+                                    on the web
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => showDeployPopup()}
+                                className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                Deploy a Note
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {deployedNotes.map((note) => (
+                                <DeployedNoteCard
+                                    key={note.id}
+                                    note={note}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </section>
 
-            <section className="space-y-6">
-                <div className="flex items-center gap-2">
-                    <FileText size={20} className="text-blue-600" />
-                    <h2 className="text-lg font-semibold">Other Notes</h2>
-                </div>
-                {otherNotes.length === 0 ? (
-                    <p className="text-neutral-500 bg-white border border-neutral-200 rounded-xl p-8 text-center">
-                        No other notes found.
-                    </p>
-                ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Recent Activity Section - Second on mobile */}
+                <section className="col-span-2 space-y-4 lg:space-y-6 w-full">
+                    <div className="flex items-center gap-2">
+                        <Clock size={20} className="text-amber-600" />
+                        <h2 className="text-lg font-semibold">
+                            Recent Activity
+                        </h2>
+                    </div>
+                    <div className="space-y-2 md:space-y-4">
                         {otherNotes.map((note) => (
-                            <NoteCard key={note.id} note={note} />
+                            <RecentNoteCard key={note.id} note={note} />
                         ))}
                     </div>
-                )}
-            </section>
+                </section>
+            </div>
         </div>
     );
 }
