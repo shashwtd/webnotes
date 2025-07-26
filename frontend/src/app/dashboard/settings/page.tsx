@@ -105,7 +105,7 @@ export default function SettingsPage() {
                             <div className="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-neutral-100 to-neutral-50 ring-2 ring-neutral-200 ring-offset-2">
                                 {profilePicture ? (
                                     <Image
-                                        src={profilePicture.slice(8)}
+                                        src={profilePicture}
                                         alt={user.name || "Profile"}
                                         width={96}
                                         height={96}
