@@ -5,7 +5,7 @@ if (!SERVER_URL) {
 }
 
 export async function updateDescription(description: string): Promise<void> {
-    const response = await fetch(`${SERVER_URL}/accounts/edit/description`, {
+    const response = await fetch(`${SERVER_URL}/profile/description`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
@@ -23,7 +23,7 @@ export async function updateProfilePicture(file: File): Promise<void> {
     const formData = new FormData();
     formData.append('profile_picture', file);
 
-    const response = await fetch(`${SERVER_URL}/accounts/edit/profile-picture`, {
+    const response = await fetch(`${SERVER_URL}/profile/profile-picture`, {
         method: 'PATCH',
         credentials: 'include',
         body: formData
@@ -35,7 +35,7 @@ export async function updateProfilePicture(file: File): Promise<void> {
 }
 
 export async function removeProfilePicture(): Promise<void> {
-    const response = await fetch(`${SERVER_URL}/accounts/edit/profile-picture`, {
+    const response = await fetch(`${SERVER_URL}/profile/profile-picture`, {
         method: 'DELETE',
         credentials: 'include'
     });

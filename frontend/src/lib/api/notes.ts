@@ -30,7 +30,10 @@ export async function listNotes(): Promise<Note[]> {
         throw new Error('Failed to fetch notes');
     }
 
-    return response.json();
+    const fetchedNotes = await response.json();
+
+    console.log('Fetched notes:', fetchedNotes);
+    return fetchedNotes;
 }
 
 export async function getNote(noteId: string): Promise<Note> {
