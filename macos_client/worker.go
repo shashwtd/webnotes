@@ -17,7 +17,6 @@ const API_URL = "http://localhost:8080/api/v1"
 const FRONTEND_URL = "http://localhost:3000"
 
 func doWorker(session_token string) error {
-	slog.SetLogLoggerLevel(slog.LevelDebug)
 	notes, err := extractNotes()
 	if err != nil {
 		return fmt.Errorf("extraction: %w", err)
