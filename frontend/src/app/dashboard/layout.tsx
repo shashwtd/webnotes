@@ -53,7 +53,7 @@ export default function DashboardLayout({
     }
 
     return (
-        <div className="min-h-screen w-full font-sans bg-neutral-50/50">
+        <div className="min-h-screen w-full font-sans bg-neutral-100">
             {/* Sidebar */}
             <Sidebar
                 isOpen={isSidebarOpen}

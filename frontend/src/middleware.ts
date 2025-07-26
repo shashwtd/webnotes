@@ -21,6 +21,7 @@ export async function middleware(request: NextRequest) {
                 });
 
                 if (response.ok) {
+                    console.log(await response.json())
                     return NextResponse.redirect(
                         new URL("/dashboard", request.url)
                     );
