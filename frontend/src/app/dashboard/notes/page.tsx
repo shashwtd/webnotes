@@ -125,8 +125,9 @@ export default function NotesPage() {
                             Deployed Notes
                         </h2>
                     </div>
+                    {/* THIS IS WHEN NO NOTES ARE DEPLOYED BY THE USER */}
                     {deployedNotes.length === 0 ? (
-                        <div className="bg-white border-2 border-dashed border-neutral-200 rounded-xl p-6 sm:p-8 text-center space-y-4">
+                        <div className="bg-white border-2 border-dashed border-neutral-200 min-h-64 rounded-xl p-6 sm:p-8 text-center flex items-center justify-center flex-col gap-4">
                             <div className="w-16 h-16 mx-auto rounded-full bg-blue-50 flex items-center justify-center">
                                 <FileText
                                     size={24}
@@ -166,14 +167,33 @@ export default function NotesPage() {
                     <div className="flex items-center gap-2">
                         <Clock size={20} className="text-amber-600" />
                         <h2 className="text-lg font-semibold">
-                            Recent Activity
+                            All Notes
                         </h2>
                     </div>
+                    {deployedNotes.length === 0 ? (
+                        <div className="bg-white border-2 border-dashed border-neutral-200 rounded-xl min-h-64 p-6 sm:p-8 text-center flex items-center justify-center flex-col gap-4">
+                            <div className="w-16 h-16 mx-auto rounded-full bg-blue-50 flex items-center justify-center">
+                                <FileText
+                                    size={24}
+                                    className="text-blue-400"
+                                />
+                            </div>
+                            <div>
+                                <h3 className="font-medium text-neutral-900">
+                                    No recent notes
+                                </h3>
+                                <p className="text-sm text-neutral-500 mt-1">
+                                    Please sync your notes or create a new note to see it here.
+                                </p>
+                            </div>
+                        </div>
+                    ) : (
                     <div className="space-y-2 md:space-y-4">
                         {otherNotes.map((note) => (
                             <RecentNoteCard key={note.id} note={note} />
                         ))}
                     </div>
+                    )}
                 </section>
             </div>
         </div>
