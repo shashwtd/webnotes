@@ -1,0 +1,14 @@
+<svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Note Paper -->
+  <rect x="12" y="8" width="36" height="44" rx="4" fill="white" fill-opacity="0.9"/>
+  <!-- Shadow -->
+  <rect x="14" y="10" width="36" height="44" rx="4" fill="white" fill-opacity="0.3"/>
+  <!-- Lines -->
+  <line x1="18" y1="18" x2="42" y2="18" stroke="currentColor" stroke-opacity="0.3" stroke-width="1"/>
+  <line x1="18" y1="23" x2="40" y2="23" stroke="currentColor" stroke-opacity="0.3" stroke-width="1"/>
+  <line x1="18" y1="28" x2="44" y2="28" stroke="currentColor" stroke-opacity="0.3" stroke-width="1"/>
+  <line x1="18" y1="33" x2="38" y2="33" stroke="currentColor" stroke-opacity="0.3" stroke-width="1"/>
+  <!-- Pen -->
+  <path d="M45 35 L50 30 L52 32 L47 37 Z" fill="#ffd700" fill-opacity="0.8"/>
+  <path d="M50 30 L52 28 L54 30 L52 32 Z" fill="#ffed4e" fill-opacity="0.9"/>
+</svg>
