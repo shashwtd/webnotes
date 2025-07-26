@@ -38,6 +38,7 @@ type Note struct {
 	UpdatedAt        string `json:"updated_at"`
 	InsertedAt       string `json:"inserted_at,omitempty"`
 	Title            string `json:"title"`
+	Slug             string `json:"slug"`
 	Body             string `json:"body,omitempty"`
 }
 
@@ -49,7 +50,7 @@ type Activity struct {
 	ActivityType string `json:"activity_type"` // type of activity
 	Description  string `json:"description"`   // description of the activity
 
-	OccuredAt string `json:"occurred_at"` // time of occurrence
+	Timestamp string `json:"timestamp"` // time of occurrence
 }
 
 // DB is a wrapper around the Supabase client for database operations.
@@ -109,6 +110,14 @@ func (db *DB) InsertUser(user *User) error {
 	}
 	*user = ret[0]
 	return nil
+}
+
+func (db *DB) CountNotes(userID string) (int64, error) {
+	_, count, err := db.client.From("notes").Select("*", "exact", true).Eq("user_id", userID).Limit(1, "").Execute()
+	if err != nil {
+		return 0, fmt.Errorf("count notes: %w", err)
+	}
+	return count, nil
 }
 
 // ListNotes returns all notes in the database for a specific user. It does not provide the body of the notes.

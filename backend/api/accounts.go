@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"log/slog"
 	"time"
 
@@ -160,6 +159,8 @@ func registerHandler() fiber.Handler {
 	}
 
 	return handler(func(c *fiber.Ctx, body registerExpectedBody) error {
+		body.Name = goodString(body.Name)
+		body.Username = goodString(body.Username)
 		if body.Email == "" || body.Username == "" || body.Name == "" || body.Password == "" {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error": "missing fields (required email, username, name, and password)",
@@ -178,7 +179,7 @@ func registerHandler() fiber.Handler {
 			HashedPassword:    string(hashedPassword),
 			Name:              body.Name,
 			Description:       "",
-			ProfilePictureURL: fmt.Sprintf("https://%s/storage/v1/object/public/pfps/default.jpg", env.Default.SupabaseURL),
+			ProfilePictureURL: DEFAULT_PROFILE_PICTURE_URL(),
 		}
 		err = env.Default.Database.InsertUser(user)
 		if err != nil {

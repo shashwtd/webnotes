@@ -12,7 +12,7 @@ const (
 	ATAccountCreated            = "account_created"
 	ATProfileDescriptionUpdated = "profile_description_updated"
 	ATProfilePictureUpdated     = "profile_picture_updated"
-	ATNoteCreated               = "note_created"
+	ATClientSynced              = "client_synced"
 )
 
 func setActivityGroup(router fiber.Router, sessionMiddleware fiber.Handler) {

@@ -37,6 +37,11 @@ func sendError(c *fiber.Ctx, err error) error {
 		statusCode = fiber.StatusBadRequest
 		newErrorMessage = "the request is not a valid multipart/form-data request (hint: no file uploaded or invalid content type)"
 	}
+	if strings.Contains(errMessage, "hashedPassword is not the hash of the given password") {
+		statusCode = fiber.StatusUnauthorized
+		newErrorMessage = "the username or password is incorrect"
+	}
+
 	return c.Status(statusCode).JSON(fiber.Map{
 		"error": newErrorMessage,
 	})

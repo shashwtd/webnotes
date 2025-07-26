@@ -14,6 +14,8 @@ func setNotesGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
 	router.Get("/list", sessionMiddleware, listNotes())  // GET /api/v1/notes/list (list all notes for the user)
 	router.Post("/list", sessionMiddleware, saveNotes()) // POST /api/v1/notes/list (save a list of notes)
 
+	router.Get("/count", sessionMiddleware, countNotes()) // GET /api/v1/notes/count (count all notes for the user)
+
 	router.Post("/", sessionMiddleware, createNote()) // POST /api/v1/notes (create a new note)
 	router.Get("/:id", sessionMiddleware, getNote())  // GET /api/v1/notes/:id (get a note by ID)
 }
@@ -27,6 +29,21 @@ func listNotes() fiber.Handler {
 			return sendError(c, err)
 		}
 		return c.JSON(notes) // defaults to 200 OK
+	}
+}
+
+func countNotes() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		user := c.Locals("user").(*database.User)
+		count, err := env.Default.Database.CountNotes(user.ID)
+		if err != nil {
+			slog.Error("count notes", "error", err)
+			return sendError(c, err)
+		}
+		return c.JSON(fiber.Map{
+			"count": count,
+			"error": nil,
+		})
 	}
 }
 
