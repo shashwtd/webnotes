@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"log/slog"
 	"time"
 
@@ -27,10 +26,6 @@ func setAccountsGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
 	router.Post("/login", loginHandler())
 	router.Post("/register", registerHandler())
 	router.Get("/logout", logoutHandler())
-
-	// editing user profile
-	router.Patch("/edit/description", sessionMiddleware, editDescriptionHandler())
-	router.Patch("/edit/profile-picture", sessionMiddleware, editProfilePictureHandler())
 }
 
 func getMeHandler() fiber.Handler {
@@ -101,7 +96,7 @@ func usernameExistsHandler() fiber.Handler {
 		if err != nil {
 			slog.Error("check if username exists", "error", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "failed to check if username exists",
+				"exists": false,
 			})
 		}
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -164,6 +159,8 @@ func registerHandler() fiber.Handler {
 	}
 
 	return handler(func(c *fiber.Ctx, body registerExpectedBody) error {
+		body.Name = goodString(body.Name)
+		body.Username = goodString(body.Username)
 		if body.Email == "" || body.Username == "" || body.Name == "" || body.Password == "" {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error": "missing fields (required email, username, name, and password)",
@@ -182,7 +179,7 @@ func registerHandler() fiber.Handler {
 			HashedPassword:    string(hashedPassword),
 			Name:              body.Name,
 			Description:       "",
-			ProfilePictureURL: fmt.Sprintf("https://%s/storage/v1/object/public/pfps/default.jpg", env.Default.SupabaseURL),
+			ProfilePictureURL: DEFAULT_PROFILE_PICTURE_URL(),
 		}
 		err = env.Default.Database.InsertUser(user)
 		if err != nil {
@@ -207,73 +204,6 @@ func logoutHandler() fiber.Handler {
 		session.LogoutSession(c)
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"error": nil,
-		})
-	}
-}
-
-func editDescriptionHandler() fiber.Handler {
-	type expectedBody struct {
-		Description string `json:"description"`
-	}
-	return handler(func(c *fiber.Ctx, body expectedBody) error {
-		if body.Description == "" {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "missing description field",
-			})
-		}
-
-		user := c.Locals("user").(*database.User)
-		user.Description = body.Description
-
-		err := env.Default.Database.UpdateUserDescription(user)
-		if err != nil {
-			slog.Error("update user description", "error", err)
-			return sendError(c, err)
-		}
-
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"error": nil,
-		})
-	})
-}
-
-func editProfilePictureHandler() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		user := c.Locals("user").(*database.User)
-		fh, err := c.FormFile("profile_picture")
-		if err != nil {
-			slog.Error("get profile picture file", "error", err)
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "could not get profile picture file",
-			})
-		}
-
-		file, err := fh.Open()
-		if err != nil {
-			slog.Error("open profile picture file", "error", err)
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "could not open profile picture file",
-			})
-		}
-
-		pfpURL, err := env.Default.Database.SaveProfilePicture(file, fh.Filename)
-		if err != nil {
-			slog.Error("save profile picture", "error", err)
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "could not save profile picture",
-			})
-		}
-		user.ProfilePictureURL = pfpURL
-		err = env.Default.Database.UpdateUserProfilePictureURL(user)
-		if err != nil {
-			slog.Error("update user profile picture URL", "error", err)
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "could not update profile picture URL",
-			})
-		}
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"error":               nil,
-			"profile_picture_url": pfpURL,
 		})
 	}
 }

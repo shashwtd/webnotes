@@ -54,7 +54,7 @@ func initializeService() error {
 		return fmt.Errorf("creating job: %w", err)
 	}
 
-	doWorker(getSessionTokenFromKR()) // will ask for permissions to run the AppleScript
+	// doWorker(getSessionTokenFromKR()) // will ask for permissions to run the AppleScript
 
 	return nil
 }
