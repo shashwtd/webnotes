@@ -11,13 +11,14 @@ import (
 func setNotesGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
 	// /api/v1/notes
 
-	router.Get("/list", sessionMiddleware, listNotes())  // GET /api/v1/notes/list (list all notes for the user)
-	router.Post("/list", sessionMiddleware, saveNotes()) // POST /api/v1/notes/list (save a list of notes)
+	// endpoint for the current user
+	router.Get("/", sessionMiddleware, listNotes())       // GET /api/v1/notes/list (list all notes for the current user)
+	router.Post("/", sessionMiddleware, saveNotes())      // POST /api/v1/notes/list (save a list of notes for the current user)
+	router.Get("/count", sessionMiddleware, countNotes()) // GET /api/v1/notes/count (count all notes for the current user)
 
-	router.Get("/count", sessionMiddleware, countNotes()) // GET /api/v1/notes/count (count all notes for the user)
-
-	router.Post("/", sessionMiddleware, createNote()) // POST /api/v1/notes (create a new note)
-	router.Get("/:id", sessionMiddleware, getNote())  // GET /api/v1/notes/:id (get a note by ID)
+	// endpoint for not the current user
+	router.Get("/:id", getNoteID())               // GET /api/v1/notes/:id (get a note by ID)
+	router.Get("/:username/:slug", getNoteSlug()) // GET /api/v1/notes/:username/:id (get a note by ID for a specific user)
 }
 
 func listNotes() fiber.Handler {
@@ -58,6 +59,8 @@ func saveNotes() fiber.Handler {
 			slog.Error("insert notes for user", "error", err)
 			return sendError(c, err)
 		}
+
+		setActivity(user.ID, ATClientSynced, onlineString(c, "%d notes synced successfully", len(body)))
 		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 			"message": "notes saved successfully",
 			"error":   nil,
@@ -65,34 +68,28 @@ func saveNotes() fiber.Handler {
 	})
 }
 
-func createNote() fiber.Handler {
-	return handler(func(c *fiber.Ctx, body database.Note) error {
-		if body.Source == "" || body.SourceIdentifier == "" || body.CreatedAt == "" || body.UpdatedAt == "" || body.Title == "" || body.Body == "" {
-			return sendStringError(c, fiber.StatusBadRequest, "missing required fields")
-		}
-		user := c.Locals("user").(*database.User)
-		body.UserID = user.ID
-
-		err := env.Default.Database.InsertNote(&body)
-		if err != nil {
-			slog.Error("insert note", "error", err)
-			return sendError(c, err)
-		}
-
-		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-			"note_id": body.ID,
-			"error":   nil,
-		})
-	})
-}
-
-func getNote() fiber.Handler {
+func getNoteID() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		noteID := c.Params("id")
 
 		note, err := env.Default.Database.GetNoteByID(noteID)
 		if err != nil {
 			slog.Error("get note by ID", "error", err)
+			return sendError(c, err)
+		}
+
+		return c.JSON(note)
+	}
+}
+
+func getNoteSlug() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		username := c.Params("username")
+		slug := c.Params("slug")
+
+		note, err := env.Default.Database.GetNoteBySlug(username, slug)
+		if err != nil {
+			slog.Error("get note by username and slug", "error", err)
 			return sendError(c, err)
 		}
 

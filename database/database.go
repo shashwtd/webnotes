@@ -5,6 +5,8 @@ import (
 	"io"
 	"mime"
 	"path/filepath"
+	"slices"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/supabase-community/postgrest-go"
@@ -38,7 +40,7 @@ type Note struct {
 	UpdatedAt        string `json:"updated_at"`
 	InsertedAt       string `json:"inserted_at,omitempty"`
 	Title            string `json:"title"`
-	Slug             string `json:"slug"`
+	Slug             string `json:"slug,omitempty"`
 	Body             string `json:"body,omitempty"`
 }
 
@@ -47,10 +49,10 @@ type Activity struct {
 	ID     string `json:"id,omitempty"`
 	UserID string `json:"user_id"` // fk to users
 
-	ActivityType string `json:"activity_type"` // type of activity
-	Description  string `json:"description"`   // description of the activity
+	Type        string `json:"type"`        // type of activity
+	Description string `json:"description"` // description of the activity
 
-	Timestamp string `json:"timestamp"` // time of occurrence
+	Timestamp string `json:"timestamp,omitempty"` // time of occurrence
 }
 
 // DB is a wrapper around the Supabase client for database operations.
@@ -123,7 +125,7 @@ func (db *DB) CountNotes(userID string) (int64, error) {
 // ListNotes returns all notes in the database for a specific user. It does not provide the body of the notes.
 func (db *DB) ListNotes(userID string) ([]Note, error) {
 	var notes []Note
-	_, err := db.client.From("notes").Select("id,user_id,source,source_identifier,created_at,updated_at,inserted_at,title", "", false).Eq("user_id", userID).ExecuteTo(&notes)
+	_, err := db.client.From("notes").Select("id,user_id,source,source_identifier,created_at,updated_at,inserted_at,title,slug", "", false).Eq("user_id", userID).ExecuteTo(&notes)
 	if err != nil {
 		return nil, err
 	}
@@ -140,42 +142,110 @@ func (db *DB) GetNoteByID(noteID string) (*Note, error) {
 	return &note, nil
 }
 
+// GetNoteBySlug retrieves a note by its username and slug. It includes the body.
+func (db *DB) GetNoteBySlug(username, slug string) (*Note, error) {
+	var note Note
+
+	id, err := db.GetUserIDByUsername(username)
+	if err != nil {
+		return nil, fmt.Errorf("get user ID by username: %w", err)
+	}
+
+	_, err = db.client.From("notes").Select("*", "", false).Eq("user_id", id).Eq("slug", slug).Single().ExecuteTo(&note)
+	if err != nil {
+		return nil, err
+	}
+	return &note, nil
+}
+
+func (db *DB) GetUserIDByUsername(username string) (string, error) {
+	var user User
+	_, err := db.client.From("users").Select("id", "", false).Eq("username", username).Single().ExecuteTo(&user)
+	if err != nil {
+		return "", err
+	}
+	return user.ID, nil
+}
+
 // InsertNote inserts a new note into the database and returns the inserted note with its ID.
 // It expects the note to have the user_id, source, source_identifier, created_at,
 // updated_at, title, and body fields set. The ID and inserted_at fields will be populated by the database.
 // If the insertion fails, it returns an error.
 func (db *DB) InsertNote(note *Note) error {
-	var ret []Note
-	_, err := db.client.From("notes").Insert(note, true, "user_id,source_identifier", "", "").ExecuteTo(&ret)
+	if note.Slug == "" { // if slug is not set, generate one
+		note.Slug = slugify(note.Title)
+	}
+	if note.Slug == "" { // if slug is still empty, generate a random slug
+		note.Slug = randomB32(5)
+	}
+
+	_, err := db.client.From("notes").Insert(note, true, "user_id,source_identifier", "", "").Single().ExecuteTo(note)
+	if err == nil { // exit early if no error
+		return nil
+	}
+
+	// there is an error!
+
+	// slug error? if the slug already exists, we will add a random suffix to it
+	if strings.Contains(err.Error(), "duplicate key value violates unique constraint \"unique_user_slug\"") {
+		note.Slug = fmt.Sprintf("%s-%s", note.Slug, randomB32(5))
+		err = db.InsertNote(note) // try again with the new slug
+	}
+
+	// non-slug error or slug reattempt error? return error
 	if err != nil {
-		return err
+		return fmt.Errorf("insert note: %w", err)
 	}
-	if len(ret) == 0 {
-		return fmt.Errorf("inserted note is empty, something went wrong")
-	}
-	*note = ret[0]
+
 	return nil
 }
 
-// InsertNotesForUser inserts multiple notes for a specific user.
+// UpdateNote updates an existing note in the database by its source identifier.
+func (db *DB) UpdateNote(note *Note) error {
+	db.client.From("notes").Update(note, "", "").Eq("source_identifier", note.SourceIdentifier).Single().ExecuteTo(note)
+	return nil
+}
+
 func (db *DB) InsertNotesForUser(userID string, notes []Note) error {
-	for i := range notes {
-		notes[i].UserID = userID
-	}
-	_, _, err := db.client.From("notes").Insert(notes, true, "user_id,source_identifier", "", "").Execute()
+	identifiers, err := db.GetSourceIdentifiersByUserID(userID)
 	if err != nil {
-		return err
+		return fmt.Errorf("get source identifiers: %w", err)
 	}
+
+	for _, note := range notes {
+		note.UserID = userID
+		if slices.Contains(identifiers, note.SourceIdentifier) {
+			// note already exists in the database, update it
+			err = db.UpdateNote(&note)
+			continue
+		} else {
+			// note does not exist, insert it
+			err = db.InsertNote(&note)
+		}
+		if err != nil { // true if slug attempt failed or any other error
+			return err
+		}
+	}
+
 	return nil
 }
 
 // GetSourceIdentifiersByUserID retrieves all source identifiers for a specific user.
 func (db *DB) GetSourceIdentifiersByUserID(userID string) ([]string, error) {
 	var identifiers []string
-	_, err := db.client.From("notes").Select("source_identifier", "", false).Eq("user_id", userID).ExecuteTo(&identifiers)
+	var output []struct {
+		SourceIdentifier string `json:"source_identifier"`
+	}
+
+	_, err := db.client.From("notes").Select("source_identifier", "", false).Eq("user_id", userID).ExecuteTo(&output)
 	if err != nil {
 		return nil, err
 	}
+
+	for _, item := range output {
+		identifiers = append(identifiers, item.SourceIdentifier)
+	}
+
 	return identifiers, nil
 }
 
@@ -230,13 +300,32 @@ func (db *DB) SaveProfilePicture(file io.Reader, name string) (string, error) {
 
 func (db *DB) GetActivities(userID string) ([]Activity, error) {
 	var activities []Activity
-	_, err := db.client.From("activities").Select("*", "", false).Eq("user_id", userID).Order("occurred_at", &postgrest.OrderOpts{
+	_, err := db.client.From("activities").Select("*", "", false).Eq("user_id", userID).Order("timestamp", &postgrest.OrderOpts{
 		Ascending: false,
 	}).ExecuteTo(&activities)
 	if err != nil {
 		return nil, fmt.Errorf("get user activities: %w", err)
 	}
 	return activities, nil
+}
+
+func (db *DB) GetLastActivityByType(userID, activityType string) (*Activity, error) {
+	var activity Activity
+	_, err := db.client.From("activities").Select("*", "", false).Eq("user_id", userID).Eq("type", activityType).Order("timestamp", &postgrest.OrderOpts{
+		Ascending: false,
+	}).Limit(1, "").Single().ExecuteTo(&activity)
+	if err != nil {
+		return nil, fmt.Errorf("get last activity by type: %w", err)
+	}
+	return &activity, nil
+}
+
+func (db *DB) InsertActivity(activity *Activity) error {
+	_, err := db.client.From("activities").Insert(activity, false, "", "", "").Single().ExecuteTo(activity)
+	if err != nil {
+		return fmt.Errorf("insert activity: %w", err)
+	}
+	return nil
 }
 
 // Database returns a new instance of DB initialized with the Supabase client.

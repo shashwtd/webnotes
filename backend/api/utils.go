@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"strings"
 	"unicode"
 
@@ -33,33 +34,12 @@ func goodString(s string) string {
 	return s
 }
 
-func slugify(s string) string {
-	s = strings.TrimSpace(s)
-	s = strings.ToLower(s)
-
-	// ensure only alphanumeric characters, hyphens, and underscores are kept
-	b := strings.Builder{}
-	b.Grow(len(s)) // avoid a trillion allocations
-	for _, r := range s {
-		if isAlphanumeric(r) || r == '-' || r == '_' {
-			b.WriteRune(r)
-		}
-	}
-
-	result := b.String()
-
-	// limit to 12 characters
-	if len(result) > 12 {
-		result = result[:12]
-	}
-	// trim trailing non-alphanumeric characters
-	for len(result) > 0 && !isAlphanumeric(rune(result[len(result)-1])) {
-		result = result[:len(result)-1]
-	}
-
-	return result
-}
-
 func isAlphanumeric(r rune) bool {
 	return unicode.IsLetter(r) || unicode.IsDigit(r)
+}
+
+// onlineString returns a formatted string that includes information about the request using
+// the context.
+func onlineString(c *fiber.Ctx, s string, a ...any) string {
+	return fmt.Sprintf("%s (ip: %s)", fmt.Sprintf(s, a...), c.IP())
 }

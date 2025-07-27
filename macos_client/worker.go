@@ -37,7 +37,7 @@ func doWorker(session_token string) error {
 }
 
 func writeDB(session_token string, notes []database.Note) error {
-	u, err := url.Parse(API_URL + "/notes/list")
+	u, err := url.Parse(API_URL + "/notes")
 	if err != nil {
 		return fmt.Errorf("parsing URL: %w", err) // literally should never happen
 	}
