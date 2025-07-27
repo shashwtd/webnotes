@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"strings"
 	"unicode"
 
@@ -35,4 +36,10 @@ func goodString(s string) string {
 
 func isAlphanumeric(r rune) bool {
 	return unicode.IsLetter(r) || unicode.IsDigit(r)
+}
+
+// onlineString returns a formatted string that includes information about the request using
+// the context.
+func onlineString(c *fiber.Ctx, s string, a ...any) string {
+	return fmt.Sprintf("%s (ip: %s)", fmt.Sprintf(s, a...), c.IP())
 }

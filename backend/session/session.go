@@ -93,7 +93,7 @@ func JWTOAuthCode(c *fiber.Ctx) (string, error) {
 	return signedToken, nil
 }
 
-func ExchangeAuthCode(c *fiber.Ctx, code string) (string, error) {
+func ExchangeAuthCode(c *fiber.Ctx, code string) (string, string, error) {
 	claims := &Claims{}
 
 	token, err := jwt.ParseWithClaims(code, claims, func(token *jwt.Token) (any, error) {
@@ -101,17 +101,18 @@ func ExchangeAuthCode(c *fiber.Ctx, code string) (string, error) {
 	})
 	if err != nil {
 		slog.Error("parse JWT token", "error", err)
-		return "", fmt.Errorf("parsing JWT token: %w", err)
+		return "", "", fmt.Errorf("parsing JWT token: %w", err)
 	}
 	if !token.Valid {
-		return "", fmt.Errorf("invalid JWT token")
+		return "", "", fmt.Errorf("invalid JWT token")
 	}
 
 	sessionToken, err := NewSession(claims.UserID, time.Hour*24*2000) // create a new session for 2000 days (long lived for a reason lol)
 	if err != nil {
 		slog.Error("create new session", "error", err)
 	}
-	return sessionToken, nil
+
+	return claims.UserID, sessionToken, nil
 }
 
 func SessionMiddleware() fiber.Handler {
