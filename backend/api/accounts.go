@@ -70,13 +70,16 @@ func exchangeAuthCodeHandler() fiber.Handler {
 				"error": "missing code field",
 			})
 		}
-		sessionToken, err := session.ExchangeAuthCode(c, body.Code)
+		userID, sessionToken, err := session.ExchangeAuthCode(c, body.Code)
 		if err != nil {
 			slog.Error("exchange auth code for long-lived session", "error", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": "failed to exchange auth code",
 			})
 		}
+
+		setActivity(userID, ATClientAuthorized, onlineString(c, "Client Authorized"))
+
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"error":         nil,
 			"session_token": sessionToken,
@@ -144,6 +147,8 @@ func loginHandler() fiber.Handler {
 			return sendError(c, err)
 		}
 
+		setActivity(user.ID, ATNewLogin, onlineString(c, "Login"))
+
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"error": nil,
 		})
@@ -192,6 +197,8 @@ func registerHandler() fiber.Handler {
 			slog.Error("create new session", "error", err)
 			return sendError(c, err)
 		}
+
+		setActivity(user.ID, ATAccountCreated, onlineString(c, "Account Created"))
 
 		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 			"error": nil,
