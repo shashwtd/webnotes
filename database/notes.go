@@ -112,6 +112,24 @@ func (db *DB) InsertNote(note *Note) error {
 	return nil
 }
 
+func (db *DB) DeployNote(noteID, userID string) error {
+	// update the note to set deployed to true
+	_, _, err := db.client.From("notes").Update(map[string]any{"deployed": true}, "", "").Eq("id", noteID).Eq("user_id", userID).Execute()
+	if err != nil {
+		return fmt.Errorf("deploy note: %w", err)
+	}
+	return nil
+}
+
+func (db *DB) UndeployNote(noteID, userID string) error {
+	// update the note to set deployed to true
+	_, _, err := db.client.From("notes").Update(map[string]any{"deployed": false}, "", "").Eq("id", noteID).Eq("user_id", userID).Execute()
+	if err != nil {
+		return fmt.Errorf("deploy note: %w", err)
+	}
+	return nil
+}
+
 // UpdateNote updates an existing note in the database by its source identifier.
 func (db *DB) UpdateNote(note *Note) error {
 	db.client.From("notes").Update(note, "", "").Eq("source_identifier", note.SourceIdentifier).Single().ExecuteTo(note)

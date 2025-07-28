@@ -19,6 +19,8 @@ const (
 	ATProfileDescriptionUpdated = "profile_description_updated"
 	ATProfilePictureUpdated     = "profile_picture_updated"
 	ATClientSynced              = "client_synced"
+	ATNoteDeployed              = "note_deployed"
+	ATNoteUndeployed            = "note_undeployed"
 )
 
 func setActivityGroup(router fiber.Router) {

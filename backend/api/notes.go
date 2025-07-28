@@ -18,6 +18,9 @@ func setNotesGroup(router fiber.Router) {
 	router.Get("/list/:username", optionalSM, listDeployedNotes()) // GET /api/v1/notes/list/:username (list all deployed notes for a specific user)
 	router.Post("/list", requiredSM, saveNotes())                  // POST /api/v1/notes/list (save a list of notes for the current user)
 
+	router.Post("/deploy/:id", requiredSM, deployNote())     // POST /api/v1/notes/deploy/:username (deploy notes for a specific user)
+	router.Delete("/deploy/:id", requiredSM, undeployNote()) // DELETE /api/v1/notes/deploy/:username (undeploy notes for a specific user)
+
 	router.Get("/count", requiredSM, countNotes()) // GET /api/v1/notes/count (count all notes for the current user)
 
 	router.Get("/:id", optionalSM, getNoteID())               // GET /api/v1/notes/:id (get a note by ID)
@@ -70,6 +73,46 @@ func countNotes() fiber.Handler {
 		return c.JSON(fiber.Map{
 			"count": count,
 			"error": nil,
+		})
+	}
+}
+
+func deployNote() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		noteID := c.Params("id")
+		user := c.Locals("user").(*database.User) // ensure user is set in context by session middleware
+
+		err := env.Default.Database.DeployNote(noteID, user.ID)
+		if err != nil {
+			slog.Error("deploy note", "error", err)
+			return sendError(c, err)
+		}
+
+		setActivity(user.ID, ATNoteDeployed, onlineString(c, "note %s deployed successfully", noteID))
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"message": "note deployed successfully",
+			"error":   nil,
+		})
+	}
+}
+
+func undeployNote() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		noteID := c.Params("id")
+		user := c.Locals("user").(*database.User) // ensure user is set in context by session middleware
+
+		err := env.Default.Database.UndeployNote(noteID, user.ID)
+		if err != nil {
+			slog.Error("undeploy note", "error", err)
+			return sendError(c, err)
+		}
+
+		setActivity(user.ID, ATNoteUndeployed, onlineString(c, "note %s undeployed successfully", noteID))
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"message": "note undeployed successfully",
+			"error":   nil,
 		})
 	}
 }
