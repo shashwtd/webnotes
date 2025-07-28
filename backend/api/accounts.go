@@ -11,8 +11,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func setAccountsGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
-	// me!!
+func setAccountsGroup(router fiber.Router) {
+	// /api/v1/accounts
+	sessionMiddleware := session.RequiredSessionMiddleware()
+
 	router.Get("/me", sessionMiddleware, getMeHandler())
 
 	// authorization code flow related endpoints
