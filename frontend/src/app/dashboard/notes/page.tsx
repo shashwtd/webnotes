@@ -170,7 +170,7 @@ export default function NotesPage() {
                             All Notes
                         </h2>
                     </div>
-                    {deployedNotes.length === 0 ? (
+                    {otherNotes.length === 0 ? (
                         <div className="bg-white border-2 border-dashed border-neutral-200 rounded-xl min-h-64 p-6 sm:p-8 text-center flex items-center justify-center flex-col gap-4">
                             <div className="w-16 h-16 mx-auto rounded-full bg-blue-50 flex items-center justify-center">
                                 <FileText
