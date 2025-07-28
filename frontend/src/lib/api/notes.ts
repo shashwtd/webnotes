@@ -14,9 +14,8 @@ export interface Note {
     body: string;
     user_id: string;
     inserted_at: string;
-    published?: boolean;
+    deployed?: boolean;
     slug?: string;
-    description?: string;
     views?: number;
 }
 
@@ -64,7 +63,7 @@ export async function getNote(noteId: string): Promise<Note> {
     return response.json();
 }
 
-export async function deployNote({ noteId }: PublishNoteParams): Promise<Note> {
+export async function deployNote( noteId : string): Promise<Note> {
     const response = await fetch(`${SERVER_URL}/notes/${noteId}/deploy`, {
         method: "POST",
         headers: {

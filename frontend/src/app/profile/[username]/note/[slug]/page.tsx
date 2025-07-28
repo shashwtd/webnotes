@@ -27,10 +27,6 @@ export default async function NotePage({ params }: NotePageProps) {
                     <div className="mb-6">
                         <h1 className="text-3xl font-bold text-gray-900 mb-4">{note.title}</h1>
                         
-                        {note.description && (
-                            <p className="text-lg text-gray-600 mb-6">{note.description}</p>
-                        )}
-                        
                         <div className="flex items-center justify-between border-t pt-6">
                             <div className="flex items-center space-x-3">
                                 <div className="h-10 w-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
@@ -88,10 +84,9 @@ export async function generateMetadata({ params }: NotePageProps) {
     
     return {
         title: `${note.title} - @${username}`,
-        description: note.description || `Read ${note.title} by @${username} on WebNotes`,
+        description: note.body || `Read ${note.title} by @${username} on WebNotes`,
         openGraph: {
             title: note.title,
-            description: note.description,
             type: 'article',
             publishedTime: note.created_at,
             authors: [`@${username}`],
@@ -99,7 +94,6 @@ export async function generateMetadata({ params }: NotePageProps) {
         twitter: {
             card: 'summary_large_image',
             title: note.title,
-            description: note.description,
             creator: `@${username}`,
         },
     };

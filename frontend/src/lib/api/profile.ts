@@ -14,7 +14,7 @@ export interface UserProfile {
     created_at: string;
 }
 
-export interface PublishedNote {
+export interface DeployedNote {
     id: string;
     title: string;
     content: string;
@@ -27,7 +27,7 @@ export interface PublishedNote {
     };
 }
 
-export async function getPublishedNote(username: string, noteSlug: string): Promise<PublishedNote> {
+export async function getDeployedNote(username: string, noteSlug: string): Promise<DeployedNote> {
     const response = await fetch(`${SERVER_URL}/notes/${username}/${noteSlug}`, {
         method: 'GET',
         headers: {
@@ -37,7 +37,7 @@ export async function getPublishedNote(username: string, noteSlug: string): Prom
     });
 
     if (!response.ok) {
-        throw new Error('Failed to fetch published note');
+        throw new Error('Failed to fetch deployed note');
     }
 
     return response.json();
