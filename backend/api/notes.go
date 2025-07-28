@@ -18,6 +18,7 @@ func setNotesGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
 
 	// endpoint for not the current user
 	router.Get("/:id", getNoteID())               // GET /api/v1/notes/:id (get a note by ID)
+    router.Get("/all/:username", getUserNotes()) // GET /api/v1/notes/all/:username (get all notes for a specific user)
 	router.Get("/:username/:slug", getNoteSlug()) // GET /api/v1/notes/:username/:id (get a note by ID for a specific user)
 }
 
@@ -95,4 +96,29 @@ func getNoteSlug() fiber.Handler {
 
 		return c.JSON(note)
 	}
+}
+
+
+// so im writing this bcs i lowk wanna fetch all the deployed notes from the username.mynotes.ink page
+// and um idk if you have any check for deployed notes or not, but for now im returning all notes.
+func getUserNotes() fiber.Handler {
+    return func(c *fiber.Ctx) error {
+		slog.Info("======== WE FETCIHED ALL NOTES FOR USER ========", "username", c.Params("username"))
+
+        username := c.Params("username")
+        
+        userId, err := env.Default.Database.GetUserIDByUsername(username)
+        if err != nil {
+            slog.Error("get user by username", "error", err)
+            return sendError(c, err)
+        }
+
+        notes, err := env.Default.Database.ListAllNotes(userId)
+        if err != nil {
+            slog.Error("list all notes", "error", err)
+            return sendError(c, err)
+        }
+
+        return c.JSON(notes)
+    }
 }

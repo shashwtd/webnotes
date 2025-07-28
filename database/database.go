@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"io"
+	"log/slog"
 	"mime"
 	"path/filepath"
 	"slices"
@@ -158,7 +159,28 @@ func (db *DB) GetNoteBySlug(username, slug string) (*Note, error) {
 	return &note, nil
 }
 
+// GetNoteBySlug retrieves all notes by user, just from their username. It DOES NOT include the body.
+func (db *DB) ListAllNotes(userID string) ([]Note, error) {
+	slog.Debug("list all notes", "userID", userID)
+	var notes []Note
+	_, err := db.client.
+		From("notes").
+		Select("id,user_id,source,source_identifier,created_at,updated_at,inserted_at,title,slug", "", false).
+		Eq("user_id", userID).
+		Order("created_at", &postgrest.OrderOpts{
+			Ascending:  false,
+		}).
+		ExecuteTo(&notes)
+
+	if err != nil {
+		return nil, fmt.Errorf("list all notes: %w", err)
+	}
+	return notes, nil
+}
+
+
 func (db *DB) GetUserIDByUsername(username string) (string, error) {
+	slog.Info("get user ID by username", "username", username)
 	var user User
 	_, err := db.client.From("users").Select("id", "", false).Eq("username", username).Single().ExecuteTo(&user)
 	if err != nil {
