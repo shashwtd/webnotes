@@ -5,21 +5,27 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/shashwtd/webnotes/backend/env"
+	"github.com/shashwtd/webnotes/backend/session"
 	"github.com/shashwtd/webnotes/database"
 )
 
-func setNotesGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
+func setNotesGroup(router fiber.Router) {
 	// /api/v1/notes
+	requiredSM := session.RequiredSessionMiddleware()
+	optionalSM := session.OptionalSessionMiddleware()
 
-	// endpoint for the current user
-	router.Get("/", sessionMiddleware, listNotes())       // GET /api/v1/notes/list (list all notes for the current user)
-	router.Post("/", sessionMiddleware, saveNotes())      // POST /api/v1/notes/list (save a list of notes for the current user)
-	router.Get("/count", sessionMiddleware, countNotes()) // GET /api/v1/notes/count (count all notes for the current user)
+	router.Get("/list", requiredSM, listNotes())                   // GET /api/v1/notes/list (list all notes for the current user)
+	router.Get("/list/:username", optionalSM, listDeployedNotes()) // GET /api/v1/notes/list/:username (list all deployed notes for a specific user)
+	router.Post("/list", requiredSM, saveNotes())                  // POST /api/v1/notes/list (save a list of notes for the current user)
 
-	// endpoint for not the current user
-	router.Get("/:id", getNoteID())               // GET /api/v1/notes/:id (get a note by ID)
-    router.Get("/all/:username", getUserNotes()) // GET /api/v1/notes/all/:username (get all notes for a specific user)
-	router.Get("/:username/:slug", getNoteSlug()) // GET /api/v1/notes/:username/:id (get a note by ID for a specific user)
+	router.Post("/deploy/:id", requiredSM, deployNote())     // POST /api/v1/notes/deploy/:username (deploy notes for a specific user)
+	router.Delete("/deploy/:id", requiredSM, undeployNote()) // DELETE /api/v1/notes/deploy/:username (undeploy notes for a specific user)
+
+	router.Get("/count", requiredSM, countNotes()) // GET /api/v1/notes/count (count all notes for the current user)
+
+	router.Get("/:id", optionalSM, getNoteID())               // GET /api/v1/notes/:id (get a note by ID)
+	router.Get("/:username/:slug", optionalSM, getNoteSlug()) // GET /api/v1/notes/:username/:id (get a note by ID for a specific user)
+
 }
 
 func listNotes() fiber.Handler {
@@ -34,6 +40,28 @@ func listNotes() fiber.Handler {
 	}
 }
 
+func listDeployedNotes() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		username := c.Params("username")
+
+		userID, err := env.Default.Database.GetUserIDByUsername(username)
+		if err != nil {
+			slog.Error("get user ID by username", "username", username, "error", err)
+			return sendError(c, err)
+		}
+
+		notes, err := env.Default.Database.ListDeployedNotes(userID)
+
+		// get the user id by username
+		if err != nil {
+			slog.Error("retrieve notes", "error", err)
+			return sendError(c, err)
+		}
+
+		return c.JSON(notes)
+	}
+}
+
 func countNotes() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		user := c.Locals("user").(*database.User)
@@ -45,6 +73,46 @@ func countNotes() fiber.Handler {
 		return c.JSON(fiber.Map{
 			"count": count,
 			"error": nil,
+		})
+	}
+}
+
+func deployNote() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		noteID := c.Params("id")
+		user := c.Locals("user").(*database.User) // ensure user is set in context by session middleware
+
+		err := env.Default.Database.DeployNote(noteID, user.ID)
+		if err != nil {
+			slog.Error("deploy note", "error", err)
+			return sendError(c, err)
+		}
+
+		setActivity(user.ID, ATNoteDeployed, onlineString(c, "note %s deployed successfully", noteID))
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"message": "note deployed successfully",
+			"error":   nil,
+		})
+	}
+}
+
+func undeployNote() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		noteID := c.Params("id")
+		user := c.Locals("user").(*database.User) // ensure user is set in context by session middleware
+
+		err := env.Default.Database.UndeployNote(noteID, user.ID)
+		if err != nil {
+			slog.Error("undeploy note", "error", err)
+			return sendError(c, err)
+		}
+
+		setActivity(user.ID, ATNoteUndeployed, onlineString(c, "note %s undeployed successfully", noteID))
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"message": "note undeployed successfully",
+			"error":   nil,
 		})
 	}
 }
@@ -79,6 +147,10 @@ func getNoteID() fiber.Handler {
 			return sendError(c, err)
 		}
 
+		if !canUserAccessNote(c, note) {
+			return sendError(c, ErrNonDeployedNoteNotAccessible)
+		}
+
 		return c.JSON(note)
 	}
 }
@@ -94,31 +166,19 @@ func getNoteSlug() fiber.Handler {
 			return sendError(c, err)
 		}
 
+		if !canUserAccessNote(c, note) {
+			return sendError(c, ErrNonDeployedNoteNotAccessible)
+		}
+
 		return c.JSON(note)
 	}
 }
 
-
-// so im writing this bcs i lowk wanna fetch all the deployed notes from the username.mynotes.ink page
-// and um idk if you have any check for deployed notes or not, but for now im returning all notes.
-func getUserNotes() fiber.Handler {
-    return func(c *fiber.Ctx) error {
-		slog.Info("======== WE FETCIHED ALL NOTES FOR USER ========", "username", c.Params("username"))
-
-        username := c.Params("username")
-        
-        userId, err := env.Default.Database.GetUserIDByUsername(username)
-        if err != nil {
-            slog.Error("get user by username", "error", err)
-            return sendError(c, err)
-        }
-
-        notes, err := env.Default.Database.ListAllNotes(userId)
-        if err != nil {
-            slog.Error("list all notes", "error", err)
-            return sendError(c, err)
-        }
-
-        return c.JSON(notes)
-    }
+func canUserAccessNote(c *fiber.Ctx, note *database.Note) bool {
+	var isOwner bool
+	if c.Locals("user") != nil {
+		user := c.Locals("user").(*database.User)
+		isOwner = user.ID == note.UserID
+	}
+	return isOwner || note.Deployed
 }

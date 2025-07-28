@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/shashwtd/webnotes/backend/env"
+	"github.com/shashwtd/webnotes/backend/session"
 	"github.com/shashwtd/webnotes/database"
 )
 
@@ -15,8 +16,9 @@ func DEFAULT_PROFILE_PICTURE_URL() string {
 	return fmt.Sprintf(default_profile_picture_url, env.Default.SupabaseURL)
 }
 
-func setProfileGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
-	// editing user profile
+func setProfileGroup(router fiber.Router) {
+	// /api/v1/profile
+	sessionMiddleware := session.RequiredSessionMiddleware()
 
 	router.Get("/", sessionMiddleware, getMyProfileHandler())
 	router.Get("/:username", getOtherProfileHandler())
