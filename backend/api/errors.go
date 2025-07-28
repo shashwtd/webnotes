@@ -1,10 +1,15 @@
 package api
 
 import (
+	"errors"
 	"log/slog"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+)
+
+var (
+	ErrNonDeployedNoteNotAccessible = errors.New("non-deployed note is not accessible to non-owners")
 )
 
 // ErrorPattern represents a pattern to match and its corresponding status and message
@@ -33,7 +38,12 @@ var errorPatterns = []errorPattern{
 	{
 		Contains:   []string{"no rows in result set", "multiple (or no) rows returned"},
 		StatusCode: fiber.StatusNotFound,
-		Message:    "the requested resource was not found",
+		Message:    "the requested resource was not found or you do not have access to it",
+	},
+	{
+		Contains:   []string{ErrNonDeployedNoteNotAccessible.Error()},
+		StatusCode: fiber.StatusNotFound,
+		Message:    "the requested resource was not found or you do not have access to it",
 	},
 	{
 		Contains:   []string{"request Content-Type has bad boundary", "multipart/form-data"},

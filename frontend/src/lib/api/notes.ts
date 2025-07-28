@@ -14,10 +14,21 @@ export interface Note {
     body: string;
     user_id: string;
     inserted_at: string;
+    published?: boolean;
+    slug?: string;
+    description?: string;
+    views?: number;
+}
+
+export interface PublishNoteParams {
+    noteId: string;
+    slug?: string;
+    title?: string;
+    description?: string;
 }
 
 export async function listNotes(): Promise<Note[]> {
-    const response = await fetch(`${SERVER_URL}/notes/list`, {
+    const response = await fetch(`${SERVER_URL}/notes`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -30,7 +41,10 @@ export async function listNotes(): Promise<Note[]> {
         throw new Error('Failed to fetch notes');
     }
 
-    return response.json();
+    const fetchedNotes = await response.json();
+
+    console.log('Fetched notes:', fetchedNotes);
+    return fetchedNotes;
 }
 
 export async function getNote(noteId: string): Promise<Note> {
@@ -48,4 +62,35 @@ export async function getNote(noteId: string): Promise<Note> {
     }
 
     return response.json();
+}
+
+export async function getPublicNote(username: string, slug: string): Promise<Note> {
+    const response = await fetch(`${SERVER_URL}/notes/${username}/${slug}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        }
+    });
+
+    const res = await response.json();
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch public note');
+    }
+
+    return res;
+}
+
+export async function getAllNotes(username: string): Promise<Note[]> {
+    const response = await fetch(`${SERVER_URL}/notes/all/${username}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        }
+    });
+
+    const res = await response.json();
+    return res;
 }

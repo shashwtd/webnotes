@@ -126,14 +126,14 @@ func editProfilePictureHandler() fiber.Handler {
 		file, err := fh.Open()
 		if err != nil {
 			slog.Error("open profile picture file", "error", err)
-			sendError(c, err)
+			return sendError(c, err)
 		}
 
 		// save the profile picture to blob storage and get the URL
 		pfpURL, err := env.Default.Database.SaveProfilePicture(file, fh.Filename)
 		if err != nil {
 			slog.Error("save profile picture", "error", err)
-			sendError(c, err)
+			return sendError(c, err)
 		}
 
 		// set the profile picture URL to the blob url
@@ -143,7 +143,7 @@ func editProfilePictureHandler() fiber.Handler {
 		err = env.Default.Database.UpdateUserProfilePictureURL(user)
 		if err != nil {
 			slog.Error("update user profile picture URL", "error", err)
-			sendError(c, err)
+			return sendError(c, err)
 		}
 
 		setActivity(user.ID, ATProfilePictureUpdated, onlineString(c, "Profile picture updated"))

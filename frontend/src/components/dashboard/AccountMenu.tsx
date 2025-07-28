@@ -8,7 +8,7 @@ import Image from "next/image";
 interface User {
     name: string;
     email: string;
-    avatar?: string;
+    profile_picture_url?: string;
 }
 
 interface AccountMenuProps {
@@ -39,9 +39,9 @@ export default function AccountMenu({ user, onLogout }: AccountMenuProps) {
                 className="flex items-center gap-3 hover:bg-neutral-100 py-1.5 px-2 rounded-lg transition-colors cursor-pointer group"
             >
                 <div className="size-7 rounded-full bg-gradient-to-br from-blue-500 to-blue-600">
-                    {user.avatar ? (
+                    {user.profile_picture_url ? (
                         <Image
-                            src={user.avatar}
+                            src={user.profile_picture_url}
                             alt={user.name}
                             className="h-full w-full rounded-full object-cover"
                             width={24}

@@ -62,9 +62,19 @@ func (db *DB) GetNoteBySlug(username, slug string) (*Note, error) {
 // ListNotes returns all notes in the database for a specific user. It does not provide the body of the notes.
 func (db *DB) ListNotes(userID string) ([]Note, error) {
 	var notes []Note
-	_, err := db.client.From("notes").Select("id,user_id,source,source_identifier,created_at,updated_at,inserted_at,title,slug", "", false).Eq("user_id", userID).ExecuteTo(&notes)
+	_, err := db.client.From("notes").Select("id,user_id,source,source_identifier,created_at,updated_at,inserted_at,title,slug,deployed", "", false).Eq("user_id", userID).ExecuteTo(&notes)
 	if err != nil {
 		return nil, err
+	}
+	return notes, nil
+}
+
+// ListDeployedNotes returns all notes marked as deployed for a specific user. It does not provide the body of the notes.
+func (db *DB) ListDeployedNotes(userID string) ([]Note, error) {
+	var notes []Note
+	_, err := db.client.From("notes").Select("id,user_id,source,source_identifier,created_at,updated_at,inserted_at,title,slug,deployed", "", false).Eq("user_id", userID).Eq("deployed", "true").ExecuteTo(&notes)
+	if err != nil {
+		return nil, fmt.Errorf("list deployed notes: %w", err)
 	}
 	return notes, nil
 }
