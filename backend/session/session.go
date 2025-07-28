@@ -115,36 +115,57 @@ func ExchangeAuthCode(c *fiber.Ctx, code string) (string, string, error) {
 	return claims.UserID, sessionToken, nil
 }
 
-func SessionMiddleware() fiber.Handler {
+// RequiredSessionMiddleware returns a middleware that requires a valid jwt session
+// in the request cookies. It will retrieve the user from the database and set it in the context.
+// If the session is invalid or not present, the request will not proceed and a 401 Unauthorized error will be
+// returned.
+func RequiredSessionMiddleware() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		claims := &Claims{}
-
-		token, err := jwt.ParseWithClaims(c.Cookies(CookieName), claims, func(token *jwt.Token) (interface{}, error) {
-			return env.Default.JWTSigningKey, nil
-		})
-		if err != nil {
-			slog.Error("parse JWT token", "error", err)
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "unauthorized",
+		if err := sessionMiddleware(c); err != nil {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{ // middleware errors stop the request
+				"error": "resource requires authentication",
 			})
 		}
-		if !token.Valid {
-			slog.Error("invalid JWT token")
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "unauthorized",
-			})
-		}
-
-		user, err := env.Default.Database.GetUserByID(claims.UserID)
-		if err != nil {
-			slog.Error("get user by ID", "error", err)
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "user not found",
-			})
-		}
-
-		c.Locals("user", user)
-
 		return c.Next()
 	}
+}
+
+// OptionalSessionMiddleware returns a middleware that checks for a valid jwt session
+// in the request cookies. If the session is valid, it retrieves the user from the database
+// and sets it in the context. The request will still proceed even if the session is invalid
+// or not present.
+func OptionalSessionMiddleware() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		sessionMiddleware(c)
+		return c.Next() // middleware errors do not stop the request
+	}
+}
+
+// sessionMiddleware is a middleware that checks for a valid JWT session token in the request cookies.
+// If the token is valid, it retrieves the user from the database and sets it in the context.
+// If the token is invalid or not present, it returns an error.
+func sessionMiddleware(c *fiber.Ctx) error {
+	claims := &Claims{}
+
+	token, err := jwt.ParseWithClaims(c.Cookies(CookieName), claims, func(token *jwt.Token) (interface{}, error) {
+		return env.Default.JWTSigningKey, nil
+	})
+	if err != nil {
+		slog.Error("parse JWT token", "error", err)
+		return fmt.Errorf("parsing JWT token: %w", err)
+	}
+	if !token.Valid {
+		slog.Error("invalid JWT token")
+		return fmt.Errorf("invalid JWT token")
+	}
+
+	user, err := env.Default.Database.GetUserByID(claims.UserID)
+	if err != nil {
+		slog.Error("get user by ID", "error", err)
+		return fmt.Errorf("getting user from db: %w", err)
+	}
+
+	c.Locals("user", user)
+
+	return c.Next()
 }

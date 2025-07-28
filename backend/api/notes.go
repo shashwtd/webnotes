@@ -5,11 +5,13 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/shashwtd/webnotes/backend/env"
+	"github.com/shashwtd/webnotes/backend/session"
 	"github.com/shashwtd/webnotes/database"
 )
 
-func setNotesGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
+func setNotesGroup(router fiber.Router) {
 	// /api/v1/notes
+	sessionMiddleware := session.RequiredSessionMiddleware()
 
 	// endpoint for the current user
 	router.Get("/", sessionMiddleware, listNotes())       // GET /api/v1/notes/list (list all notes for the current user)

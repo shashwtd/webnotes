@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/shashwtd/webnotes/backend/env"
+	"github.com/shashwtd/webnotes/backend/session"
 	"github.com/shashwtd/webnotes/database"
 )
 
@@ -20,7 +21,10 @@ const (
 	ATClientSynced              = "client_synced"
 )
 
-func setActivityGroup(router fiber.Router, sessionMiddleware fiber.Handler) {
+func setActivityGroup(router fiber.Router) {
+	// /api/v1/activity
+	sessionMiddleware := session.RequiredSessionMiddleware()
+
 	router.Get("/", sessionMiddleware, listActivitiesHandler()) // list user activities
 	router.Get("/:at", sessionMiddleware, lastOccurance())      // get last occurrence of a specific activity type
 }
