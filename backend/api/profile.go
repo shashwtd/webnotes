@@ -20,13 +20,13 @@ func setProfileGroup(router fiber.Router) {
 	// /api/v1/profile
 	sessionMiddleware := session.RequiredSessionMiddleware()
 
-	router.Get("/", sessionMiddleware, getMyProfileHandler())
-	router.Get("/:username", getOtherProfileHandler())
+	router.Get("/", sessionMiddleware, getMyProfileHandler()) // GET /api/v1/profile (get the current user's profile)
+	// router.Get("/:username", getOtherProfileHandler())        // GET /api/v1/profile/:username (get a specific user's profile)
 
-	router.Patch("/edit/name", sessionMiddleware, editNameHandler())
-	router.Patch("/edit/description", sessionMiddleware, editDescriptionHandler())
-	router.Patch("/edit/profile-picture", sessionMiddleware, editProfilePictureHandler())
-	router.Delete("/edit/profile-picture", sessionMiddleware, deleteProfilePictureHandler())
+	router.Patch("/edit/name", sessionMiddleware, editNameHandler())                         // PATCH /api/v1/profile/edit/name (edit the current user's name)
+	router.Patch("/edit/description", sessionMiddleware, editDescriptionHandler())           // PATCH /api/v1/profile/edit/description (edit the current user's description)
+	router.Patch("/edit/profile-picture", sessionMiddleware, editProfilePictureHandler())    // PATCH /api/v1/profile/edit/profile-picture (edit the current user's profile picture)
+	router.Delete("/edit/profile-picture", sessionMiddleware, deleteProfilePictureHandler()) // DELETE /api/v1/profile/edit/profile-picture (reset curren't user's profile picture to default)
 }
 
 func getMyProfileHandler() fiber.Handler {
