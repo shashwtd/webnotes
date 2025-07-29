@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
     title: "User Profile - WebNotes",
-    description: "View user profiles and published notes",
+    description: "View user profiles and Deployed notes",
 };
 
 export default function ProfileLayout({

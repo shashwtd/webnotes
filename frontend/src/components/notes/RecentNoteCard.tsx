@@ -6,6 +6,7 @@ import { Note } from "@/lib/api/notes";
 import { MoreHorizontal, Edit, Rocket, Trash2 } from "lucide-react";
 import { usePopup } from "@/context/usePopup";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
 
 interface RecentNoteCardProps {
     note: Note;
@@ -15,6 +16,7 @@ export function RecentNoteCard({ note }: RecentNoteCardProps) {
     const [showMenu, setShowMenu] = useState(false);
     const { showDeployPopup } = usePopup();
     const menuRef = useRef<HTMLDivElement>(null);
+    const { user } = useAuth();
 
     useEffect(() => {
         if (showMenu) {
@@ -30,7 +32,7 @@ export function RecentNoteCard({ note }: RecentNoteCardProps) {
     }, [showMenu]);
 
     return (
-        <div ref={menuRef} className="bg-white border border-neutral-200 rounded-xl p-4 transition-all flex items-center gap-4">
+        <div ref={menuRef} className="group bg-white border border-neutral-200 rounded-xl p-4 transition-all flex items-center gap-4">
             <div className="h-12 w-12 relative flex-shrink-0">
                 <div className="h-full w-full rounded-lg bg-neutral-100 flex items-center justify-center border border-neutral-200">
                     {note.source === "apple-notes" && (
@@ -46,9 +48,24 @@ export function RecentNoteCard({ note }: RecentNoteCardProps) {
                 </div>
             </div>
             <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-neutral-900 truncate">
-                    {note.title || "Untitled Note"}
-                </h3>
+                <div className="flex items-center gap-2">
+                    <h3 className="font-medium text-neutral-900 truncate">
+                        {note.title || "Untitled Note"}
+                    </h3>
+                    {note.source !== "deployed" && (
+                        <button
+                            onClick={() => showDeployPopup(
+                                note.id,
+                                user?.username || "",
+                                note.slug || ""
+                            )}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-blue-50 rounded text-blue-600"
+                            title="Deploy note"
+                        >
+                            <Rocket size={14} />
+                        </button>
+                    )}
+                </div>
                 <p className="text-sm text-neutral-500">
                     Updated {new Date(note.updated_at).toLocaleDateString()}
                 </p>
@@ -86,9 +103,13 @@ export function RecentNoteCard({ note }: RecentNoteCardProps) {
                                 <button
                                     onClick={() => {
                                         setShowMenu(false);
-                                        showDeployPopup(note.id);
+                                        showDeployPopup(
+                                            note.id,
+                                            user?.username || "",
+                                            note.slug || ""
+                                        );
                                     }}
-                                    className="w-full px-4 py-2 text-sm text-left text-neutral-700 hover:bg-neutral-50 flex items-center gap-2"
+                                    className="w-full px-4 py-2 text-sm text-left text-blue-600 hover:bg-blue-50 flex items-center gap-2 font-medium"
                                 >
                                     <Rocket size={16} />
                                     Deploy

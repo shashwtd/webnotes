@@ -45,18 +45,18 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     </div>
                     
                     <div className="mt-4 flex space-x-6 text-sm text-gray-600">
-                        <span>{userNotes.length} notes published</span>
+                        <span>{userNotes.length} notes deployed</span>
                         <span>Member since {new Date(userProfile.created_at).toLocaleDateString()}</span>
                     </div>
                 </div>
                 
-                {/* Published Notes */}
+                {/* Deployed Notes */}
                 <div className="bg-white rounded-lg shadow-sm border p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-6">Published Notes</h2>
+                    <h2 className="text-xl font-semibold text-gray-900 mb-6">Deployed Notes</h2>
                     
                     {userNotes.length === 0 ? (
                         <div className="text-center py-8 text-gray-500">
-                            <p>No published notes yet.</p>
+                            <p>No deployed notes yet.</p>
                         </div>
                     ) : (
                         <div className="grid gap-4">
@@ -64,9 +64,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                                 <div key={note.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                                     <a href={`/${note.slug}`} className="block">
                                         <h3 className="text-lg font-medium text-gray-900 mb-2">{note.title}</h3>
-                                        <p className="text-gray-600 text-sm mb-2">{note.description || 'No description'}</p>
                                         <div className="flex items-center justify-between text-xs text-gray-500">
-                                            <span>Published {new Date(note.updated_at).toLocaleDateString()}</span>
+                                            <span>Deployed {new Date(note.updated_at).toLocaleDateString()}</span>
                                             <span>{note.views || 0} views</span>
                                         </div>
                                     </a>
@@ -93,6 +92,6 @@ export async function generateMetadata({ params }: ProfilePageProps) {
     
     return {
         title: `@${username} - WebNotes`,
-        description: userProfile.description || `Check out @${username}'s published notes on WebNotes`,
+        description: userProfile.description || `Check out @${username}'s deployed notes on WebNotes`,
     };
 }
