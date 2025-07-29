@@ -34,10 +34,14 @@ func main() {
 		}))
 	} else {
 		app.Use(cors.New(cors.Config{
-			AllowOrigins:     "https://webnotes-murex.vercel.app",
+			AllowOrigins:     "https://webnotes-murex.vercel.app,https://mynotes.ink",
 			AllowCredentials: true,
 		}))
 	}
+
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.Status(fiber.StatusOK).SendString("OK")
+	})
 
 	apiGroup := app.Group("/api")
 	api.SetAPIGroup(apiGroup)
