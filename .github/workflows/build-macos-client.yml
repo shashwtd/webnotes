@@ -51,12 +51,6 @@ jobs:
           sudo apt update
           sudo apt install -y gh
 
-      - name: Authenticate GitHub CLI
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh auth login --with-token <<< "${GH_TOKEN}"
-
       - name: Create or update 'latest' release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
