@@ -128,6 +128,7 @@ func editProfilePictureHandler() fiber.Handler {
 			slog.Error("open profile picture file", "error", err)
 			return sendError(c, err)
 		}
+		defer file.Close()
 
 		// save the profile picture to blob storage and get the URL
 		pfpURL, err := env.Default.Database.SaveProfilePicture(file, fh.Filename)

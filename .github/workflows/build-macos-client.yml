@@ -9,6 +9,9 @@ on:
       - "go.sum"
       - ".github/workflows/build-macos-client.yml"
 
+permissions:
+  contents: write # Required to create/update releases
+
 jobs:
   build:
     name: Build macos_client for multiple OS/ARCH
@@ -37,8 +40,39 @@ jobs:
           fi
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o builds/${{ matrix.goos }}-${{ matrix.goarch }}${ext} ./macos_client
 
-      - name: Upload build artifact
+      - name: Upload build artifact to workflow
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.goos }}-${{ matrix.goarch }}-build
           path: builds/${{ matrix.goos }}-${{ matrix.goarch }}*
+
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install -y gh
+
+      - name: Authenticate GitHub CLI
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh auth login --with-token <<< "${GH_TOKEN}"
+
+      - name: Create or update 'latest' release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view latest &>/dev/null; then
+            echo "Release 'latest' exists. Deleting and recreating..."
+            gh release delete latest --yes
+          fi
+
+          gh release create latest \
+            --title "Latest Build" \
+            --notes "Automated build for latest commit" \
+            --latest
+
+      - name: Upload binary to 'latest' release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload latest builds/${{ matrix.goos }}-${{ matrix.goarch }}* --clobber

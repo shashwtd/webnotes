@@ -34,7 +34,7 @@ func main() {
 		}))
 	} else {
 		app.Use(cors.New(cors.Config{
-			AllowOrigins:     "https://webnotes-murex.vercel.app,https://mynotes.ink",
+			AllowOrigins:     "https://webnotes-murex.vercel.app, https://mynotes.ink",
 			AllowCredentials: true,
 		}))
 	}
