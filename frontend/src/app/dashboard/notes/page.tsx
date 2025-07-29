@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { Note, listNotes } from "@/lib/api/notes";
 import { FileText, Clock, ChevronDown } from "lucide-react";
-import { usePopup } from "@/context/usePopup";
 import { RecentNoteCard } from "@/components/notes/RecentNoteCard";
 import { DeployedNoteCard, DeployedNote } from "@/components/notes/DeployedNoteCard";
 
@@ -11,7 +10,6 @@ export default function NotesPage() {
     const [notes, setNotes] = useState<Note[]>([]);
     const [loading, setLoading] = useState(true);
     const [sortBy, setSortBy] = useState<"latest" | "oldest" | "title">("latest");
-    const { showDeployPopup } = usePopup();
 
     useEffect(() => {
         let mounted = true;
@@ -62,10 +60,10 @@ export default function NotesPage() {
     };
 
     const deployedNotes = getSortedNotes(
-        notes.filter((note) => note.source === "deployed")
+        notes.filter((note) => note.deployed === true)
     ) as DeployedNote[];
     const otherNotes = getSortedNotes(
-        notes.filter((note) => note.source !== "deployed")
+        notes.filter((note) => note.deployed !== true)
     );
 
     if (loading) {
@@ -139,16 +137,10 @@ export default function NotesPage() {
                                     No deployed notes
                                 </h3>
                                 <p className="text-sm text-neutral-500 mt-1">
-                                    Deploy your first note to make it accessible
+                                    Deploy a note to make it accessible
                                     on the web
                                 </p>
                             </div>
-                            <button
-                                onClick={() => showDeployPopup()}
-                                className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                            >
-                                Deploy a Note
-                            </button>
                         </div>
                     ) : (
                         <div className="space-y-4">

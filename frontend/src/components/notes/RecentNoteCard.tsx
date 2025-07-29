@@ -6,6 +6,7 @@ import { Note } from "@/lib/api/notes";
 import { MoreHorizontal, Edit, Rocket, Trash2 } from "lucide-react";
 import { usePopup } from "@/context/usePopup";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
 
 interface RecentNoteCardProps {
     note: Note;
@@ -15,6 +16,7 @@ export function RecentNoteCard({ note }: RecentNoteCardProps) {
     const [showMenu, setShowMenu] = useState(false);
     const { showDeployPopup } = usePopup();
     const menuRef = useRef<HTMLDivElement>(null);
+    const { user } = useAuth();
 
     useEffect(() => {
         if (showMenu) {
@@ -86,7 +88,11 @@ export function RecentNoteCard({ note }: RecentNoteCardProps) {
                                 <button
                                     onClick={() => {
                                         setShowMenu(false);
-                                        showDeployPopup(note.id);
+                                        showDeployPopup(
+                                            note.id,
+                                            user?.username || "",
+                                            note.slug || ""
+                                        );
                                     }}
                                     className="w-full px-4 py-2 text-sm text-left text-neutral-700 hover:bg-neutral-50 flex items-center gap-2"
                                 >
