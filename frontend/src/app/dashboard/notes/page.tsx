@@ -1,40 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Note, listNotes } from "@/lib/api/notes";
+import { useState } from "react";
+import { Note } from "@/lib/api/notes";
 import { FileText, Clock, ChevronDown } from "lucide-react";
 import { RecentNoteCard } from "@/components/notes/RecentNoteCard";
 import { DeployedNoteCard, DeployedNote } from "@/components/notes/DeployedNoteCard";
+import { useNotes } from "@/hooks/useNotes";
+import { PopupProvider } from "@/context/PopupContext";
 
 export default function NotesPage() {
-    const [notes, setNotes] = useState<Note[]>([]);
-    const [loading, setLoading] = useState(true);
     const [sortBy, setSortBy] = useState<"latest" | "oldest" | "title">("latest");
-
-    useEffect(() => {
-        let mounted = true;
-
-        const fetchNotes = async () => {
-            try {
-                const notesList = await listNotes();
-                if (mounted) {
-                    setNotes(notesList);
-                }
-            } catch (error) {
-                console.error("Failed to fetch notes:", error);
-            } finally {
-                if (mounted) {
-                    setLoading(false);
-                }
-            }
-        };
-
-        fetchNotes();
-
-        return () => {
-            mounted = false;
-        };
-    }, []); // Empty dependency array - fetch only once
+    const { loading, recentNotes, deployedNotes, handleDeploymentChange } = useNotes();
 
     const getSortedNotes = (notesToSort: Note[]) => {
         switch (sortBy) {
@@ -59,12 +35,8 @@ export default function NotesPage() {
         }
     };
 
-    const deployedNotes = getSortedNotes(
-        notes.filter((note) => note.deployed === true)
-    ) as DeployedNote[];
-    const otherNotes = getSortedNotes(
-        notes.filter((note) => note.deployed !== true)
-    );
+    const sortedDeployedNotes = getSortedNotes(deployedNotes) as DeployedNote[];
+    const sortedRecentNotes = getSortedNotes(recentNotes);
 
     if (loading) {
         return (
@@ -90,16 +62,17 @@ export default function NotesPage() {
     }
 
     return (
-        <div className="max-w-7xl mx-auto px-2 py-2 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">
-                        Your Notes
-                    </h1>
-                    <p className="text-neutral-500 mt-1">
-                        Manage and organize all your notes in one place.
-                    </p>
-                </div>
+        <PopupProvider onDeploymentChange={handleDeploymentChange}>
+            <div className="max-w-7xl mx-auto px-2 py-2 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-2xl font-semibold tracking-tight">
+                            Your Notes
+                        </h1>
+                        <p className="text-neutral-500 mt-1">
+                            Manage and organize all your notes in one place.
+                        </p>
+                    </div>
                 <div className="relative">
                     <select
                         value={sortBy}
@@ -124,7 +97,7 @@ export default function NotesPage() {
                         </h2>
                     </div>
                     {/* THIS IS WHEN NO NOTES ARE DEPLOYED BY THE USER */}
-                    {deployedNotes.length === 0 ? (
+                    {sortedDeployedNotes.length === 0 ? (
                         <div className="bg-white border-2 border-dashed border-neutral-200 min-h-64 rounded-xl p-6 sm:p-8 text-center flex items-center justify-center flex-col gap-4">
                             <div className="w-16 h-16 mx-auto rounded-full bg-blue-50 flex items-center justify-center">
                                 <FileText
@@ -144,7 +117,7 @@ export default function NotesPage() {
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {deployedNotes.map((note) => (
+                            {sortedDeployedNotes.map((note) => (
                                 <DeployedNoteCard
                                     key={note.id}
                                     note={note}
@@ -162,7 +135,7 @@ export default function NotesPage() {
                             All Notes
                         </h2>
                     </div>
-                    {otherNotes.length === 0 ? (
+                    {sortedRecentNotes.length === 0 ? (
                         <div className="bg-white border-2 border-dashed border-neutral-200 rounded-xl min-h-64 p-6 sm:p-8 text-center flex items-center justify-center flex-col gap-4">
                             <div className="w-16 h-16 mx-auto rounded-full bg-blue-50 flex items-center justify-center">
                                 <FileText
@@ -181,7 +154,7 @@ export default function NotesPage() {
                         </div>
                     ) : (
                     <div className="space-y-2 md:space-y-4">
-                        {otherNotes.map((note) => (
+                        {sortedRecentNotes.map((note) => (
                             <RecentNoteCard key={note.id} note={note} />
                         ))}
                     </div>
@@ -189,5 +162,6 @@ export default function NotesPage() {
                 </section>
             </div>
         </div>
+        </PopupProvider>
     );
 }
