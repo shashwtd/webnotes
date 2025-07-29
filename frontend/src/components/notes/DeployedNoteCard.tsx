@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Note, deleteDeployedNote } from "@/lib/api/notes";
+import { Note } from "@/lib/api/notes";
 import { MoreHorizontal, Edit, Trash2, ExternalLink, Copy, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
+import { usePopup } from "@/context/usePopup";
 
 export interface DeployedNote extends Note {
     slug?: string;
@@ -18,6 +19,7 @@ export function DeployedNoteCard({ note }: DeployedNoteCardProps) {
     const [showMenu, setShowMenu] = useState(false);
     const [copied, setCopied] = useState(false);
     const { user } = useAuth();
+    const { showUndeployPopup } = usePopup();
     const slug = note.slug || note.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
     
     // Construct the public URL
@@ -144,14 +146,7 @@ export function DeployedNoteCard({ note }: DeployedNoteCardProps) {
                                 <button
                                     onClick={() => {
                                         setShowMenu(false);
-                                        deleteDeployedNote(note.id)
-                                            .then(() => {
-                                                alert('Deployment removed successfully');
-                                            })
-                                            .catch((error: Error) => {
-                                                console.error('Failed to unpublish note:', error);
-                                                alert('Failed to unpublish note. Please try again later.');
-                                            });
+                                        showUndeployPopup(note.id);
                                     }}
                                     className="w-full px-4 py-2 text-sm text-left text-red-600 hover:bg-red-50 flex items-center gap-2"
                                 >
