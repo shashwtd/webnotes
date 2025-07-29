@@ -14,7 +14,7 @@ export interface UserProfile {
     created_at: string;
 }
 
-export interface PublishedNote {
+export interface DeployedNote {
     id: string;
     title: string;
     content: string;
@@ -27,22 +27,13 @@ export interface PublishedNote {
     };
 }
 
-export async function getPublishedNote(username: string, noteSlug: string): Promise<PublishedNote> {
-    const response = await fetch(`${SERVER_URL}/notes/${username}/${noteSlug}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-        },
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to fetch published note');
-    }
-
-    return response.json();
-}
-
+/**
+ * Fetches a user profile by username.
+ * 
+ * @param username The username of the user whose profile to fetch.
+ * @returns {Promise<UserProfile>} A promise that resolves to the user's profile.
+ * @throws {Error} If the fetch operation fails or the user is not found.
+ */
 export async function getUserProfile(username: string): Promise<UserProfile> {
     const response = await fetch(`${SERVER_URL}/profile/${username}`, {
         method: 'GET',
@@ -59,6 +50,13 @@ export async function getUserProfile(username: string): Promise<UserProfile> {
     return response.json();
 }
 
+/**
+ * Updates the user's description (requires authentication)
+ * 
+ * @param description The new description to set for the user profile.
+ * @returns {Promise<void>} A promise that resolves when the description is updated.
+ * @throws {Error} If the update operation fails.
+ */
 export async function updateDescription(description: string): Promise<void> {
     const response = await fetch(`${SERVER_URL}/profile/edit/description`, {
         method: 'PATCH',
@@ -74,6 +72,13 @@ export async function updateDescription(description: string): Promise<void> {
     }
 }
 
+/**
+ * Updates the user's profile picture (requires binary data in FormData format)
+ * 
+ * @param file ]The new profile picture file to upload.
+ * @returns {Promise<void>} A promise that resolves when the profile picture is updated.
+ * @throws {Error} If the update operation fails.
+ */
 export async function updateProfilePicture(file: File): Promise<void> {
     const formData = new FormData();
     formData.append('profile_picture', file);
@@ -90,6 +95,12 @@ export async function updateProfilePicture(file: File): Promise<void> {
     }
 }
 
+/**
+ * Removes the curent user's profile picture 
+ * 
+ * @returns {Promise<void>} A promise that resolves when the profile picture is removed.
+ * @throws {Error} If the removal operation fails.
+ */
 export async function removeProfilePicture(): Promise<void> {
     const response = await fetch(`${SERVER_URL}/profile/edit/profile-picture`, {
         method: 'DELETE',
