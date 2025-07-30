@@ -21,8 +21,8 @@ import { getBinaryLinks } from "@/lib/api/releases";
 function DownloadSection() {
     const [clientData, setClientData] = useState<{
         error: string | null;
-        intel_url?: string;
-        arm_url?: string;
+        intel?: string;
+        arm?: string;
     } | null>(null);
     const [loading, setLoading] = useState(true);
     const toast = useToast();
@@ -143,13 +143,13 @@ function DownloadSection() {
                             </div>
                             <span>Loading downloads...</span>
                         </div>
-                    ) : !clientData?.arm_url && !clientData?.intel_url ? (
+                    ) : !clientData?.arm && !clientData?.intel ? (
                         <div className="text-blue-100">
                             No downloads available at the moment
                         </div>
                     ) : (
                         <div className="flex items-center justify-center gap-6 max-w-xl mx-auto">
-                            {clientData?.arm_url && (
+                            {clientData?.arm && (
                                 <motion.div
                                     whileHover={{
                                         scale: 1.02,
@@ -159,7 +159,7 @@ function DownloadSection() {
                                     className="w-max rounded-xl outline-offset-2 outline-white/10 h-max hover:outline-white/25 outline-4"
                                 >
                                     <a
-                                        href={clientData.arm_url}
+                                        href={clientData.arm}
                                         className="flex items-center justify-center gap-6 bg-white/10 backdrop-blur-sm hover:bg-white/15 px-6 py-4 rounded-xl transition-all duration-200"
                                     >
                                         <Download size={26} />
@@ -175,7 +175,7 @@ function DownloadSection() {
                                 </motion.div>
                             )}
 
-                            {clientData?.intel_url && (
+                            {clientData?.intel && (
                                 <motion.div
                                     whileHover={{
                                         scale: 1.02,
@@ -185,7 +185,7 @@ function DownloadSection() {
                                     className="w-max rounded-xl outline-offset-2 outline-white/10 h-max hover:outline-white/25 outline-4"
                                 >
                                     <a
-                                        href={clientData.arm_url}
+                                        href={clientData.arm}
                                         className="flex items-center justify-center gap-6 bg-white/10 backdrop-blur-sm hover:bg-white/15 px-6 py-4 rounded-xl transition-all duration-200"
                                     >
                                         <Download size={26} />
@@ -237,7 +237,7 @@ function DownloadSection() {
 
 export default function MacClientPage() {
     return (
-        <div className="max-w-5xl mx-auto space-y-8 pb-8">
+        <div className="max-w-5xl mx-auto space-y-8 py-8">
             <div>
                 <h1 className="text-2xl font-semibold tracking-tight">
                     Mac Client

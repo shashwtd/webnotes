@@ -6,8 +6,8 @@ if (!SERVER_URL) {
 
 export interface MacOSBinaries {
     error: string | null;
-    intel_url?: string;
-    arm_url?: string;
+    intel?: string;
+    arm?: string;
 }
 
 /**
