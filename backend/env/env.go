@@ -11,8 +11,6 @@ import (
 type Environment struct {
 	Debug bool // DEBUG
 
-	GithubToken string // GITHUB_TOKEN (to get the latest macos_client build, NOTE! it needs repo scope)
-
 	SupabaseURL            string // SUPABASE_URL
 	SupabaseServiceRoleKey string // SUPABASE_SR_KEY
 	SupabaseAnonKey        string // SUPABASE_ANON_KEY

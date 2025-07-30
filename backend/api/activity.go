@@ -23,6 +23,17 @@ const (
 	ATNoteUndeployed            = "note_undeployed"
 )
 
+func isValidActivityType(at string) bool {
+	switch at {
+	case ATAccountCreated, ATNewLogin, ATClientAuthorized,
+		ATProfileNameUpdated, ATProfileDescriptionUpdated, ATProfilePictureUpdated,
+		ATClientSynced, ATNoteDeployed, ATNoteUndeployed:
+		return true
+	default:
+		return false
+	}
+}
+
 func setActivityGroup(router fiber.Router) {
 	// /api/v1/activity
 	sessionMiddleware := session.RequiredSessionMiddleware()
@@ -52,9 +63,8 @@ func lastOccurance() fiber.Handler {
 		user := c.Locals("user").(*database.User)
 		at := c.Params("at")
 
-		switch at {
-		case ATAccountCreated, ATNewLogin, ATClientAuthorized, ATProfileDescriptionUpdated, ATProfilePictureUpdated, ATClientSynced:
-		default:
+		if !isValidActivityType(at) {
+			slog.Error("invalid activity type", "type", at)
 			return sendStringError(c, fiber.StatusBadRequest, "invalid activity type")
 		}
 
