@@ -35,7 +35,8 @@ type Note struct {
 	Slug             string `json:"slug,omitempty"`
 	Body             string `json:"body,omitempty"`
 
-	Deployed bool `json:"deployed"`
+	Deployed bool  `json:"deployed"`
+	Views    int64 `json:"views"`
 }
 
 // Activity represents an activity in the database.

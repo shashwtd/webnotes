@@ -27,17 +27,12 @@ func main() {
 	}
 
 	app := fiber.New()
-	if env.Default.Debug {
-		app.Use(cors.New(cors.Config{
-			AllowOrigins:     "http://localhost:3000",
-			AllowCredentials: true,
-		}))
-	} else {
-		app.Use(cors.New(cors.Config{
-			AllowOrigins:     "https://webnotes-murex.vercel.app, https://mynotes.ink",
-			AllowCredentials: true,
-		}))
-	}
+	app.Use(cors.New(cors.Config{
+		AllowOriginsFunc: func(origin string) bool {
+			return true
+		},
+		AllowCredentials: true,
+	}))
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).SendString("OK")
