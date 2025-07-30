@@ -15,6 +15,7 @@ import {
     Globe,
     BookOpen,
 } from "lucide-react";
+import { DeployNotePopup } from "@/components/notes/DeployNotePopup";
 import { AnimatePresence, motion } from "framer-motion";
 import AnimatedText from "@/components/AnimatedText";
 
@@ -38,7 +39,7 @@ const navigation: NavItem[] = [
     },
     {
         label: "Recent Activity",
-        href: "/dashboard/recent",
+        href: "/dashboard/activity",
         icon: Clock,
     },
     {
@@ -58,23 +59,24 @@ interface SidebarProps {
 export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
     const pathname = usePathname();
     const [lastSync] = useState("2 hours ago");
+    const [showDeployPopup, setShowDeployPopup] = useState(false);
 
     return (
-        <AnimatePresence mode="wait">
-            {isOpen && (
-                <>
-                    {/* Overlay for mobile */}
-                    {isMobile && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="fixed inset-0 bg-black/20 z-20 lg:hidden"
-                            onClick={onClose}
-                        />
-                    )}
-
-                    {/* Sidebar Content */}
+        <>
+            <DeployNotePopup isOpen={showDeployPopup} onClose={() => setShowDeployPopup(false)} />
+            <AnimatePresence mode="wait">
+                {isOpen && (
+                    <>
+                        {/* Overlay for mobile */}
+                        {isMobile && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="fixed inset-0 bg-black/20 z-20 lg:hidden"
+                                onClick={onClose}
+                            />
+                        )}                    {/* Sidebar Content */}
                     <motion.aside
                         initial={{ x: -300, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
@@ -146,7 +148,10 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
                         {/* Quick Actions */}
                         <div className="p-3 bg-neutral-0/80 rounded-xl mb-8">
                             <div className="flex flex-col gap-2">
-                                <button className="group w-full flex items-center justify-center gap-2 bg-gradient-to-b from-blue-500 to-blue-700 hover:from-blue-600 text-white py-2.5 px-4 rounded-lg transition-colors duration-200 cursor-pointer">
+                                <button 
+                                    onClick={() => setShowDeployPopup(true)}
+                                    className="group w-full flex items-center justify-center gap-2 bg-gradient-to-b from-blue-500 to-blue-700 hover:from-blue-600 text-white py-2.5 px-4 rounded-lg transition-colors duration-200 cursor-pointer"
+                                >
                                     <Rocket size={18} />
                                     <AnimatedText>Deploy Note</AnimatedText>
                                 </button>
@@ -203,6 +208,7 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
                     </motion.aside>
                 </>
             )}
-        </AnimatePresence>
+            </AnimatePresence>
+        </>
     );
 }

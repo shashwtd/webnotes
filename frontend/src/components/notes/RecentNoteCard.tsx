@@ -4,9 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { Note } from "@/lib/api/notes";
 import { MoreHorizontal, Edit, Rocket, Trash2 } from "lucide-react";
-import { usePopup } from "@/context/usePopup";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
+import { useDeployment } from "@/hooks/useDeployment";
 
 interface RecentNoteCardProps {
     note: Note;
@@ -14,9 +14,9 @@ interface RecentNoteCardProps {
 
 export function RecentNoteCard({ note }: RecentNoteCardProps) {
     const [showMenu, setShowMenu] = useState(false);
-    const { showDeployPopup } = usePopup();
     const menuRef = useRef<HTMLDivElement>(null);
     const { user } = useAuth();
+    const { handleDeploy, loading } = useDeployment();
 
     useEffect(() => {
         if (showMenu) {
@@ -54,12 +54,9 @@ export function RecentNoteCard({ note }: RecentNoteCardProps) {
                     </h3>
                     {note.source !== "deployed" && (
                         <button
-                            onClick={() => showDeployPopup(
-                                note.id,
-                                user?.username || "",
-                                note.slug || ""
-                            )}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-blue-50 rounded text-blue-600"
+                            onClick={() => handleDeploy(note.id, note.title)}
+                            disabled={loading}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-blue-50 rounded text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
                             title="Deploy note"
                         >
                             <Rocket size={14} />
@@ -101,15 +98,12 @@ export function RecentNoteCard({ note }: RecentNoteCardProps) {
                             </button>
                             {note.source !== "deployed" && (
                                 <button
-                                    onClick={() => {
+                                    onClick={async () => {
                                         setShowMenu(false);
-                                        showDeployPopup(
-                                            note.id,
-                                            user?.username || "",
-                                            note.slug || ""
-                                        );
+                                        await handleDeploy(note.id, note.title);
                                     }}
-                                    className="w-full px-4 py-2 text-sm text-left text-blue-600 hover:bg-blue-50 flex items-center gap-2 font-medium"
+                                    disabled={loading}
+                                    className="w-full px-4 py-2 text-sm text-left text-blue-600 hover:bg-blue-50 flex items-center gap-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
                                 >
                                     <Rocket size={16} />
                                     Deploy

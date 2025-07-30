@@ -6,11 +6,10 @@ import { FileText, Clock, ChevronDown } from "lucide-react";
 import { RecentNoteCard } from "@/components/notes/RecentNoteCard";
 import { DeployedNoteCard, DeployedNote } from "@/components/notes/DeployedNoteCard";
 import { useNotes } from "@/hooks/useNotes";
-import { PopupProvider } from "@/context/PopupContext";
 
 export default function NotesPage() {
     const [sortBy, setSortBy] = useState<"latest" | "oldest" | "title">("latest");
-    const { loading, recentNotes, deployedNotes, handleDeploymentChange } = useNotes();
+    const { loading, recentNotes, deployedNotes } = useNotes();
 
     const getSortedNotes = (notesToSort: Note[]) => {
         switch (sortBy) {
@@ -62,17 +61,16 @@ export default function NotesPage() {
     }
 
     return (
-        <PopupProvider onDeploymentChange={handleDeploymentChange}>
-            <div className="max-w-7xl mx-auto px-2 py-2 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-semibold tracking-tight">
-                            Your Notes
-                        </h1>
-                        <p className="text-neutral-500 mt-1">
-                            Manage and organize all your notes in one place.
-                        </p>
-                    </div>
+        <div className="max-w-7xl mx-auto px-2 py-2 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-semibold tracking-tight">
+                        Your Notes
+                    </h1>
+                    <p className="text-neutral-500 mt-1">
+                        Manage and organize all your notes in one place.
+                    </p>
+                </div>
                 <div className="relative">
                     <select
                         value={sortBy}
@@ -153,15 +151,14 @@ export default function NotesPage() {
                             </div>
                         </div>
                     ) : (
-                    <div className="space-y-2 md:space-y-4">
-                        {sortedRecentNotes.map((note) => (
-                            <RecentNoteCard key={note.id} note={note} />
-                        ))}
-                    </div>
+                        <div className="space-y-2 md:space-y-4">
+                            {sortedRecentNotes.map((note) => (
+                                <RecentNoteCard key={note.id} note={note} />
+                            ))}
+                        </div>
                     )}
                 </section>
             </div>
         </div>
-        </PopupProvider>
     );
 }
