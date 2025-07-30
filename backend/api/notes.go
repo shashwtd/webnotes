@@ -23,9 +23,20 @@ func setNotesGroup(router fiber.Router) {
 
 	router.Get("/count", requiredSM, countNotes()) // GET /api/v1/notes/count (count all notes for the current user)
 
+	router.Post("/view/:id", func(c *fiber.Ctx) error { // POST /api/v1/notes/:id/viewed (increment view count for a note)
+		noteID := c.Params("id")
+		err := env.Default.Database.IncrementNoteViews(noteID)
+		if err != nil {
+			slog.Error("view note", "error", err)
+			return sendError(c, err)
+		}
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"error": nil,
+		})
+	})
+
 	router.Get("/:id", optionalSM, getNoteID())               // GET /api/v1/notes/:id (get a note by ID)
 	router.Get("/:username/:slug", optionalSM, getNoteSlug()) // GET /api/v1/notes/:username/:id (get a note by ID for a specific user)
-
 }
 
 func listNotes() fiber.Handler {
