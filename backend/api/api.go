@@ -16,6 +16,8 @@ func SetAPIGroup(group fiber.Router) {
 	setProfileGroup(profileRouter)
 	activityRouter := v1.Group("/activity")
 	setActivityGroup(activityRouter)
+	binariesRouter := v1.Group("/binaries")
+	setBinaryGroup(binariesRouter)
 
 	v1.Get("/supabase", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{

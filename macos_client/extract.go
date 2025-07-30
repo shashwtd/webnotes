@@ -64,6 +64,7 @@ func extractNotes() ([]database.Note, error) {
 	note := database.Note{}
 
 	for scanner.Scan() {
+		note.Source = "apple-notes" // set the source for each note
 		line := strings.TrimSpace(scanner.Text())
 		if line == delim+delim {
 			if note.SourceIdentifier != "" {

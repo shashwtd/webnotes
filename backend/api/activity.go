@@ -2,6 +2,7 @@ package api
 
 import (
 	"log/slog"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/shashwtd/webnotes/backend/env"
@@ -23,6 +24,17 @@ const (
 	ATNoteUndeployed            = "note_undeployed"
 )
 
+func isValidActivityType(at string) bool {
+	switch at {
+	case ATAccountCreated, ATNewLogin, ATClientAuthorized,
+		ATProfileNameUpdated, ATProfileDescriptionUpdated, ATProfilePictureUpdated,
+		ATClientSynced, ATNoteDeployed, ATNoteUndeployed:
+		return true
+	default:
+		return false
+	}
+}
+
 func setActivityGroup(router fiber.Router) {
 	// /api/v1/activity
 	sessionMiddleware := session.RequiredSessionMiddleware()
@@ -34,7 +46,17 @@ func setActivityGroup(router fiber.Router) {
 func listActivitiesHandler() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		user := c.Locals("user").(*database.User)
-		activities, err := env.Default.Database.GetActivities(user.ID)
+
+		rawLoadTime := c.QueryInt("load_time", 0)
+		if rawLoadTime < 0 {
+			slog.Error("invalid load time", "load_time", rawLoadTime)
+			return sendStringError(c, fiber.StatusBadRequest, "invalid load time")
+		}
+		loadTime := time.UnixMilli(int64(rawLoadTime))
+		offset := c.QueryInt("offset", 0)
+		limit := c.QueryInt("limit", 25)
+
+		activities, err := env.Default.Database.GetActivities(user.ID, loadTime, offset, limit)
 		if err != nil {
 			slog.Error("get user activities", "error", err)
 			return sendError(c, err)
@@ -52,9 +74,8 @@ func lastOccurance() fiber.Handler {
 		user := c.Locals("user").(*database.User)
 		at := c.Params("at")
 
-		switch at {
-		case ATAccountCreated, ATNewLogin, ATClientAuthorized, ATProfileDescriptionUpdated, ATProfilePictureUpdated, ATClientSynced:
-		default:
+		if !isValidActivityType(at) {
+			slog.Error("invalid activity type", "type", at)
 			return sendStringError(c, fiber.StatusBadRequest, "invalid activity type")
 		}
 
