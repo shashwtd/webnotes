@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/components/dashboard/Sidebar";
 import AccountMenu from "@/components/dashboard/AccountMenu";
 import { useAuth } from "@/context/AuthContext";
-import { PopupProvider } from "@/context/PopupContext";
 
 export default function DashboardLayout({
     children,
@@ -54,49 +53,45 @@ export default function DashboardLayout({
     }
 
     return (
-        <>
-            <PopupProvider>
-                <div className="min-h-screen w-full font-sans bg-neutral-100">
-                    {/* Sidebar */}
-                    <Sidebar
-                        isOpen={isSidebarOpen}
-                        onClose={() => setIsSidebarOpen(false)}
-                        isMobile={isMobile}
-                    />
+        <div className="min-h-screen w-full font-sans bg-neutral-100">
+            {/* Sidebar */}
+            <Sidebar
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
+                isMobile={isMobile}
+            />
 
-                    {/* Main Content */}
-                    <main
-                        className={`min-h-screen transition-[padding] duration-300 ${
-                            isSidebarOpen ? "lg:pl-72" : "pl-0"
-                        }`}
-                    >
-                        {/* Header */}
-                        <header className="sticky top-0 z-10 bg-white border-b border-neutral-300">
-                            <div className="px-6 py-2 flex items-center gap-4">
-                                <button
-                                    onClick={() =>
-                                        setIsSidebarOpen(!isSidebarOpen)
-                                    }
-                                    className="text-neutral-500 hover:text-neutral-900 cursor-pointer"
-                                >
-                                    <Menu size={20} />
-                                </button>
+            {/* Main Content */}
+            <main
+                className={`min-h-screen transition-[padding] duration-300 ${
+                    isSidebarOpen ? "lg:pl-72" : "pl-0"
+                }`}
+            >
+                {/* Header */}
+                <header className="sticky top-0 z-10 bg-white border-b border-neutral-300">
+                    <div className="px-6 py-2 flex items-center gap-4">
+                        <button
+                            onClick={() =>
+                                setIsSidebarOpen(!isSidebarOpen)
+                            }
+                            className="text-neutral-500 hover:text-neutral-900 cursor-pointer"
+                        >
+                            <Menu size={20} />
+                        </button>
 
-                                {/* Right Side - Account Menu */}
-                                <div className="ml-auto">
-                                    <AccountMenu
-                                        user={user}
-                                        onLogout={handleLogout}
-                                    />
-                                </div>
-                            </div>
-                        </header>
+                        {/* Right Side - Account Menu */}
+                        <div className="ml-auto">
+                            <AccountMenu
+                                user={user}
+                                onLogout={handleLogout}
+                            />
+                        </div>
+                    </div>
+                </header>
 
-                        {/* Page Content */}
-                        <div className="p-6">{children}</div>
-                    </main>
-                </div>
-            </PopupProvider>
-        </>
+                {/* Page Content */}
+                <div className="p-6">{children}</div>
+            </main>
+        </div>
     );
 }
