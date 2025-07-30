@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { Note } from "@/lib/api/notes";
-import { MoreHorizontal, Edit, Trash2, ExternalLink, Copy, Check } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, ExternalLink, Copy, Check, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
-import { usePopup } from "@/context/usePopup";
+import { useDeployment } from "@/hooks/useDeployment";
 
 export interface DeployedNote extends Note {
     slug?: string;
@@ -19,7 +19,7 @@ export function DeployedNoteCard({ note }: DeployedNoteCardProps) {
     const [showMenu, setShowMenu] = useState(false);
     const [copied, setCopied] = useState(false);
     const { user } = useAuth();
-    const { showUndeployPopup } = usePopup();
+    const { handleUndeploy, loading } = useDeployment();
     const slug = note.slug || note.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
     
     // Construct the public URL
@@ -57,41 +57,16 @@ export function DeployedNoteCard({ note }: DeployedNoteCardProps) {
     }, [showMenu]);
 
     return (
-        <div className="bg-white border border-neutral-200 rounded-xl p-4 hover:border-neutral-300 transition-colors">
-            <div className="flex items-start gap-4">
-                <div className="h-12 w-12 relative flex-shrink-0">
-                    <div className="h-full w-full rounded-lg bg-blue-50 flex items-center justify-center">
-                        <ExternalLink size={20} className="text-blue-600" />
+        <div className="bg-white border border-neutral-200 rounded-xl hover:shadow-sm transition-all">
+            {/* Header Section */}
+            <div className="flex items-center justify-between border-b border-neutral-100 p-4">
+                <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                        <ExternalLink size={16} className="text-blue-600" />
                     </div>
-                </div>
-                <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-neutral-900 truncate">
+                    <h3 className="font-medium text-neutral-900">
                         {note.title || "Untitled Note"}
                     </h3>
-                    <div className="mt-1 space-y-1">
-                        <div className="flex items-center gap-2 text-sm text-neutral-500">
-                            <span className="font-mono text-neutral-600">/{slug}</span>
-                        </div>
-                        {user && (
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={openInNewTab}
-                                    className="text-xs text-blue-600 hover:text-blue-800 transition-colors font-mono bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded flex items-center gap-1"
-                                    title="Open in new tab"
-                                >
-                                    <ExternalLink size={12} />
-                                    {user.username}.{domain}/{slug}
-                                </button>
-                                <button
-                                    onClick={copyToClipboard}
-                                    className="text-xs text-neutral-600 hover:text-neutral-800 transition-colors p-1 rounded hover:bg-neutral-100"
-                                    title="Copy link"
-                                >
-                                    {copied ? <Check size={12} className="text-green-600" /> : <Copy size={12} />}
-                                </button>
-                            </div>
-                        )}
-                    </div>
                 </div>
                 <div className="relative note-menu">
                     <button
@@ -99,9 +74,9 @@ export function DeployedNoteCard({ note }: DeployedNoteCardProps) {
                             e.stopPropagation();
                             setShowMenu(!showMenu);
                         }}
-                        className="p-2 rounded-lg hover:bg-neutral-100 transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-neutral-100 transition-colors"
                     >
-                        <MoreHorizontal size={20} className="text-neutral-500" />
+                        <MoreHorizontal size={18} className="text-neutral-500" />
                     </button>
                     <AnimatePresence>
                         {showMenu && (
@@ -115,16 +90,6 @@ export function DeployedNoteCard({ note }: DeployedNoteCardProps) {
                                 <button
                                     onClick={() => {
                                         setShowMenu(false);
-                                        openInNewTab();
-                                    }}
-                                    className="w-full px-4 py-2 text-sm text-left text-neutral-700 hover:bg-neutral-50 flex items-center gap-2"
-                                >
-                                    <ExternalLink size={16} />
-                                    Visit Note
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        setShowMenu(false);
                                         copyToClipboard();
                                     }}
                                     className="w-full px-4 py-2 text-sm text-left text-neutral-700 hover:bg-neutral-50 flex items-center gap-2"
@@ -132,23 +97,13 @@ export function DeployedNoteCard({ note }: DeployedNoteCardProps) {
                                     {copied ? <Check size={16} className="text-green-600" /> : <Copy size={16} />}
                                     {copied ? 'Copied!' : 'Copy Link'}
                                 </button>
-                                <hr className="my-1" />
                                 <button
-                                    onClick={() => {
+                                    onClick={async () => {
                                         setShowMenu(false);
-                                        // TODO: Implement edit
+                                        await handleUndeploy(note.id, note.title);
                                     }}
-                                    className="w-full px-4 py-2 text-sm text-left text-neutral-700 hover:bg-neutral-50 flex items-center gap-2"
-                                >
-                                    <Edit size={16} />
-                                    Edit
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        setShowMenu(false);
-                                        showUndeployPopup(note.id);
-                                    }}
-                                    className="w-full px-4 py-2 text-sm text-left text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                    disabled={loading}
+                                    className="w-full px-4 py-2 text-sm text-left text-red-600 hover:bg-red-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
                                 >
                                     <Trash2 size={16} />
                                     Unpublish
@@ -158,6 +113,31 @@ export function DeployedNoteCard({ note }: DeployedNoteCardProps) {
                     </AnimatePresence>
                 </div>
             </div>
+            
+            {/* URL Section */}
+            {user && (
+                <div className="p-4 bg-neutral-50 flex items-center gap-3 rounded-b-xl">
+                    <div className="flex-1 font-mono text-sm text-neutral-600 bg-white border border-neutral-200 px-3 py-1.5 rounded-lg">
+                        {user.username}.{domain}/{slug}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={openInNewTab}
+                            className="p-2 text-neutral-600 hover:text-neutral-900 hover:bg-white rounded-lg transition-all"
+                            title="Open in new tab"
+                        >
+                            <ExternalLink size={18} />
+                        </button>
+                        <button
+                            onClick={copyToClipboard}
+                            className="p-2 text-neutral-600 hover:text-neutral-900 hover:bg-white rounded-lg transition-all"
+                            title={copied ? "Copied!" : "Copy link"}
+                        >
+                            {copied ? <Check size={18} className="text-green-600" /> : <Copy size={18} />}
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

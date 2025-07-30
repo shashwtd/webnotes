@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { LogOut, ChevronDown } from "lucide-react";
+import { LogOut, ChevronDown, Settings } from "lucide-react";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 
@@ -84,9 +85,16 @@ export default function AccountMenu({ user, onLogout }: AccountMenuProps) {
                                 {user.email}
                             </p>
                         </div>
+                        <Link
+                            href="/dashboard/settings"
+                            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-neutral-600 hover:bg-neutral-50 transition-colors cursor-pointer"
+                        >
+                            <Settings size={16} />
+                            <span>Settings</span>
+                        </Link>
                         <button
                             onClick={onLogout}
-                            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-neutral-50 transition-colors cursor-pointer"
+                            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-neutral-50 transition-colors cursor-pointer border-t border-neutral-200"
                         >
                             <LogOut size={16} />
                             <span>Log out</span>

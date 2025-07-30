@@ -1,26 +1,34 @@
 "use client";
 
-import { ChevronDown, Globe, Rocket, Clock } from "lucide-react";
+import { Globe, Rocket, Eye } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Note, listNotes } from "@/lib/api/notes";
+import { Activity, listActivities } from "@/lib/api/activity";
+import { ActivityFeed } from "@/components/activity/ActivityFeed";
 
 export default function DashboardPage() {
     const [notes, setNotes] = useState<Note[]>([]);
+    const [activities, setActivities] = useState<Activity[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchNotes = async () => {
+        const fetchData = async () => {
             try {
-                const notesList = await listNotes();
+                const [notesList, activitiesList] = await Promise.all([
+                    listNotes(),
+                    listActivities()
+                ]);
                 setNotes(notesList);
+                setActivities(activitiesList);
             } catch (error) {
-                console.error('Failed to fetch notes:', error);
+                console.error('Failed to fetch data:', error);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchNotes();
+        fetchData();
     }, []);
     if (loading) {
         return (
@@ -39,7 +47,7 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="max-w-7xl mx-auto space-y-8">
+        <div className="max-w-7xl mx-auto space-y-8 p-4 pb-8">
             {/* Welcome Section */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
@@ -50,22 +58,17 @@ export default function DashboardPage() {
                         Here&apos;s what&apos;s happening with your notes today.
                     </p>
                 </div>
-                <div className="flex items-center gap-2">
-                    <button className="inline-flex items-center gap-2 bg-white border border-neutral-200 hover:border-neutral-300 px-4 py-2 rounded-lg transition-colors">
-                        <span className="text-sm font-medium">Last 7 Days</span>
-                        <ChevronDown size={16} />
-                    </button>
-                </div>
+                {/* Removed time filter */}
             </div>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[
                     {
-                        label: "Total Apple Notes",
-                        value: notes.filter(n => n.source === 'apple').length.toString(),
-                        change: "From Apple Notes",
-                        icon: Clock,
+                        label: "Total Views",
+                        value: notes.reduce((acc, note) => acc + (note.views || 0), 0).toString(),
+                        change: "Across all notes",
+                        icon: Eye,
                         color: "blue",
                     },
                     {
@@ -121,57 +124,16 @@ export default function DashboardPage() {
                 <div className="px-6 py-4 border-b border-neutral-200">
                     <div className="flex items-center justify-between">
                         <h2 className="text-lg font-semibold">Recent Activity</h2>
-                        <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                        <Link 
+                            href="/dashboard/activity"
+                            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                        >
                             View All
-                        </button>
+                        </Link>
                     </div>
                 </div>
 
-                <div className="divide-y divide-neutral-200">
-                    <span className="w-full h-full flex items-center justify-center py-16 opacity-50">Activity table not active gng 🥀</span>
-                    {/* {notes
-                        .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-                        .slice(0, 3)
-                        .map((note, i) => {
-                            const updatedAt = new Date(note.updated_at);
-                            const now = new Date();
-                            const hoursDiff = Math.floor((now.getTime() - updatedAt.getTime()) / (1000 * 3600));
-                            const timeAgo = hoursDiff === 0 ? 'Just now' : 
-                                          hoursDiff === 1 ? '1 hour ago' : 
-                                          `${hoursDiff} hours ago`;
-
-                            return {
-                                title: note.source === 'apple' ? 'Apple Note Updated' : 'Note Updated',
-                                description: note.title,
-                                time: timeAgo,
-                                icon: note.source === 'apple' ? Clock : Globe,
-                                iconColor: note.source === 'apple' ? 'blue' : 'green',
-                            };
-                        })
-                        .map((activity, i) => (
-                        <div
-                            key={i}
-                            className="px-6 py-4 flex items-center gap-4 hover:bg-neutral-50 transition-colors cursor-pointer"
-                        >
-                            <div
-                                className={`p-2 rounded-lg bg-${activity.iconColor}-50 text-${activity.iconColor}-600`}
-                            >
-                                <activity.icon size={16} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-neutral-900">
-                                    {activity.title}
-                                </p>
-                                <p className="text-sm text-neutral-500 truncate">
-                                    {activity.description}
-                                </p>
-                            </div>
-                            <span className="text-sm text-neutral-500 whitespace-nowrap">
-                                {activity.time}
-                            </span>
-                        </div>
-                    ))} */}
-                </div>
+                <ActivityFeed activities={activities} limit={5} />
             </section>
         </div>
     );
