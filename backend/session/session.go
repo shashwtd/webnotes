@@ -126,7 +126,6 @@ func RequiredSessionMiddleware() fiber.Handler {
 				"error": "resource requires authentication",
 			})
 		}
-		fmt.Println("fumbleee")
 		return c.Next()
 	}
 }

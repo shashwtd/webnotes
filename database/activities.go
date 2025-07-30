@@ -2,15 +2,26 @@ package database
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/supabase-community/postgrest-go"
 )
 
-func (db *DB) GetActivities(userID string) ([]Activity, error) {
+func (db *DB) GetActivities(userID string, loadTime time.Time, offset, limit int) ([]Activity, error) {
 	var activities []Activity
-	_, err := db.client.From("activities").Select("*", "", false).Eq("user_id", userID).Order("timestamp", &postgrest.OrderOpts{
+
+	// build the query
+	query := db.client.From("activities").Select("*", "", false).Eq("user_id", userID).Order("timestamp", &postgrest.OrderOpts{
 		Ascending: false,
-	}).ExecuteTo(&activities)
+	}).Range(offset, max(offset+limit-1, 0), "")
+	// add timestamp filter if loadTime is set
+	if loadTime.UnixMilli() > 0 {
+		fmt.Println("ns. usar")
+		query = query.Lt("timestamp", loadTime.Format(time.RFC3339))
+	}
+
+	// execute the query
+	_, err := query.ExecuteTo(&activities)
 	if err != nil {
 		return nil, fmt.Errorf("get user activities: %w", err)
 	}
