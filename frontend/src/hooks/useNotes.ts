@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { Note, listNotes } from '@/lib/api/notes';
+import { useState, useEffect, useCallback } from "react";
+import { Note, listNotes } from "@/lib/api/notes";
 
 let globalNotes: Note[] = [];
 let globalSetters: ((notes: Note[]) => void)[] = [];
 
 const updateAllNotes = (notes: Note[]) => {
     globalNotes = notes;
-    globalSetters.forEach(setter => setter(notes));
+    globalSetters.forEach((setter) => setter(notes));
 };
 
 export function useNotes() {
@@ -19,7 +19,9 @@ export function useNotes() {
     useEffect(() => {
         globalSetters.push(setNotes);
         return () => {
-            globalSetters = globalSetters.filter(setter => setter !== setNotes);
+            globalSetters = globalSetters.filter(
+                (setter) => setter !== setNotes
+            );
         };
     }, []);
 
@@ -41,16 +43,21 @@ export function useNotes() {
         fetchNotes();
     }, [fetchNotes]);
 
-    const handleDeploymentChange = useCallback((noteId: string, isDeployed: boolean) => {
-        updateAllNotes(globalNotes.map(note => 
-            note.id === noteId 
-                ? { ...note, deployed: isDeployed }
-                : note
-        ));
-    }, []);
+    const handleDeploymentChange = useCallback(
+        (noteId: string, isDeployed: boolean) => {
+            updateAllNotes(
+                globalNotes.map((note) =>
+                    note.id === noteId
+                        ? { ...note, deployed: isDeployed }
+                        : note
+                )
+            );
+        },
+        []
+    );
 
-    const recentNotes = notes.filter(note => !note.deployed);
-    const deployedNotes = notes.filter(note => note.deployed);
+    const recentNotes = notes.filter((note) => !note.deployed);
+    const deployedNotes = notes.filter((note) => note.deployed);
 
     return {
         notes,

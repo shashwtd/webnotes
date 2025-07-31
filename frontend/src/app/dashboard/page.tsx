@@ -3,26 +3,29 @@
 import { Globe, Rocket, Eye } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Note, listNotes } from "@/lib/api/notes";
 import { Activity, listActivities } from "@/lib/api/activity";
 import { ActivityFeed } from "@/components/activity/ActivityFeed";
+import { getMyStats, StatisticsInterface } from "@/lib/api/statistics";
 
 export default function DashboardPage() {
-    const [notes, setNotes] = useState<Note[]>([]);
     const [activities, setActivities] = useState<Activity[]>([]);
+    const [stats, setStats] = useState<StatisticsInterface>();
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [notesList, activitiesList] = await Promise.all([
-                    listNotes(),
-                    listActivities()
-                ]);
-                setNotes(notesList);
+                const activitiesList = await listActivities();
+                // const statistics = await getMyStats();
+
                 setActivities(activitiesList);
+                setStats({
+                    totalViews: 402,
+                    totalNotes: 56,
+                    deployedNotes: 12,
+                });
             } catch (error) {
-                console.error('Failed to fetch data:', error);
+                console.error("Failed to fetch data:", error);
             } finally {
                 setLoading(false);
             }
@@ -37,7 +40,10 @@ export default function DashboardPage() {
                     <div className="h-12 bg-neutral-100 rounded-lg w-1/3"></div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {[1, 2, 3].map((i) => (
-                            <div key={i} className="h-32 bg-neutral-100 rounded-xl"></div>
+                            <div
+                                key={i}
+                                className="h-32 bg-neutral-100 rounded-xl"
+                            ></div>
                         ))}
                     </div>
                     <div className="h-64 bg-neutral-100 rounded-xl"></div>
@@ -66,26 +72,21 @@ export default function DashboardPage() {
                 {[
                     {
                         label: "Total Views",
-                        value: notes.reduce((acc, note) => acc + (note.views || 0), 0).toString(),
+                        value: stats?.totalViews.toString() || "0",
                         change: "Across all notes",
                         icon: Eye,
                         color: "blue",
                     },
                     {
                         label: "All Notes",
-                        value: notes.length.toString(),
+                        value: stats?.totalNotes.toString() || "0",
                         change: "Total notes count",
                         icon: Globe,
                         color: "green",
                     },
                     {
-                        label: "Recent Notes",
-                        value: notes.filter(n => {
-                            const date = new Date(n.updated_at);
-                            const now = new Date();
-                            const daysDiff = (now.getTime() - date.getTime()) / (1000 * 3600 * 24);
-                            return daysDiff <= 7;
-                        }).length.toString(),
+                        label: "Deployed Notes",
+                        value: stats?.deployedNotes.toString() || "0",
                         change: "Updated in last 7 days",
                         icon: Rocket,
                         color: "amber",
@@ -123,8 +124,10 @@ export default function DashboardPage() {
             <section className="bg-white border border-neutral-200 rounded-xl">
                 <div className="px-6 py-4 border-b border-neutral-200">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-lg font-semibold">Recent Activity</h2>
-                        <Link 
+                        <h2 className="text-lg font-semibold">
+                            Recent Activity
+                        </h2>
+                        <Link
                             href="/dashboard/activity"
                             className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                         >
