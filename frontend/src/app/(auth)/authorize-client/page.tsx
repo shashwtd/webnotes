@@ -30,16 +30,8 @@ function AuthorizeClientContent() {
 
         const getAuthCode = async () => {
             try {
-                const response = await fetch("/api/auth/authcode", {
-                    method: "POST",
-                });
-
-                if (!response.ok) {
-                    throw new Error("Failed to get authorization code");
-                }
-
-                const { code } = await response.json();
-
+                const { generateAuthCode } = await import('@/lib/api/auth');
+                const { code } = await generateAuthCode();
                 window.location.href = `${redirectUri}?code=${code}`;
             } catch (err) {
                 console.error("Auth code error:", err);

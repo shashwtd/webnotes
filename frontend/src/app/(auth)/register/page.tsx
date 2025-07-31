@@ -49,8 +49,9 @@ export default function RegisterPage() {
         }
 
         try {
-            const response = await fetch(`/api/auth/usernameExists?username=${username}`);
-            const data = await response.json();
+            const data = await import('@/lib/api/auth').then(module => 
+                module.checkUsernameExists(username)
+            );
 
             setUsernameStatus({
                 loading: false,

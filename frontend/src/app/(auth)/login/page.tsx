@@ -24,7 +24,8 @@ export default function LoginPage() {
         try {
             await login(formData.usernameOrEmail, formData.password);
             
-            // we gotta redirect to the next parameter if it's there
+            // The auth context will handle returnUrl redirects
+            // This is just for legacy 'next' parameter support
             const params = new URLSearchParams(window.location.search);
             const nextUrl = params.get('next');
             

@@ -5,19 +5,12 @@ import {
     useContext,
     useEffect,
     useState,
+    useCallback,
     ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
-
-interface User {
-    id: string;
-    email: string;
-    username: string;
-    name: string;
-    description: string;
-    profile_picture_url: string;
-    created_at: string;
-}
+import * as authApi from "@/lib/api/auth";
+import { User, RegisterData } from "@/lib/api/auth";
 
 interface AuthContextType {
     user: User | null;
@@ -29,13 +22,6 @@ interface AuthContextType {
     checkAuth: () => Promise<void>;
 }
 
-interface RegisterData {
-    email: string;
-    username: string;
-    name: string;
-    password: string;
-}
-
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -44,52 +30,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
 
-    const checkAuth = async () => {
+    const checkAuth = useCallback(async () => {
         try {
-            const response = await fetch("/api/auth/me");
-            if (!response.ok) {
-                if (response.status === 401) {
-                    setUser(null);
-                    return;
-                }
-                throw new Error("Failed to check authentication");
-            }
-            const data = await response.json();
-            setUser(data);
+            const userData = await authApi.getCurrentUser();
+            setUser(userData);
         } catch (err) {
-            console.error("Error checking auth:", err);
-            setError("Failed to check authentication");
+            if (err instanceof Error && err.message === "Unauthorized") {
+                setUser(null);
+                // If on a protected route, redirect to login
+                if (typeof window !== 'undefined' && window.location.pathname.startsWith('/dashboard')) {
+                    router.push(`/login?returnUrl=${encodeURIComponent(window.location.href)}`);
+                }
+            } else {
+                console.error("Error checking auth:", err);
+                setError("Failed to check authentication");
+            }
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [router]);
 
     useEffect(() => {
         checkAuth();
-    }, []);
+    }, [checkAuth]);
 
     const login = async (usernameOrEmail: string, password: string) => {
         try {
             setError(null);
             setIsLoading(true);
 
-            const response = await fetch("/api/auth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    [usernameOrEmail.includes("@") ? "email" : "username"]:
-                        usernameOrEmail,
-                    password,
-                }),
-            });
-
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.error || "Failed to login");
-            }
-
+            await authApi.login(usernameOrEmail, password);
             await checkAuth();
-            router.push("/dashboard");
+            
+            // Check for returnUrl in query parameters
+            if (typeof window !== 'undefined') {
+                const params = new URLSearchParams(window.location.search);
+                const returnUrl = params.get('returnUrl');
+                
+                if (returnUrl && returnUrl.startsWith('/')) {
+                    // Only allow internal redirects
+                    router.push(returnUrl);
+                } else {
+                    router.push("/dashboard");
+                }
+            } else {
+                router.push("/dashboard");
+            }
         } catch (err) {
             console.error("Login error:", err);
             setError(err instanceof Error ? err.message : "Failed to login");
@@ -104,22 +90,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setError(null);
             setIsLoading(true);
 
-            const response = await fetch("/api/auth/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
-            });
-
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.error || "Failed to register");
-            }
-
+            await authApi.register(data);
             await checkAuth();
-            const newUser = await fetch("/api/auth/me").then(res => res.json());
-            if (newUser && !newUser.error) {
-                router.push("/dashboard");
-            } else {
+            
+            try {
+                const userData = await authApi.getCurrentUser();
+                if (userData) {
+                    router.push("/dashboard");
+                } else {
+                    throw new Error("Failed to fetch user data after registration");
+                }
+            } catch {
                 throw new Error("Failed to fetch user data after registration");
             }
         } catch (err) {
@@ -136,14 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setError(null);
             setIsLoading(true);
 
-            const response = await fetch("/api/auth/logout", {
-                method: "POST",
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to logout");
-            }
-
+            await authApi.logout();
             setUser(null);
             router.push("/");
         } catch (err) {
