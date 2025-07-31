@@ -26,21 +26,29 @@ func setProfileGroup(router fiber.Router) {
 	router.Patch("/edit/name", sessionMiddleware, editNameHandler())                         // PATCH /api/v1/profile/edit/name (edit the current user's name)
 	router.Patch("/edit/description", sessionMiddleware, editDescriptionHandler())           // PATCH /api/v1/profile/edit/description (edit the current user's description)
 	router.Patch("/edit/profile-picture", sessionMiddleware, editProfilePictureHandler())    // PATCH /api/v1/profile/edit/profile-picture (edit the current user's profile picture)
+	router.Patch("/edit/socials", sessionMiddleware, editSocialsHandler())                   // PATCH /api/v1/profile/edit/socials (edit the current user's socials)
 	router.Delete("/edit/profile-picture", sessionMiddleware, deleteProfilePictureHandler()) // DELETE /api/v1/profile/edit/profile-picture (reset curren't user's profile picture to default)
+}
+
+func sendProfile(c *fiber.Ctx, user *database.User) error {
+	m := fiber.Map{
+		"id":                  user.ID,
+		"username":            user.Username,
+		"name":                user.Name,
+		"description":         user.Description,
+		"profile_picture_url": user.ProfilePictureURL,
+		"created_at":          user.CreatedAt,
+	}
+	omitempty(m, "twitter_username", user.TwitterUsername)
+	omitempty(m, "instagram_username", user.InstagramUsername)
+	omitempty(m, "github_username", user.GithubUsername)
+	return c.Status(fiber.StatusOK).JSON(m)
 }
 
 func getMyProfileHandler() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		user := c.Locals("user").(*database.User)
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"id":                  user.ID,
-			"email":               user.Email,
-			"username":            user.Username,
-			"name":                user.Name,
-			"description":         user.Description,
-			"profile_picture_url": user.ProfilePictureURL,
-			"created_at":          user.CreatedAt,
-		})
+		return sendProfile(c, user)
 	}
 }
 
@@ -53,15 +61,7 @@ func getOtherProfileHandler() fiber.Handler {
 			return sendError(c, err)
 		}
 
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"id":                  user.ID,
-			"email":               user.Email,
-			"username":            user.Username,
-			"name":                user.Name,
-			"description":         user.Description,
-			"profile_picture_url": user.ProfilePictureURL,
-			"created_at":          user.CreatedAt,
-		})
+		return sendProfile(c, user)
 	}
 }
 
@@ -153,6 +153,40 @@ func editProfilePictureHandler() fiber.Handler {
 			"profile_picture_url": pfpURL,
 		})
 	}
+}
+
+func editSocialsHandler() fiber.Handler {
+	type expectedBody struct {
+		TwitterUsername   string `json:"twitter_username"`
+		InstagramUsername string `json:"instagram_username"`
+		GithubUsername    string `json:"github_username"`
+	}
+	return handler(func(c *fiber.Ctx, body expectedBody) error {
+		user := c.Locals("user").(*database.User)
+		if !isGoodSocialUsername(body.TwitterUsername) && body.TwitterUsername != "" {
+			return sendStringError(c, fiber.StatusBadRequest, "invalid twitter username")
+		}
+		if !isGoodSocialUsername(body.InstagramUsername) && body.InstagramUsername != "" {
+			return sendStringError(c, fiber.StatusBadRequest, "invalid instagram username")
+		}
+		if !isGoodSocialUsername(body.GithubUsername) && body.GithubUsername != "" {
+			return sendStringError(c, fiber.StatusBadRequest, "invalid github username")
+		}
+		user.TwitterUsername = goodString(body.TwitterUsername)
+		user.InstagramUsername = goodString(body.InstagramUsername)
+		user.GithubUsername = goodString(body.GithubUsername)
+
+		err := env.Default.Database.UpdateUserSocials(user)
+		if err != nil {
+			slog.Error("update user socials", "error", err)
+			return sendError(c, err)
+		}
+
+		setActivity(user.ID, ATProfileSocialsUpdated, onlineString(c, "Profile socials updated"))
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"error": nil,
+		})
+	})
 }
 
 func deleteProfilePictureHandler() fiber.Handler {
