@@ -13,7 +13,7 @@ export interface MacOSBinaries {
 /**
  * Fetches the download links for the latest MacOS client binaries.
  * 
- * @returns {Promise<Activity[]>} A promise that resolves to an array of activities.
+ * @returns {Promise<MacOSBinaries>} A promise that resolves all the download links for the latest MacOS client binaries.
  * @throws {Error} If the fetch operation fails.
  */
 export async function getBinaryLinks(): Promise<MacOSBinaries> {
@@ -26,7 +26,7 @@ export async function getBinaryLinks(): Promise<MacOSBinaries> {
     });
 
     if (!response.ok) {
-        throw new Error("Failed to fetch activities");
+        throw new Error("Failed to fetch download links");
     }
 
     return await response.json();

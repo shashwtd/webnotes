@@ -10,6 +10,12 @@ interface ProfilePageProps {
     }>;
 }
 
+const backgroundImages: string[] = [
+    "https://images.unsplash.com/photo-1699006599458-b8bd9e67c3d9?q=80&w=1828",
+    "https://images.unsplash.com/photo-1698239307081-375b3f3da4c0?q=80&w=2072",
+    "https://images.unsplash.com/photo-1683659635689-3df761eddb70?q=80&w=1754",
+]
+
 export default async function ProfilePage({ params }: ProfilePageProps) {
     const { username } = await params;
 
@@ -23,7 +29,15 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     }
 
     return (
-        <div className="fixed top-0 left-0 w-full h-full bg-[#dacfbe] object-cover text-gray-900 overflow-y-auto">
+        <div className="fixed top-0 left-0 w-full h-full bg-[#dacfbe] text-gray-900 overflow-y-auto"
+        style={{
+            // backgroundImage: `url(${backgroundImages[Math.floor(Math.random() * backgroundImages.length)]})`,
+            backgroundImage: `url(${backgroundImages[2]})`,
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "0% 0%",
+            backgroundBlendMode: "overlay",
+        }}>
             <div className="max-w-2xl xl:h-screen xl:max-w-none flex flex-col xl:flex-row justify-center mx-auto gap-8 md:gap-16 pt-8 md:pt-16 py-16 px-6 sm:px-8 relative xl:overflow-y-scroll">
                 {/* User Profile Header */}
                 <header className="w-full xl:sticky top-0 z-10 max-w-2xl xl:max-w-lg">
