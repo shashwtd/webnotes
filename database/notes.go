@@ -62,7 +62,7 @@ func (db *DB) GetNoteBySlug(username, slug string) (*Note, error) {
 // ListNotes returns all notes in the database for a specific user. It does not provide the body of the notes.
 func (db *DB) ListNotes(userID string) ([]Note, error) {
 	var notes []Note
-	_, err := db.client.From("notes").Select("id,user_id,source,source_identifier,created_at,updated_at,inserted_at,title,slug,deployed", "", false).Eq("user_id", userID).ExecuteTo(&notes)
+	_, err := db.client.From("notes").Select("id,user_id,source,source_identifier,created_at,updated_at,inserted_at,title,slug,deployed,views", "", false).Eq("user_id", userID).ExecuteTo(&notes)
 	if err != nil {
 		return nil, err
 	}
@@ -72,11 +72,19 @@ func (db *DB) ListNotes(userID string) ([]Note, error) {
 // ListDeployedNotes returns all notes marked as deployed for a specific user. It does not provide the body of the notes.
 func (db *DB) ListDeployedNotes(userID string) ([]Note, error) {
 	var notes []Note
-	_, err := db.client.From("notes").Select("id,user_id,source,source_identifier,created_at,updated_at,inserted_at,title,slug,deployed", "", false).Eq("user_id", userID).Eq("deployed", "true").ExecuteTo(&notes)
+	_, err := db.client.From("notes").Select("id,user_id,source,source_identifier,created_at,updated_at,inserted_at,title,slug,deployed,views", "", false).Eq("user_id", userID).Eq("deployed", "true").ExecuteTo(&notes)
 	if err != nil {
 		return nil, fmt.Errorf("list deployed notes: %w", err)
 	}
 	return notes, nil
+}
+
+func (db *DB) IncrementNoteViews(noteID string) error {
+	// increment the view count for the note
+	db.client.Rpc("increment_notes_view_counter", "", map[string]any{
+		"row_id": noteID,
+	})
+	return nil
 }
 
 // InsertNote inserts a new note into the database and returns the inserted note with its ID.
@@ -132,7 +140,12 @@ func (db *DB) UndeployNote(noteID, userID string) error {
 
 // UpdateNote updates an existing note in the database by its source identifier.
 func (db *DB) UpdateNote(note *Note) error {
-	db.client.From("notes").Update(note, "", "").Eq("source_identifier", note.SourceIdentifier).Single().ExecuteTo(note)
+	db.client.From("notes").Update(map[string]any{
+		"created_at": note.CreatedAt,
+		"updated_at": note.UpdatedAt,
+		"title":      note.Title,
+		"body":       note.Body,
+	}, "", "").Eq("source_identifier", note.SourceIdentifier).Single().ExecuteTo(note)
 	return nil
 }
 

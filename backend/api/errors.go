@@ -21,7 +21,7 @@ type errorPattern struct {
 
 var errorPatterns = []errorPattern{
 	{
-		Contains:   []string{"duplicate key value violates unique constraint", "users_email_key"},
+		Contains:   []string{"duplicate key value violates unique constraint", "users_email_address_key"},
 		StatusCode: fiber.StatusConflict,
 		Message:    "email already exists, use a different email or log in",
 	},
@@ -39,6 +39,11 @@ var errorPatterns = []errorPattern{
 		Contains:   []string{"no rows in result set", "multiple (or no) rows returned"},
 		StatusCode: fiber.StatusNotFound,
 		Message:    "the requested resource was not found or you do not have access to it",
+	},
+	{
+		Contains:   []string{"get last activity by type", "multiple (or no) rows returned"},
+		StatusCode: fiber.StatusNotFound,
+		Message:    "no activities of the requested type found",
 	},
 	{
 		Contains:   []string{ErrNonDeployedNoteNotAccessible.Error()},

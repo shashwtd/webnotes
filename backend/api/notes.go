@@ -23,9 +23,20 @@ func setNotesGroup(router fiber.Router) {
 
 	router.Get("/count", requiredSM, countNotes()) // GET /api/v1/notes/count (count all notes for the current user)
 
+	router.Post("/view/:id", func(c *fiber.Ctx) error { // POST /api/v1/notes/:id/viewed (increment view count for a note)
+		noteID := c.Params("id")
+		err := env.Default.Database.IncrementNoteViews(noteID)
+		if err != nil {
+			slog.Error("view note", "error", err)
+			return sendError(c, err)
+		}
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"error": nil,
+		})
+	})
+
 	router.Get("/:id", optionalSM, getNoteID())               // GET /api/v1/notes/:id (get a note by ID)
 	router.Get("/:username/:slug", optionalSM, getNoteSlug()) // GET /api/v1/notes/:username/:id (get a note by ID for a specific user)
-
 }
 
 func listNotes() fiber.Handler {
@@ -119,9 +130,6 @@ func undeployNote() fiber.Handler {
 
 func saveNotes() fiber.Handler {
 	return handler(func(c *fiber.Ctx, body []database.Note) error {
-		if len(body) == 0 {
-			return sendStringError(c, fiber.StatusBadRequest, "no notes provided")
-		}
 		user := c.Locals("user").(*database.User) // ensure user is set in context by session middleware
 		err := env.Default.Database.InsertNotesForUser(user.ID, body)
 		if err != nil {
