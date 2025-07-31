@@ -5,9 +5,9 @@ if (!SERVER_URL) {
 }
 
 export interface StatisticsInterface {
-    totalViews: number;
-    totalNotes: number;
-    deployedNotes: number;
+    total_notes: number;
+    total_views: number;
+    deployed_notes: number;
 }
 
 /**
@@ -17,7 +17,7 @@ export interface StatisticsInterface {
  * @throws {Error} If the fetch operation fails.
  */
 export async function getMyStats(): Promise<StatisticsInterface> {
-    const response = await fetch(`${SERVER_URL}/statistics`, {
+    const response = await fetch(`${SERVER_URL}/stats`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",

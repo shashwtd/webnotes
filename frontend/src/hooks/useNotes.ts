@@ -3,19 +3,36 @@
 import { useState, useEffect, useCallback } from "react";
 import { Note, listNotes } from "@/lib/api/notes";
 
-let globalNotes: Note[] = [];
+// Global state for notes to share across components
+interface GlobalNotesState {
+    notes: Note[];
+    lastFetched: number | null;
+    isLoading: boolean;
+}
+
+const globalState: GlobalNotesState = {
+    notes: [],
+    lastFetched: null,
+    isLoading: false,
+};
+
 let globalSetters: ((notes: Note[]) => void)[] = [];
 
+// Cache expiration time - 5 minutes
+const CACHE_TTL = 5 * 60 * 1000;
+
 const updateAllNotes = (notes: Note[]) => {
-    globalNotes = notes;
+    globalState.notes = notes;
+    globalState.lastFetched = Date.now();
     globalSetters.forEach((setter) => setter(notes));
 };
 
-export function useNotes() {
-    const [notes, setNotes] = useState<Note[]>(globalNotes);
-    const [loading, setLoading] = useState(globalNotes.length === 0);
+export function useNotes(autoFetch = false) {
+    const [notes, setNotes] = useState<Note[]>(globalState.notes);
+    const [loading, setLoading] = useState(globalState.isLoading);
     const [error, setError] = useState<string | null>(null);
 
+    // Register this component to receive updates
     useEffect(() => {
         globalSetters.push(setNotes);
         return () => {
@@ -25,9 +42,25 @@ export function useNotes() {
         };
     }, []);
 
-    const fetchNotes = useCallback(async () => {
-        if (!loading && globalNotes.length > 0) return;
+    const fetchNotes = useCallback(async (force = false) => {
+        // Don't fetch if already loading
+        if (globalState.isLoading) return;
+
+        // Don't fetch if we have cached data and not forcing refresh
+        const now = Date.now();
+        const isCacheValid =
+            globalState.lastFetched &&
+            now - globalState.lastFetched < CACHE_TTL;
+
+        if (!force && isCacheValid && globalState.notes.length > 0) {
+            setLoading(false);
+            return;
+        }
+
+        // Set loading both locally and globally
         setLoading(true);
+        globalState.isLoading = true;
+
         try {
             const fetchedNotes = await listNotes();
             updateAllNotes(fetchedNotes);
@@ -36,22 +69,22 @@ export function useNotes() {
             setError((err as Error).message);
         } finally {
             setLoading(false);
+            globalState.isLoading = false;
         }
-    }, [loading]);
+    }, []);
 
     useEffect(() => {
-        fetchNotes();
-    }, [fetchNotes]);
+        if (autoFetch) {
+            fetchNotes();
+        }
+    }, [autoFetch, fetchNotes]);
 
     const handleDeploymentChange = useCallback(
         (noteId: string, isDeployed: boolean) => {
-            updateAllNotes(
-                globalNotes.map((note) =>
-                    note.id === noteId
-                        ? { ...note, deployed: isDeployed }
-                        : note
-                )
+            const updatedNotes = globalState.notes.map((note) =>
+                note.id === noteId ? { ...note, deployed: isDeployed } : note
             );
+            updateAllNotes(updatedNotes);
         },
         []
     );

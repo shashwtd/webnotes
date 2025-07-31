@@ -80,9 +80,8 @@ export async function middleware(request: NextRequest) {
             loginUrl.searchParams.set("returnUrl", request.url.toString());
             return NextResponse.redirect(loginUrl);
         }
+
         
-        // Allow the request - actual validation will happen in the AuthContext
-        // This prevents redirects between dashboard pages and maintains the URL
         return NextResponse.next();
     }
 

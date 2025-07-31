@@ -16,14 +16,10 @@ export default function DashboardPage() {
         const fetchData = async () => {
             try {
                 const activitiesList = await listActivities();
-                // const statistics = await getMyStats();
+                const statistics = await getMyStats();
 
                 setActivities(activitiesList);
-                setStats({
-                    totalViews: 402,
-                    totalNotes: 56,
-                    deployedNotes: 12,
-                });
+                setStats(statistics);
             } catch (error) {
                 console.error("Failed to fetch data:", error);
             } finally {
@@ -72,21 +68,21 @@ export default function DashboardPage() {
                 {[
                     {
                         label: "Total Views",
-                        value: stats?.totalViews.toString() || "0",
+                        value: stats?.total_views.toString() || "0",
                         change: "Across all notes",
                         icon: Eye,
                         color: "blue",
                     },
                     {
                         label: "All Notes",
-                        value: stats?.totalNotes.toString() || "0",
+                        value: stats?.total_notes.toString() || "0",
                         change: "Total notes count",
                         icon: Globe,
                         color: "green",
                     },
                     {
                         label: "Deployed Notes",
-                        value: stats?.deployedNotes.toString() || "0",
+                        value: stats?.deployed_notes.toString() || "0",
                         change: "Updated in last 7 days",
                         icon: Rocket,
                         color: "amber",
