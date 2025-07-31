@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bufio"
-	"bytes"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -57,53 +55,46 @@ func extractNotes() ([]database.Note, error) {
 		return nil, fmt.Errorf("running AppleScript: %w", err)
 	}
 
-	// start parsin'
-	scanner := bufio.NewScanner(bytes.NewReader(output))
+	lines := strings.Split(string(output), "\n")
 	var notes []database.Note
-	bodyLines := []string{}
-	note := database.Note{}
 
-	for scanner.Scan() {
-		note.Source = "apple-notes" // set the source for each note
-		line := strings.TrimSpace(scanner.Text())
-		if line == delim+delim {
-			if note.SourceIdentifier != "" {
-				note.Body = strings.TrimSpace(strings.Join(bodyLines, "\n"))
-				if note.Body == "" {
-					// if body is empty, we're going to skip this note
-					// empty notes are not useful but also it could mean that the note is locked
-					continue
-				}
-				notes = append(notes, note)
-			}
+	var note database.Note
+	var inNote bool
+	var bodyLines []string
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+
+		switch {
+		case strings.HasPrefix(line, delim+"-id: "):
 			note = database.Note{
 				Source: "apple-notes",
 			}
-			bodyLines = []string{}
-			continue
-		}
+			bodyLines = nil
+			inNote = true
+			note.SourceIdentifier = strings.TrimPrefix(line, delim+"-id: ")
 
-		parsed := false
-		for _, field := range []string{"id", "created", "updated", "folder", "title"} {
-			prefix := fmt.Sprintf("%s-%s: ", delim, field)
-			if strings.HasPrefix(line, prefix) {
-				val := strings.TrimPrefix(line, prefix)
-				switch field {
-				case "id":
-					note.SourceIdentifier = val
-				case "created":
-					note.CreatedAt = val
-				case "updated":
-					note.UpdatedAt = val
-				case "title":
-					note.Title = val
-				}
-				parsed = true
-				break
+		case strings.HasPrefix(line, delim+"-created: "):
+			note.CreatedAt = strings.TrimPrefix(line, delim+"-created: ")
+
+		case strings.HasPrefix(line, delim+"-updated: "):
+			note.UpdatedAt = strings.TrimPrefix(line, delim+"-updated: ")
+
+		case strings.HasPrefix(line, delim+"-title: "):
+			note.Title = strings.TrimPrefix(line, delim+"-title: ")
+		case strings.HasPrefix(line, delim+"-folder: "):
+			// uhhh
+		case line == delim+delim:
+			// End of one note
+			note.Body = strings.Join(bodyLines, "\n")
+			notes = append(notes, note)
+			inNote = false
+
+		default:
+			if inNote {
+				// This is part of the body
+				bodyLines = append(bodyLines, line)
 			}
-		}
-		if !parsed {
-			bodyLines = append(bodyLines, line)
 		}
 	}
 

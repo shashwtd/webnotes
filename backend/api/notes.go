@@ -130,9 +130,6 @@ func undeployNote() fiber.Handler {
 
 func saveNotes() fiber.Handler {
 	return handler(func(c *fiber.Ctx, body []database.Note) error {
-		if len(body) == 0 {
-			return sendStringError(c, fiber.StatusBadRequest, "no notes provided")
-		}
 		user := c.Locals("user").(*database.User) // ensure user is set in context by session middleware
 		err := env.Default.Database.InsertNotesForUser(user.ID, body)
 		if err != nil {
