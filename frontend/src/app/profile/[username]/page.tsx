@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getUserProfile } from "@/lib/api/profile";
 import { getAllNotes, Note } from "@/lib/api/notes";
-import { LucideEye } from "lucide-react";
+import { LucideEye, LucideGitBranchPlus, LucideGithub, LucideInstagram, LucideTwitter, LucideX} from "lucide-react";
 
 interface ProfilePageProps {
     params: Promise<{
@@ -24,11 +24,11 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
     return (
         <div className="fixed top-0 left-0 w-full h-full bg-[#dacfbe] object-cover text-gray-900 overflow-y-auto">
-            <div className="max-w-4xl xl:max-w-[1320px] flex flex-col xl:flex-row gap-16 mx-auto py-16 px-6 sm:px-8">
+            <div className="max-w-2xl xl:h-screen xl:max-w-none flex flex-col xl:flex-row justify-center mx-auto gap-8 md:gap-16 pt-8 md:pt-16 py-16 px-6 sm:px-8 relative xl:overflow-y-scroll">
                 {/* User Profile Header */}
-                <header className="flex-1 relative mb-24">
-                    <div className="bg-gradient-to-b from-white/30 to-white/30 rounded-xl backdrop-blur-sm shadow-sm border border-black/5 p-12">
-                        <div className="w-full h-max flex items-center justify-start mx-auto gap-6 pb-8 border-b border-black/10">
+                <header className="w-full xl:sticky top-0 z-10 max-w-2xl xl:max-w-lg">
+                    <div className="bg-gradient-to-b from-white/60 to-white/30 rounded-xl backdrop-blur-sm shadow-xs border border-black/5 p-12">
+                        <div className="w-full h-max flex items-center justify-start mx-auto gap-6 pb-8 border-b border-black/20">
                             <div
                                 className="size-20 aspect-square overflow-hidden rounded-full"
                                 style={
@@ -48,6 +48,32 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                                     @{userProfile.name}
                                 </h1>
                             </div>
+                        </div>
+                        <div className="flex items-center gap-5 mt-6">
+                            <a
+                                href={"#"}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-black/60 hover:text-black transition-colors"
+                            >
+                                <LucideTwitter className="size-6" />
+                            </a>
+                            <a
+                                href={"#"}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-black/60 hover:text-black transition-colors"
+                            >
+                                <LucideGithub className="size-6" />
+                            </a>
+                            <a
+                                href={"#"}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-black/60 hover:text-black transition-colors"
+                            >
+                                <LucideInstagram className="size-6" />
+                            </a>
                         </div>
                         <p className="text-base text-black/75 w-full mt-6">
                             {/* {userProfile.description || "No bio available"} */}
@@ -75,8 +101,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 </header>
 
                 {/* Deployed Notes */}
-                <section className="w-full mx-auto max-w-2xl">
-                    <h2 className="text-3xl font-serif tracking-tight text-black mb-8">
+                <section className="w-full max-w-2xl xl:max-w-x">
+                    <h2 className="text-2xl pl-2 font-serif tracking-tight text-black mb-4 md:mb-8">
                         Deployed Notes
                     </h2>
                     {userNotes.length === 0 ? (
@@ -93,8 +119,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                                     href={`/${note.slug}`}
                                     className="group block relative overflow-hidden backdrop-blur-sm"
                                 >
-                                    <div className="relative flex flex-col gap-1 bg-gradient-to-r hover:translate-x-1 from-white/75 to-white/30 hover:from-white hover:to-white/70 p-4 px-6 transition-all duration-200 hover:pl-8">
-                                        <h2 className="text-2xl font-serif font-medium tracking-tight text-[#333] group-hover:italic">
+                                    <div className="relative flex flex-col gap-2 bg-gradient-to-r hover:translate-x-1 from-white/75 to-white/30 hover:from-white hover:to-white/70 p-4 px-6 transition-all duration-200 hover:pl-8">
+                                        <h2 className="text-xl md:text-2xl font-serif font-medium tracking-tight text-[#333] group-hover:italic">
                                             {note.title}
                                         </h2>
                                         <div className="flex items-center gap-4 group-hover:pl-1 duration-200">
@@ -108,7 +134,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                                                 })}
                                             </time>
                                             <span className="size-1 bg-black/20"></span>
-                                            <div className="flex items-center text-black/60 gap-2 justify-center">
+                                            <div className="flex text-sm md:text-base items-center text-black/60 gap-2 justify-center">
                                                 <LucideEye size={18} />
                                                 {note.views || 0} views
                                             </div>
@@ -119,27 +145,9 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                             ))}
                         </div>
                     )}
+                    <div className="w-full h-20 bg-transparent"></div>
                 </section>
             </div>
         </div>
     );
-}
-
-// Generate metadata for SEO
-export async function generateMetadata({ params }: ProfilePageProps) {
-    const { username } = await params;
-    const userProfile = await getUserProfile(username);
-
-    if (!userProfile) {
-        return {
-            title: "User Not Found",
-        };
-    }
-
-    return {
-        title: `@${username} - WebNotes`,
-        description:
-            userProfile.description ||
-            `Check out @${username}'s deployed notes on WebNotes`,
-    };
 }
