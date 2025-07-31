@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { getPublicNote } from '@/lib/api/notes';
 
 interface NotePageProps {
@@ -14,87 +15,97 @@ export default async function NotePage({ params }: NotePageProps) {
     let note;
     try {
         note = await getPublicNote(username, slug);
-    } catch (error) {
-        console.error('Error fetching note:', error);
+    } catch {
         notFound();
     }
     
     return (
-        <div className="min-h-screen bg-gray-50">
-            <div className="max-w-4xl mx-auto py-8 px-4">
-                {/* Note Header */}
-                <div className="bg-white rounded-lg shadow-sm border p-8 mb-8">
-                    <div className="mb-6">
-                        <h1 className="text-3xl font-bold text-gray-900 mb-4">{note.title}</h1>
-                        
-                        <div className="flex items-center justify-between border-t pt-6">
-                            <div className="flex items-center space-x-3">
-                                <div className="h-10 w-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
-                                    {username.charAt(0).toUpperCase()}
+        <div className="min-h-screen bg-[#dbd7d2] text-gray-900">
+            <div className="max-w-[800px] mx-auto pt-20 pb-16 px-6">
+                <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm border border-black/5 p-10">
+                    {/* Note Header */}
+                    <header className="mb-12">
+                        <div className="border-b border-black/10 pb-8">
+                            <div className="flex flex-col gap-2.5">
+                                <h1 className="text-[32px] font-bold tracking-[-0.96px] text-black">
+                                    {note.title}
+                                </h1>
+                                <div className="flex items-center justify-between">
+                                    <time className="text-lg font-medium text-black/50">
+                                        {new Date(note.updated_at).toLocaleDateString('en-US', {
+                                            month: 'long',
+                                            day: 'numeric',
+                                            year: 'numeric'
+                                        })}
+                                    </time>
+                                    <div className="flex items-center gap-3 text-black/75">
+                                        <svg
+                                            className="w-5 h-5"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={1.5}
+                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                            />
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={1.5}
+                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                            />
+                                        </svg>
+                                        <span className="text-base font-medium">
+                                            {note.views || 0} views
+                                        </span>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="font-medium text-gray-900">@{username}</p>
-                                    <p className="text-sm text-gray-600">
-                                        Last updated {new Date(note.updated_at).toLocaleDateString()}
-                                    </p>
-                                </div>
-                            </div>
-                            
-                            <div className="text-sm text-gray-500">
-                                {note.views || 0} views
                             </div>
                         </div>
-                    </div>
+                    </header>
+                    
+                    {/* Note Content */}
+                    <article className="mb-12">
+                        <div 
+                            className="note-content"
+                            dangerouslySetInnerHTML={{ __html: note.body }}
+                        />
+                    </article>
+
+                    <footer className="flex items-center justify-between pt-8 border-t border-black/5">
+                        <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-full bg-cover bg-center bg-black/80 flex items-center justify-center text-white text-base font-medium border-2 border-white/90">
+                                {username.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-base font-medium text-black">
+                                    {username}
+                                </span>
+                                <span className="text-sm text-black/50">
+                                    @{username}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <Link
+                            href={`/`}
+                            className="text-sm font-medium text-black/60 hover:text-black transition-colors"
+                        >
+                            View all notes →
+                        </Link>
+                    </footer>
                 </div>
                 
-                {/* Note Content */}
-                <div className="bg-white rounded-lg shadow-sm border p-8">
-                    <div 
-                        className="prose prose-lg max-w-none"
-                        dangerouslySetInnerHTML={{ __html: note.body }}
-                    />
-                </div>
-                
-                {/* Back to Profile */}
-                <div className="mt-8 text-center">
-                    <a 
-                        href={`//${username}.${process.env.NEXT_PUBLIC_DOMAIN}`}
-                        className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                    >
-                        ← Back to @{username}&apos;s profile
-                    </a>
+                <div className="mt-6 text-center text-sm text-black/40">
+                    Written in Apple Notes • Published with{' '}
+                    <Link href="/" className="text-black/60 hover:text-black transition-colors">
+                        WebNotes
+                    </Link>
                 </div>
             </div>
         </div>
     );
-}
-
-// Generate metadata for SEO
-export async function generateMetadata({ params }: NotePageProps) {
-    const { username, slug } = await params;
-    
-    let note;
-    try {
-        note = await getPublicNote(username, slug);
-    } catch (error) {
-        return {
-            title: 'Note Not Found',
-        };
-    }
-    
-    return {
-        title: `${note.title} - @${username}`,
-        description: note.body || `Read ${note.title} by @${username} on WebNotes`,
-        openGraph: {
-            title: note.title,
-            type: 'article',
-            publishedTime: note.created_at,
-            authors: [`@${username}`],
-        },
-        twitter: {
-            card: 'summary_large_image',
-            title: note.title,
-            creator: `@${username}`,
-        },
-    };
 }
