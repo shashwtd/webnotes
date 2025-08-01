@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getPublicNote } from '@/lib/api/notes';
+import Image from 'next/image';
 
 interface NotePageProps {
     params: Promise<{
@@ -9,96 +10,90 @@ interface NotePageProps {
     }>;
 }
 
+import { LucideArrowLeft, LucideEye } from "lucide-react";
+
+const backgroundImages: string[] = [
+    "https://images.unsplash.com/photo-1699006599458-b8bd9e67c3d9?q=80&w=1828",
+    "https://images.unsplash.com/photo-1698239307081-375b3f3da4c0?q=80&w=2072",
+    "https://images.unsplash.com/photo-1683659635689-3df761eddb70?q=80&w=1754",
+];
+
 export default async function NotePage({ params }: NotePageProps) {
     const { username, slug } = await params;
-    
     let note;
     try {
         note = await getPublicNote(username, slug);
     } catch {
         notFound();
     }
-    
+
     return (
-        <div className="min-h-screen bg-[#dbd7d2] text-gray-900">
-            <div className="max-w-[800px] mx-auto pt-20 pb-16 px-6">
-                <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm border border-black/5 p-10">
+        <div className="min-h-screen w-full bg-[#dacfbe] text-gray-900 overflow-y-auto flex items-center justify-center px-2 sm:px-6 py-12"
+            style={{
+                backgroundImage: `url(${backgroundImages[2]})`,
+                backgroundSize: "cover",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "0% 0%",
+                backgroundBlendMode: "overlay",
+            }}>
+            <div className="max-w-2xl w-full mx-auto">
+                <div className="bg-gradient-to-b from-white/60 to-white/30 backdrop-blur-sm rounded-2xl shadow-lg border border-black/5 p-8 sm:p-12 sm:pt-8 flex flex-col gap-8">
+                    {/* Accent Bar */}
+                    <div className="h-1 w-16 rounded-full bg-[#b6a484] mb-4 mx-auto" />
+
                     {/* Note Header */}
-                    <header className="mb-12">
-                        <div className="border-b border-black/10 pb-8">
-                            <div className="flex flex-col gap-2.5">
-                                <h1 className="text-[32px] font-bold tracking-[-0.96px] text-black">
-                                    {note.title}
-                                </h1>
-                                <div className="flex items-center justify-between">
-                                    <time className="text-lg font-medium text-black/50">
-                                        {new Date(note.updated_at).toLocaleDateString('en-US', {
-                                            month: 'long',
-                                            day: 'numeric',
-                                            year: 'numeric'
-                                        })}
-                                    </time>
-                                    <div className="flex items-center gap-3 text-black/75">
-                                        <svg
-                                            className="w-5 h-5"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={1.5}
-                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                            />
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={1.5}
-                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                            />
-                                        </svg>
-                                        <span className="text-base font-medium">
-                                            {note.views || 0} views
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
+                    <header className="mb-8 flex flex-col gap-2 items-center text-center">
+                        <h1 className="text-3xl sm:text-4xl font-serif tracking-tight text-black">
+                            {note.title}
+                        </h1>
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-base">
+                            <time className="text-black/60 font-medium">
+                                {new Date(note.updated_at).toLocaleDateString('en-US', {
+                                    month: 'long',
+                                    day: 'numeric',
+                                    year: 'numeric'
+                                })}
+                            </time>
+                            <span className="hidden sm:inline size-1 bg-black/20"></span>
+                            <span className="flex items-center gap-2 text-black/60">
+                                <LucideEye className="w-5 h-5" />
+                                {note.views || 0} views
+                            </span>
                         </div>
                     </header>
-                    
+
                     {/* Note Content */}
-                    <article className="mb-12">
-                        <div 
-                            className="note-content"
-                            dangerouslySetInnerHTML={{ __html: note.body }}
-                        />
+                    {/* <article className="mb-4 prose prose-lg prose-neutral max-w-none mx-auto text-gray-900 prose-headings:font-bold prose-a:text-[#b6a484] prose-a:underline-offset-2 prose-img:rounded-xl prose-blockquote:border-l-4 prose-blockquote:border-[#b6a484] prose-blockquote:bg-[#f5f3ee] prose-blockquote:p-2 prose-blockquote:italic prose-code:bg-neutral-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-pre:bg-neutral-900/90 prose-pre:text-white prose-pre:rounded-xl prose-pre:p-4 prose-pre:overflow-x-auto"> */}
+                    <article className="note-content">
+                        <div dangerouslySetInnerHTML={{ __html: note.body }} />
                     </article>
 
-                    <footer className="flex items-center justify-between pt-8 border-t border-black/5">
-                        <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-cover bg-center bg-black/80 flex items-center justify-center text-white text-base font-medium border-2 border-white/90">
-                                {username.charAt(0).toUpperCase()}
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-base font-medium text-black">
-                                    {username}
-                                </span>
-                                <span className="text-sm text-black/50">
-                                    @{username}
-                                </span>
-                            </div>
-                        </div>
-                        
+                    {/* Profile Footer */}
+                    <footer className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-black/20">
                         <Link
                             href={`/`}
-                            className="text-sm font-medium text-black/60 hover:text-black transition-colors"
+                            className="inline-flex items-center gap-2 text-sm font-medium text-black/60 hover:text-black transition-colors"
                         >
-                            View all notes →
+                            <LucideArrowLeft className="w-4 h-4" />
+                            View all notes
+                        </Link>
+                        <Link href={`/profile/${username}`} className="flex items-center gap-4">
+                            <div className="relative size-12 rounded-full overflow-hidden">
+                                <Image
+                                    src={note.author.image_url}
+                                    alt={username}
+                                    fill
+                                    className="object-cover"
+                                />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-base font-semibold tracking-tight text-black">{note.author.name}</span>
+                                <span className="text-sm font-mono text-black/60">@{username}</span>
+                            </div>
                         </Link>
                     </footer>
                 </div>
-                
+
                 <div className="mt-6 text-center text-sm text-black/40">
                     Written in Apple Notes • Published with{' '}
                     <Link href="/" className="text-black/60 hover:text-black transition-colors">

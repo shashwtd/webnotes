@@ -166,8 +166,9 @@
 
 /* Images */
 .note-content img {
-  max-width: 100%;
+  width: 100%;
   height: auto;
   border-radius: 6px;
   margin: 2rem 0;
+  /* max-height: 600px !important; */
 }

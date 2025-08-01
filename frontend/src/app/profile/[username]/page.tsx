@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getUserProfile } from "@/lib/api/profile";
 import { getAllNotes, Note } from "@/lib/api/notes";
-import { LucideEye, LucideGitBranchPlus, LucideGithub, LucideInstagram, LucideTwitter, LucideX} from "lucide-react";
+import { LucideEye, LucideGithub, LucideInstagram, LucideTwitter} from "lucide-react";
 
 interface ProfilePageProps {
     params: Promise<{
@@ -64,37 +64,43 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                             </div>
                         </div>
                         <div className="flex items-center gap-5 mt-6">
-                            <a
-                                href={"#"}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-black/60 hover:text-black transition-colors"
-                            >
-                                <LucideTwitter className="size-6" />
-                            </a>
-                            <a
-                                href={"#"}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-black/60 hover:text-black transition-colors"
-                            >
-                                <LucideGithub className="size-6" />
-                            </a>
-                            <a
-                                href={"#"}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-black/60 hover:text-black transition-colors"
-                            >
-                                <LucideInstagram className="size-6" />
-                            </a>
+                            {(userProfile.twitter_username || userProfile.github_username || userProfile.instagram_username) && (
+                                <div className="flex items-center gap-5 mb-4">
+                                    {userProfile.twitter_username && (
+                                        <a
+                                            href={userProfile.twitter_username}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-black/60 hover:text-black transition-colors"
+                                        >
+                                            <LucideTwitter className="size-6" />
+                                        </a>
+                                    )}
+                                    {userProfile.github_username && (
+                                        <a
+                                            href={userProfile.github_username}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-black/60 hover:text-black transition-colors"
+                                        >
+                                            <LucideGithub className="size-6" />
+                                        </a>
+                                    )}
+                                    {userProfile.instagram_username && (
+                                        <a
+                                            href={userProfile.instagram_username}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-black/60 hover:text-black transition-colors"
+                                        >
+                                            <LucideInstagram className="size-6" />
+                                        </a>
+                                    )}
+                                </div>
+                            )}
                         </div>
-                        <p className="text-base text-black/75 w-full mt-6">
-                            {/* {userProfile.description || "No bio available"} */}
-                            This will be displayed on your public profile and
-                            This will be displayed on your public profile and
-                            notes. This will be displayed on your public profile
-                            and notes.
+                        <p className="text-base text-black/75 w-full mt-2">
+                            {userProfile.description || "No bio available"}
                         </p>
                         <div className="flex items-center h-max justify-start gap-6 mt-10">
                             <div className="flex flex-col items-center">
