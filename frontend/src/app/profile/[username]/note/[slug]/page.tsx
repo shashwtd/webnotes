@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { getUserProfileCached, getPublicNoteCached } from '@/lib/utils/profileCache';
 import { LucideArrowLeft, LucideEye } from "lucide-react";
 import { Metadata } from 'next';
+import NoteContent from './NoteContent';
 
 interface NotePageProps {
     params: {
@@ -99,10 +100,10 @@ export default async function NotePage({ params }: NotePageProps) {
                     </header>
 
                     {/* Note Content */}
-                    {/* <article className="mb-4 prose prose-lg prose-neutral max-w-none mx-auto text-gray-900 prose-headings:font-bold prose-a:text-[#b6a484] prose-a:underline-offset-2 prose-img:rounded-xl prose-blockquote:border-l-4 prose-blockquote:border-[#b6a484] prose-blockquote:bg-[#f5f3ee] prose-blockquote:p-2 prose-blockquote:italic prose-code:bg-neutral-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-pre:bg-neutral-900/90 prose-pre:text-white prose-pre:rounded-xl prose-pre:p-4 prose-pre:overflow-x-auto"> */}
-                    <article className="note-content">
-                        <div dangerouslySetInnerHTML={{ __html: note.body }} />
-                    </article>
+                    <NoteContent 
+                        title={note.title} 
+                        htmlContent={note.body} 
+                    />
 
                     {/* Profile Footer */}
                     <footer className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-black/20">
