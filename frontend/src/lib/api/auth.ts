@@ -12,6 +12,9 @@ export interface User {
     description: string;
     profile_picture_url: string;
     created_at: string;
+    twitter_username?: string;
+    instagram_username?: string;
+    github_username?: string;
 }
 
 export interface RegisterData {
