@@ -13,7 +13,6 @@ type Environment struct {
 
 	SupabaseURL            string // SUPABASE_URL
 	SupabaseServiceRoleKey string // SUPABASE_SR_KEY
-	SupabaseAnonKey        string // SUPABASE_ANON_KEY
 
 	JWTSigningKey []byte // JWT_SIGNING_KEY (hex encoded)
 
@@ -26,7 +25,6 @@ func Load() error {
 	Default.Debug = os.Getenv("DEBUG") == "true"
 	Default.SupabaseURL = os.Getenv("SUPABASE_URL")
 	Default.SupabaseServiceRoleKey = os.Getenv("SUPABASE_SR_KEY")
-	Default.SupabaseAnonKey = os.Getenv("SUPABASE_ANON_KEY")
 
 	rawSigningKey := os.Getenv("JWT_SIGNING_KEY")
 	if rawSigningKey == "" {

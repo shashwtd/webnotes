@@ -33,15 +33,7 @@ func setAccountsGroup(router fiber.Router) {
 func getMeHandler() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		user := c.Locals("user").(*database.User)
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"id":                  user.ID,
-			"email":               user.Email,
-			"username":            user.Username,
-			"name":                user.Name,
-			"description":         user.Description,
-			"profile_picture_url": user.ProfilePictureURL,
-			"created_at":          user.CreatedAt,
-		})
+		return sendProfile(c, user)
 	}
 }
 

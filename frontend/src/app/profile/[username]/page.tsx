@@ -68,7 +68,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                                 <div className="flex items-center gap-5 mb-4">
                                     {userProfile.twitter_username && (
                                         <a
-                                            href={userProfile.twitter_username}
+                                            href={"https://x.com/" + userProfile.twitter_username}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="text-black/60 hover:text-black transition-colors"
@@ -78,7 +78,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                                     )}
                                     {userProfile.github_username && (
                                         <a
-                                            href={userProfile.github_username}
+                                            href={"https://github.com/" + userProfile.github_username}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="text-black/60 hover:text-black transition-colors"
@@ -88,7 +88,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                                     )}
                                     {userProfile.instagram_username && (
                                         <a
-                                            href={userProfile.instagram_username}
+                                            href={"https://instagram.com/" + userProfile.instagram_username}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="text-black/60 hover:text-black transition-colors"
