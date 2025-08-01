@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getUserProfile } from "@/lib/api/profile";
-import { getAllNotes, Note } from "@/lib/api/notes";
+import { Note } from "@/lib/api/notes";
+import { getUserProfileCached, getAllNotesCached } from '@/lib/utils/profileCache';
 import { LucideEye, LucideGithub, LucideInstagram, LucideTwitter} from "lucide-react";
 
 interface ProfilePageProps {
@@ -20,8 +20,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     const { username } = await params;
 
     const [userProfile, userNotes] = await Promise.all([
-        getUserProfile(username),
-        getAllNotes(username),
+        getUserProfileCached(username),
+        getAllNotesCached(username),
     ]);
 
     if (!userProfile) {

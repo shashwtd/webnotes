@@ -1,16 +1,16 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getPublicNote } from '@/lib/api/notes';
 import Image from 'next/image';
+import { getUserProfileCached, getPublicNoteCached } from '@/lib/utils/profileCache';
+import { LucideArrowLeft, LucideEye } from "lucide-react";
+import { Metadata } from 'next';
 
 interface NotePageProps {
-    params: Promise<{
+    params: {
         username: string;
         slug: string;
-    }>;
+    };
 }
-
-import { LucideArrowLeft, LucideEye } from "lucide-react";
 
 const backgroundImages: string[] = [
     "https://images.unsplash.com/photo-1699006599458-b8bd9e67c3d9?q=80&w=1828",
@@ -18,12 +18,48 @@ const backgroundImages: string[] = [
     "https://images.unsplash.com/photo-1683659635689-3df761eddb70?q=80&w=1754",
 ];
 
-export default async function NotePage({ params }: NotePageProps) {
-    const { username, slug } = await params;
-    let note;
+// metadata generation for SEO
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: { username: string; slug: string }
+}): Promise<Metadata> {
+    const defaultMetadata: Metadata = {
+        title: 'Note not found',
+        description: 'The requested note could not be found on WebNotes',
+    };
+    
     try {
-        note = await getPublicNote(username, slug);
+        const note = await getPublicNoteCached(params.username, params.slug);
+        const userProfile = await getUserProfileCached(params.username);
+        
+        if (note && userProfile) {
+            return {
+                title: `${note.title} | by ${userProfile.name}`,
+                description: `Read "${note.title}" by ${userProfile.name} on WebNotes`,
+                openGraph: {
+                    title: note.title,
+                    description: `Read "${note.title}" by ${userProfile.name} on WebNotes`,
+                    type: 'article',
+                    authors: [userProfile.name],
+                },
+            };
+        }
     } catch {
+    }
+    
+    return defaultMetadata;
+}
+
+export default async function NotePage({ params }: NotePageProps) {
+    const { username, slug } = params;
+    
+    const [note, userProfile] = await Promise.all([
+        getPublicNoteCached(username, slug).catch(() => null),
+        getUserProfileCached(username).catch(() => null)
+    ]);
+    
+    if (!note || !userProfile) {
         notFound();
     }
 
@@ -77,17 +113,24 @@ export default async function NotePage({ params }: NotePageProps) {
                             <LucideArrowLeft className="w-4 h-4" />
                             View all notes
                         </Link>
-                        <Link href={`/profile/${username}`} className="flex items-center gap-4">
-                            <div className="relative size-12 rounded-full overflow-hidden">
-                                <Image
-                                    src={note.author.image_url}
-                                    alt={username}
-                                    fill
-                                    className="object-cover"
-                                />
+                        <Link href={`/`} className="flex items-center gap-4">
+                            <div className="size-12 rounded-full overflow-hidden bg-gradient-to-br from-neutral-100 to-neutral-50 flex items-center justify-center">
+                                {userProfile.profile_picture_url ? (
+                                    <Image
+                                        src={userProfile.profile_picture_url}
+                                        alt={userProfile.name}
+                                        width={48}
+                                        height={48}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-xl font-medium text-neutral-400">
+                                        {userProfile.name?.[0]?.toUpperCase()}
+                                    </div>
+                                )}
                             </div>
                             <div className="flex flex-col">
-                                <span className="text-base font-semibold tracking-tight text-black">{note.author.name}</span>
+                                <span className="text-base font-semibold tracking-tight text-black">{userProfile.name}</span>
                                 <span className="text-sm font-mono text-black/60">@{username}</span>
                             </div>
                         </Link>
