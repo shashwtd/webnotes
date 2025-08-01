@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"unicode"
 
@@ -34,6 +35,15 @@ func goodString(s string) string {
 	return s
 }
 
+var validSocialUsernameRegexp = regexp.MustCompile(`^[a-zA-Z0-9_.-]+$`)
+
+// isGoodSocialUsername checks if the given string is a valid social media username. It does
+// not do full validation, its more of a basic check. It does not enforce platform-specific rules for length
+// or trailing and leading non-alphanumeric characters, but it checks for valid characters and length.
+func isGoodSocialUsername(s string) bool {
+	return validSocialUsernameRegexp.MatchString(s) && len(s) <= 39
+}
+
 func isAlphanumeric(r rune) bool {
 	return unicode.IsLetter(r) || unicode.IsDigit(r)
 }
@@ -42,4 +52,10 @@ func isAlphanumeric(r rune) bool {
 // the context.
 func onlineString(c *fiber.Ctx, s string, a ...any) string {
 	return fmt.Sprintf("%s (ip: %s)", fmt.Sprintf(s, a...), c.IP())
+}
+
+func omitempty(m map[string]any, key string, value string) {
+	if value != "" {
+		m[key] = value
+	}
 }

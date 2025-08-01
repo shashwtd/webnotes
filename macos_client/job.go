@@ -13,8 +13,13 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	_ "embed"
+
 	"github.com/zalando/go-keyring"
 )
+
+//go:embed authorized.html
+var authorizedPage string
 
 const plist = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" 
@@ -92,7 +97,9 @@ func getLongLivedSessionToken() error {
 				return
 			}
 			cancel() // stop the server
-			fmt.Fprintf(w, "Session token stored successfully. You can close this window.")
+			w.Header().Set("Content-Type", "text/html")
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(authorizedPage)) // send the authorized page
 		}),
 	}
 	go srv.Serve(listener) // start the server in a goroutine

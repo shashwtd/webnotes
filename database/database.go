@@ -20,6 +20,10 @@ type User struct {
 	Name              string `json:"name"`
 	Description       string `json:"description"`
 	ProfilePictureURL string `json:"profile_picture_url"`
+
+	TwitterUsername   string `json:"twitter_username,omitempty"`
+	InstagramUsername string `json:"instagram_username,omitempty"`
+	GithubUsername    string `json:"github_username,omitempty"`
 }
 
 // Note represents a note in the database.
