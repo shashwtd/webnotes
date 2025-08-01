@@ -19,6 +19,7 @@ const (
 	ATProfileNameUpdated        = "profile_name_updated"
 	ATProfileDescriptionUpdated = "profile_description_updated"
 	ATProfilePictureUpdated     = "profile_picture_updated"
+	ATProfileSocialsUpdated     = "profile_socials_updated"
 	ATClientSynced              = "client_synced"
 	ATNoteDeployed              = "note_deployed"
 	ATNoteUndeployed            = "note_undeployed"

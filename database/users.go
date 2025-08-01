@@ -89,6 +89,15 @@ func (db *DB) UpdateUserProfilePictureURL(user *User) error {
 	return err
 }
 
+func (db *DB) UpdateUserSocials(user *User) error {
+	_, _, err := db.client.From("users").Update(map[string]string{
+		"twitter_username":   user.TwitterUsername,
+		"instagram_username": user.InstagramUsername,
+		"github_username":    user.GithubUsername,
+	}, "", "").Eq("id", user.ID).Execute()
+	return err
+}
+
 // SaveProfilePicture saves a profile picture to the storage and returns its blob URL.
 func (db *DB) SaveProfilePicture(file io.Reader, name string) (string, error) {
 	id := uuid.New()
