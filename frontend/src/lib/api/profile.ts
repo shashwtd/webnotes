@@ -12,6 +12,9 @@ export interface UserProfile {
     description: string;
     profile_picture_url: string;
     created_at: string;
+    twitter_username?: string;
+    instagram_username?: string;
+    github_username?: string;
 }
 
 export interface DeployedNote {
@@ -109,5 +112,31 @@ export async function removeProfilePicture(): Promise<void> {
 
     if (!response.ok) {
         throw new Error('Failed to remove profile picture');
+    }
+}
+
+/**
+ * Updates the user's social media links
+ * 
+ * @param socials Object containing social media usernames
+ * @returns {Promise<void>} A promise that resolves when the socials are updated.
+ * @throws {Error} If the update operation fails.
+ */
+export async function updateSocials(socials: {
+    twitter_username?: string;
+    instagram_username?: string;
+    github_username?: string;
+}): Promise<void> {
+    const response = await fetch(`${SERVER_URL}/profile/edit/socials`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(socials)
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to update social links');
     }
 }

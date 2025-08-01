@@ -1,0 +1,191 @@
+/* Note Content Styles */
+.note-content {
+  --note-text: #1a1a1a;
+  --note-text-secondary: rgba(0, 0, 0, 0.47);
+  --note-bg: #fafafa;
+  --note-border: rgba(0, 0, 0, 0.05);
+  
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+  line-height: 1.6;
+  color: var(--note-text);
+}
+
+
+.note-content br {
+    display: none;
+}
+
+/* Typography */
+.note-content h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    margin-bottom: 1.5rem;
+    line-height: 1.3;
+}
+
+/* Special styling for fixed Apple Notes headings */
+.note-content .apple-notes-fixed-heading {
+    font-size: 1.8rem;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    margin-bottom: 1.5rem;
+    line-height: 1.3;
+    display: block;
+    white-space: normal;
+    word-break: break-word;
+}
+
+/* Style for links within headings */
+.note-content h1 a, 
+.note-content .apple-notes-fixed-heading a {
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+}
+
+.note-content h2 {
+  font-size: 1.875rem;
+  font-weight: 500;
+  letter-spacing: -0.75px;
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.note-content h3 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: -0.5px;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.note-content div {
+  font-size: 1.125rem;
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+  color: #374151;
+}
+
+/* Lists */
+.note-content ul,
+.note-content ol {
+  margin: 1.5rem 0;
+  padding-left: 1.25rem;
+}
+
+.note-content li {
+  line-height: 1.7;
+}
+
+.note-content .Apple-dash-list {
+  list-style: none;
+  padding-left: 1.25rem;
+}
+
+.note-content .Apple-dash-list li {
+  position: relative;
+}
+
+.note-content .Apple-dash-list li::before {
+  content: "–";
+  position: absolute;
+  left: -1.25rem;
+  color: #6B7280;
+}
+
+/* Tables */
+.note-content table {
+  width: 100%;
+  margin: 2rem 0;
+  border-collapse: collapse;
+}
+
+.note-content th,
+.note-content td {
+  border: 1px solid var(--note-border);
+  text-align: left;
+  height: 3rem;
+}
+
+.note-content th {
+  background-color: rgba(0, 0, 0, 0.02);
+  font-weight: 500;
+}
+
+/* Links and Text Formatting */
+.note-content a {
+  color: #111827;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  transition: border-color 0.2s ease;
+}
+
+.note-content a:hover {
+  border-color: #111827;
+}
+
+.note-content strong,
+.note-content b {
+  font-weight: 600;
+  color: #111827;
+}
+
+.note-content em,
+.note-content i {
+  font-style: italic;
+}
+
+.note-content del {
+  text-decoration: line-through;
+  color: #6B7280;
+}
+
+.note-content hr {
+  margin: 2rem 0;
+  border: 0;
+  border-top: 1px solid var(--note-border);
+}
+
+/* Code blocks */
+.note-content code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875em;
+  background-color: rgba(0, 0, 0, 0.04);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+}
+
+.note-content pre {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.note-content pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+/* Blockquotes */
+.note-content blockquote {
+  margin: 2rem 0;
+  padding-left: 1.5rem;
+  border-left: 3px solid #e5e7eb;
+  font-style: italic;
+  color: #4B5563;
+}
+
+/* Images */
+.note-content img {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 2rem 0;
+  /* max-height: 600px !important; */
+}

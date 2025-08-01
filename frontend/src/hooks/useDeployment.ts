@@ -8,7 +8,8 @@ import { useNotes } from "./useNotes";
 export function useDeployment() {
     const [loading, setLoading] = useState(false);
     const toast = useToast();
-    const { handleDeploymentChange } = useNotes();
+    // Pass false to prevent auto-fetching when the hook is initialized
+    const { handleDeploymentChange } = useNotes(false);
 
     const handleDeploy = async (noteId: string, noteTitle: string) => {
         setLoading(true);
@@ -16,10 +17,14 @@ export function useDeployment() {
         try {
             await deployNote(noteId);
             handleDeploymentChange(noteId, true);
-            toast.success(`"${noteTitle}" deployed successfully`, { id: toastId });
+            toast.success(`"${noteTitle}" deployed successfully`, {
+                id: toastId,
+            });
         } catch (error) {
             toast.error(
-                error instanceof Error ? error.message : `Failed to deploy "${noteTitle}"`, 
+                error instanceof Error
+                    ? error.message
+                    : `Failed to deploy "${noteTitle}"`,
                 { id: toastId }
             );
         } finally {
@@ -29,14 +34,20 @@ export function useDeployment() {
 
     const handleUndeploy = async (noteId: string, noteTitle: string) => {
         setLoading(true);
-        const toastId = toast.loading(`Removing deployment for "${noteTitle}"...`);
+        const toastId = toast.loading(
+            `Removing deployment for "${noteTitle}"...`
+        );
         try {
             await deleteDeployedNote(noteId);
             handleDeploymentChange(noteId, false);
-            toast.success(`"${noteTitle}" undeployed successfully`, { id: toastId });
+            toast.success(`"${noteTitle}" undeployed successfully`, {
+                id: toastId,
+            });
         } catch (error) {
             toast.error(
-                error instanceof Error ? error.message : `Failed to undeploy "${noteTitle}"`, 
+                error instanceof Error
+                    ? error.message
+                    : `Failed to undeploy "${noteTitle}"`,
                 { id: toastId }
             );
         } finally {
@@ -47,6 +58,6 @@ export function useDeployment() {
     return {
         loading,
         handleDeploy,
-        handleUndeploy
+        handleUndeploy,
     };
 }

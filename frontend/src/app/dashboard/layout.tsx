@@ -31,7 +31,7 @@ export default function DashboardLayout({
     }, []);
 
     const router = useRouter();
-    const { user, logout } = useAuth();
+    const { user, isLoading, logout } = useAuth();
 
     const handleLogout = async () => {
         try {
@@ -42,11 +42,23 @@ export default function DashboardLayout({
         }
     };
 
+    // Only redirect if user is null and we've finished loading
     useEffect(() => {
-        if (!user) {
-            router.push("/login");
+        if (!isLoading && !user) {
+            router.push(`/login?returnUrl=${encodeURIComponent(window.location.href)}`);
         }
-    }, [user, router]);
+    }, [user, isLoading, router]);
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen w-full flex items-center justify-center bg-neutral-100">
+                <div className="flex flex-col items-center gap-3">
+                    <div className="w-8 h-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin"></div>
+                    <p className="text-neutral-600">Loading...</p>
+                </div>
+            </div>
+        );
+    }
 
     if (!user) {
         return null;

@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const SERVER_URL = process.env.SERVER_URL;
 const COOKIE_NAME = "session_token";
 
 // Helper function to extract subdomain from hostname
@@ -62,65 +61,28 @@ export async function middleware(request: NextRequest) {
     
     // Regular middleware logic for main domain
     const session = request.cookies.get(COOKIE_NAME);
+    const path = request.nextUrl.pathname;
 
-    if (
-        request.nextUrl.pathname.startsWith("/login") ||
-        request.nextUrl.pathname.startsWith("/register")
-    ) {
+    // Handle auth routes (login/register)
+    if (path.startsWith("/login") || path.startsWith("/register")) {
         if (session) {
-            try {
-                const response = await fetch(`${SERVER_URL}/accounts/me`, {
-                    headers: {
-                        Cookie: `${COOKIE_NAME}=${session.value}`,
-                    },
-                    credentials: "include",
-                });
-
-                if (response.ok) {
-                    console.log(await response.json())
-                    return NextResponse.redirect(
-                        new URL("/dashboard", request.url)
-                    );
-                }
-            } catch (error) {
-                console.error("Auth check error:", error);
-            }
+            return NextResponse.redirect(new URL("/dashboard", request.url));
         }
         return NextResponse.next();
     }
 
-    if (request.nextUrl.pathname.startsWith("/dashboard")) {
+    // Handle dashboard routes - simple presence check for the session cookie
+    if (path.startsWith("/dashboard")) {
+        // If no session cookie exists, redirect to login
         if (!session) {
-            const response = NextResponse.redirect(
-                new URL("/login", request.url)
-            );
-            response.cookies.delete(COOKIE_NAME);
-            return response;
+            const loginUrl = new URL("/login", request.url);
+            // Store the original URL to redirect back after login
+            loginUrl.searchParams.set("returnUrl", request.url.toString());
+            return NextResponse.redirect(loginUrl);
         }
-        try {
-            const response = await fetch(`${SERVER_URL}/accounts/me`, {
-                headers: {
-                    Cookie: `${COOKIE_NAME}=${session.value}`,
-                },
-                credentials: "include",
-            });
 
-            // Only redirect on 401 Unauthorized
-            if (response.status === 401) {
-                const redirectResponse = NextResponse.redirect(
-                    new URL("/login", request.url)
-                );
-                redirectResponse.cookies.delete(COOKIE_NAME);
-                return redirectResponse;
-            }
-            
-            // For network errors or other response codes, allow the request
-            return NextResponse.next();
-        } catch (error) {
-            // For network errors, allow the request to continue
-            console.error("Auth check error:", error);
-            return NextResponse.next();
-        }
+        
+        return NextResponse.next();
     }
 
     return NextResponse.next();

@@ -1,37 +1,26 @@
-import { notFound } from "next/navigation";
+'use client';
+
 import Link from "next/link";
 import { Note } from "@/lib/api/notes";
-import { getUserProfileCached, getAllNotesCached } from '@/lib/utils/profileCache';
 import { LucideEye, LucideGithub, LucideInstagram, LucideTwitter} from "lucide-react";
+import { useProfile } from "@/components/providers/ProfileProvider";
 
-interface ProfilePageProps {
-    params: Promise<{
-        username: string;
-    }>;
+interface ProfileContentProps {
+    userNotes: Note[];
 }
 
 const backgroundImages: string[] = [
     "https://images.unsplash.com/photo-1699006599458-b8bd9e67c3d9?q=80&w=1828",
     "https://images.unsplash.com/photo-1698239307081-375b3f3da4c0?q=80&w=2072",
     "https://images.unsplash.com/photo-1683659635689-3df761eddb70?q=80&w=1754",
-]
+];
 
-export default async function ProfilePage({ params }: ProfilePageProps) {
-    const { username } = await params;
-
-    const [userProfile, userNotes] = await Promise.all([
-        getUserProfileCached(username),
-        getAllNotesCached(username),
-    ]);
-
-    if (!userProfile) {
-        notFound();
-    }
-
+export default function ProfileContent({ userNotes }: ProfileContentProps) {
+    const userProfile = useProfile();
+    
     return (
         <div className="fixed top-0 left-0 w-full h-full bg-[#dacfbe] text-gray-900 overflow-y-auto"
         style={{
-            // backgroundImage: `url(${backgroundImages[Math.floor(Math.random() * backgroundImages.length)]})`,
             backgroundImage: `url(${backgroundImages[2]})`,
             backgroundSize: "cover",
             backgroundRepeat: "no-repeat",
@@ -59,7 +48,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                                     {userProfile.name}
                                 </h1>
                                 <h1 className="text-lg font-mono font-medium tracking-tight text-black/60">
-                                    @{userProfile.name}
+                                    @{userProfile.username}
                                 </h1>
                             </div>
                         </div>
@@ -68,7 +57,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                                 <div className="flex items-center gap-5 mb-4">
                                     {userProfile.twitter_username && (
                                         <a
-                                            href={userProfile.twitter_username}
+                                            href={`https://twitter.com/${userProfile.twitter_username}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="text-black/60 hover:text-black transition-colors"
@@ -78,7 +67,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                                     )}
                                     {userProfile.github_username && (
                                         <a
-                                            href={userProfile.github_username}
+                                            href={`https://github.com/${userProfile.github_username}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="text-black/60 hover:text-black transition-colors"
@@ -88,7 +77,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                                     )}
                                     {userProfile.instagram_username && (
                                         <a
-                                            href={userProfile.instagram_username}
+                                            href={`https://instagram.com/${userProfile.instagram_username}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="text-black/60 hover:text-black transition-colors"
