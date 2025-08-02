@@ -31,7 +31,6 @@ func main() {
 		slog.Error("error occurred", "error", err, "time", time.Now().Format(time.RFC3339))
 		os.Exit(1)
 	}
-	slog.Info("operation completed successfully", "time", time.Now().Format(time.RFC3339))
 }
 
 func getSessionTokenFromKR() string {

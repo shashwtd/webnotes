@@ -43,7 +43,7 @@ func doWorker(session_token string) error {
 		return fmt.Errorf("writing to DB: %w", err)
 	}
 	slog.Info("notes written to DB", "count", len(notes), "time", time.Now().Format(time.RFC3339))
-
+	slog.Info("operation completed successfully", "time", time.Now().Format(time.RFC3339))
 	return nil
 }
 
