@@ -106,7 +106,7 @@ export default function GettingStarted({ downloadLinks, loadingDownloads, cliOut
 
           <div className="mb-6 lg:mb-8">
             <a 
-              href="https://github.com/webnotes/macos-client/releases"
+              href="https://github.com/shashwtd/webnotes/releases"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium"
@@ -140,7 +140,7 @@ export default function GettingStarted({ downloadLinks, loadingDownloads, cliOut
             Step 2: Run the Client
           </h2>
           <p className="text-base text-neutral-700 mb-6 lg:mb-8 leading-relaxed">
-            Once downloaded, the macOS client is a simple command-line tool. Here&apos;s what happens when you run it:
+            Once downloaded, the macOS client is a simple command-line tool. You can double click the downloaded client file to run it. Here&apos;s what happens when you run it:
           </p>
 
           <div className="mb-6 lg:mb-8">
@@ -241,12 +241,12 @@ export default function GettingStarted({ downloadLinks, loadingDownloads, cliOut
             </div>
           </div>
 
-          <div className="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg">
+          {/* <div className="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg">
             <h4 className="font-semibold text-blue-900 mb-3 text-base">Keep the Client Running</h4>
             <p className="text-blue-800 text-base leading-relaxed">
               The macOS client needs to be running to sync changes from your Apple Notes. We recommend adding it to your startup items for the best experience.
             </p>
-          </div>
+          </div> */}
         </section>
       </div>
     </div>
