@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { LucideArrowLeft } from "lucide-react";
 import Chapters from "@/components/guide/Chapters";
 import GettingStarted from "@/components/guide/chapters/GettingStarted";
-import Publishing from "@/components/guide/chapters/Publishing";
-import Customization from "@/components/guide/chapters/Customization";
+// import Publishing from "@/components/guide/chapters/Publishing";
+// import Customization from "@/components/guide/chapters/Customization";
 import { getBinaryLinks } from "@/lib/api/releases";
 
 const chapters = [
@@ -67,10 +67,10 @@ export default function UserGuidePage() {
                         cliOutput={cliOutput}
                     />
                 );
-            case "publishing":
-                return <Publishing />;
-            case "customization":
-                return <Customization />;
+            // case "publishing":
+            //     return <Publishing />;
+            // case "customization":
+            //     return <Customization />;
             default:
                 return (
                     <GettingStarted
