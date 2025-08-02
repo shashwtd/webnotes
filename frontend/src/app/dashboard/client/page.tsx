@@ -185,7 +185,7 @@ function DownloadSection() {
                                     className="w-max rounded-xl outline-offset-2 outline-white/10 h-max hover:outline-white/25 outline-4"
                                 >
                                     <a
-                                        href={clientData.arm}
+                                        href={clientData.intel}
                                         className="flex items-center justify-center gap-6 bg-white/10 backdrop-blur-sm hover:bg-white/15 px-6 py-4 rounded-xl transition-all duration-200"
                                     >
                                         <Download size={26} />

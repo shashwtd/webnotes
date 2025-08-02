@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/shashwtd/webnotes/backend/env"
 )
 
 func SetAPIGroup(group fiber.Router) {
@@ -20,11 +19,4 @@ func SetAPIGroup(group fiber.Router) {
 	setBinaryGroup(binariesRouter)
 	statsRouter := v1.Group("/stats")
 	setStatsGroup(statsRouter)
-
-	v1.Get("/supabase", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"url":      env.Default.SupabaseURL,
-			"anon_key": env.Default.SupabaseAnonKey,
-		})
-	})
 }
