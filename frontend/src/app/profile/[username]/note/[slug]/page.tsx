@@ -7,10 +7,10 @@ import { Metadata } from 'next';
 import NoteContent from './NoteContent';
 
 interface NotePageProps {
-    params: {
+    params: Promise<{
         username: string;
         slug: string;
-    };
+    }>;
 }
 
 const backgroundImages: string[] = [
@@ -23,7 +23,7 @@ const backgroundImages: string[] = [
 export async function generateMetadata({ 
   params 
 }: { 
-  params: { username: string; slug: string }
+  params: Promise<{ username: string; slug: string }>
 }): Promise<Metadata> {
     const defaultMetadata: Metadata = {
         title: 'Note not found',
@@ -31,8 +31,9 @@ export async function generateMetadata({
     };
     
     try {
-        const note = await getPublicNoteCached(params.username, params.slug);
-        const userProfile = await getUserProfileCached(params.username);
+        const resolvedParams = await params;
+        const note = await getPublicNoteCached(resolvedParams.username, resolvedParams.slug);
+        const userProfile = await getUserProfileCached(resolvedParams.username);
         
         if (note && userProfile) {
             return {
@@ -53,7 +54,7 @@ export async function generateMetadata({
 }
 
 export default async function NotePage({ params }: NotePageProps) {
-    const { username, slug } = params;
+    const { username, slug } = await params;
     
     const [note, userProfile] = await Promise.all([
         getPublicNoteCached(username, slug).catch(() => null),
