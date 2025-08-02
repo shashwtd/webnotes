@@ -171,7 +171,7 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
                         {/* Bottom Links */}
                         <div className="absolute bottom-8 left-6 right-6 space-y-1">
                             <Link
-                                href="/guide"
+                                href="/user-guide"
                                 className="flex items-center gap-3 py-2 px-3 rounded-lg transition-colors group cursor-pointer text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100"
                             >
                                 <BookOpen size={18} />
