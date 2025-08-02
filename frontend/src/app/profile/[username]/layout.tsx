@@ -5,26 +5,27 @@ import { Metadata } from "next";
 
 interface ProfileLayoutProps {
     children: React.ReactNode;
-    params: {
+    params: Promise<{
         username: string;
-    };
+    }>;
 }
 
-export async function generateMetadata({ params }: { params: { username: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
     const defaultMetadata: Metadata = {
         title: "User not found",
         description: "This user does not exist on WebNotes"
     };
     
     try {
-        const userProfile = await getUserProfile(params.username);
+        const resolvedParams = await params;
+        const userProfile = await getUserProfile(resolvedParams.username);
         
         if (userProfile) {
             return {
-                title: `${userProfile.name} (@${params.username}) · WebNotes`,
+                title: `${userProfile.name} (@${resolvedParams.username}) · WebNotes`,
                 description: userProfile.description || `Check out ${userProfile.name}'s notes on WebNotes`,
                 openGraph: {
-                    title: `${userProfile.name} (@${params.username})`,
+                    title: `${userProfile.name} (@${resolvedParams.username})`,
                     description: userProfile.description || `Check out ${userProfile.name}'s notes on WebNotes`,
                     type: 'profile',
                 },
@@ -39,7 +40,8 @@ export async function generateMetadata({ params }: { params: { username: string 
 export default async function ProfileLayout({ children, params }: ProfileLayoutProps) {
     let userProfile;
     try {
-        userProfile = await getUserProfile(params.username);
+        const resolvedParams = await params;
+        userProfile = await getUserProfile(resolvedParams.username);
     } catch {
         notFound();
     }
