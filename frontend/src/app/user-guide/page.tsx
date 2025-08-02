@@ -14,16 +14,16 @@ const chapters = [
         title: "Getting Started",
         subtitle: "Connect your Mac and start syncing",
     },
-    {
-        id: "publishing",
-        title: "Publishing Notes",
-        subtitle: "Share your notes with the world",
-    },
-    {
-        id: "customization",
-        title: "Your Profile",
-        subtitle: "Make Mynotes yours",
-    },
+    // {
+    //     id: "publishing",
+    //     title: "Publishing Notes",
+    //     subtitle: "Share your notes with the world",
+    // },
+    // {
+    //     id: "customization",
+    //     title: "Your Profile",
+    //     subtitle: "Make Mynotes yours",
+    // },
 ];
 
 const cliOutput = `user@macos macos_client % ./xpt14.build
