@@ -8,13 +8,24 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 
 	"github.com/shashwtd/webnotes/database"
 )
 
-const API_URL = "http://localhost:8080/api/v1"
-const FRONTEND_URL = "http://localhost:3000"
+var API_URL string
+var FRONTEND_URL string
+
+func init() {
+	if os.Getenv("DEBUG") == "true" {
+		API_URL = "http://localhost:8080/api/v1"
+		FRONTEND_URL = "http://localhost:3000"
+	} else {
+		API_URL = "https://webnotes-backend-poqpc.ondigitalocean.app/api/v1"
+		FRONTEND_URL = "https://mynotes.ink"
+	}
+}
 
 func doWorker(session_token string) error {
 	notes, err := extractNotes()
