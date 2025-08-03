@@ -15,6 +15,8 @@ export interface UserProfile {
     twitter_username?: string;
     instagram_username?: string;
     github_username?: string;
+    views_count: number;
+    notes_count: number;
 }
 
 export interface DeployedNote {
@@ -50,7 +52,9 @@ export async function getUserProfile(username: string): Promise<UserProfile> {
         throw new Error('Failed to fetch user profile');
     }
 
-    return response.json();
+    const a=  await response.json();
+    console.log(a);
+    return a
 }
 
 /**

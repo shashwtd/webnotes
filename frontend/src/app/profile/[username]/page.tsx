@@ -110,12 +110,12 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                                 <span className="text-black/60">notes</span>
                             </div>
                             <div className="h-12 w-px bg-black/15" />
-                            <div className="flex flex-col items-center">
+                            {/* <div className="flex flex-col items-center">
                                 <span className="font-medium text-black font-mono text-lg">
                                     200
                                 </span>
                                 <span className="text-black/60">views</span>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </header>

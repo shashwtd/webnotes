@@ -155,7 +155,7 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
                                     <Rocket size={18} />
                                     <AnimatedText>Deploy Note</AnimatedText>
                                 </button>
-                                <button className="w-full flex items-center justify-center gap-2 bg-white border border-neutral-200 hover:border-neutral-300 text-neutral-900 py-2.5 px-4 rounded-lg transition-colors group cursor-pointer">
+                                {/* <button className="w-full flex items-center justify-center gap-2 bg-white border border-neutral-200 hover:border-neutral-300 text-neutral-900 py-2.5 px-4 rounded-lg transition-colors group cursor-pointer">
                                     <RotateCw
                                         size={18}
                                         className="text-blue-500 group-hover:rotate-180 transition-transform duration-700"
@@ -164,7 +164,7 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
                                 </button>
                                 <div className="text-xs text-center text-neutral-500 mt-1">
                                     Last synced: {lastSync}
-                                </div>
+                                </div> */}
                             </div>
                         </div>
 
