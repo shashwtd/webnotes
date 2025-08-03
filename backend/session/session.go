@@ -24,7 +24,8 @@ func LogoutSession(c *fiber.Ctx) {
 		Value:    "",
 		HTTPOnly: true,
 		Secure:   true,
-		MaxAge:   -1,                         // Set MaxAge to -1 to delete the cookie
+		MaxAge:   -1, // Set MaxAge to -1 to delete the cookie
+		SameSite: fiber.CookieSameSiteNoneMode,
 		Expires:  time.Now().Add(-time.Hour), // Set Expires to a time in the past
 	})
 }

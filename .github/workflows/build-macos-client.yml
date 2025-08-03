@@ -31,20 +31,28 @@ jobs:
         with:
           go-version: "1.24"
 
-      - name: Build for ${{ matrix.goos }}/${{ matrix.goarch }}
+      - name: Build and zip for ${{ matrix.goos }}/${{ matrix.goarch }}
         run: |
           mkdir -p builds
-          ext=""
-          if [ "${{ matrix.goos }}" = "windows" ]; then
-            ext=".exe"
-          fi
-          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o builds/${{ matrix.goos }}-${{ matrix.goarch }}${ext} ./macos_client
+          output_name="macos_client"
+          binary_path="builds/${{ matrix.goos }}-${{ matrix.goarch }}/$output_name"
 
-      - name: Upload build artifact to workflow
+          mkdir -p "$(dirname "$binary_path")"
+
+          # Build binary
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o "$binary_path" ./macos_client
+
+          # Ensure it's executable
+          chmod +x "$binary_path"
+
+          # Zip the binary
+          (cd "$(dirname "$binary_path")" && zip "${output_name}.zip" "$output_name")
+
+      - name: Upload zipped artifact to workflow
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.goos }}-${{ matrix.goarch }}-build
-          path: builds/${{ matrix.goos }}-${{ matrix.goarch }}*
+          name: ${{ matrix.goos }}-${{ matrix.goarch }}-zip
+          path: builds/${{ matrix.goos }}-${{ matrix.goarch }}/macos_client.zip
 
   release:
     name: Create 'latest' GitHub Release
@@ -55,7 +63,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download all build artifacts
+      - name: Download all zipped artifacts
         uses: actions/download-artifact@v4
         with:
           path: builds
@@ -79,10 +87,8 @@ jobs:
             --notes "Automated build for latest commit" \
             --latest
 
-      - name: Upload all binaries to 'latest' release
+      - name: Upload zip files to 'latest' release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          for file in builds/**/*; do
-            gh release upload latest "$file" --clobber
-          done
+          find builds -type f -name "*.zip" -exec gh release upload latest {} --clobber \;
