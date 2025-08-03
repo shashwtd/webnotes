@@ -54,9 +54,10 @@ func getLatestMacOSBinariesHandler() fiber.Handler {
 
 		var intelAssetURL, armAssetURL string
 		for _, asset := range release.Assets {
-			if asset.Name == "darwin-amd64" {
+			switch asset.Name {
+			case "macos_client-darwin-amd64.zip":
 				intelAssetURL = asset.BrowserDownloadURL
-			} else if asset.Name == "darwin-arm64" {
+			case "macos_client-darwin-arm64.zip":
 				armAssetURL = asset.BrowserDownloadURL
 			}
 		}
