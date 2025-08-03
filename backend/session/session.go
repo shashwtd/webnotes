@@ -64,6 +64,7 @@ func SetSession(c *fiber.Ctx, userID string, validityDuration time.Duration) err
 		Value:    signedToken,
 		HTTPOnly: true,
 		Secure:   true,
+		SameSite: fiber.CookieSameSiteNoneMode,
 	})
 
 	slog.Info("session created", "user_id", userID, "time", time.Now().Format(time.RFC3339))
@@ -147,6 +148,10 @@ func OptionalSessionMiddleware() fiber.Handler {
 func sessionMiddleware(c *fiber.Ctx) error {
 	claims := &Claims{}
 
+	if c.Cookies(CookieName) == "" {
+		slog.Error("missing session token cookie")
+		return fmt.Errorf("missing session token cookie")
+	}
 	token, err := jwt.ParseWithClaims(c.Cookies(CookieName), claims, func(token *jwt.Token) (interface{}, error) {
 		return env.Default.JWTSigningKey, nil
 	})
