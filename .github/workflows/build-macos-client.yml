@@ -55,6 +55,12 @@ jobs:
           zip_name="macos_client-${{ matrix.goos }}-${{ matrix.goarch }}.zip"
           (cd "$build_dir" && zip "$zip_name" "$renamed_binary")
 
+      - name: Upload zipped build
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos_client-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: builds/${{ matrix.goos }}-${{ matrix.goarch }}/*.zip
+
   release:
     name: Create 'latest' GitHub Release
     runs-on: ubuntu-latest
@@ -68,6 +74,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: builds
+          merge-multiple: true
 
       - name: Install GitHub CLI
         run: |
