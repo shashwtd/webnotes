@@ -15,6 +15,7 @@ import (
 
 	_ "embed"
 
+	"github.com/fatih/color"
 	"github.com/zalando/go-keyring"
 )
 
@@ -105,11 +106,15 @@ func getLongLivedSessionToken() error {
 	go srv.Serve(listener) // start the server in a goroutine
 
 	url := fmt.Sprintf("%s/authorize-client?redirect_uri=%s", FRONTEND_URL, url.QueryEscape(fmt.Sprintf("http://127.0.0.1:%d", port)))
-	fmt.Printf("Please open the following URL in your browser to authorize the client:\n%s\n", url)
+	fmt.Println("Please open the following URL in your browser to authorize the client:")
+	color.New(color.FgBlue).Printf("%s\n", url)
 
 	<-ctx.Done()
 	srv.Shutdown(context.Background()) // shut down the server gracefully
-	fmt.Println("Authorization complete.")
+
+	c := color.New(color.BgGreen, color.FgBlack)
+	c.Println("Authorization complete.")
+
 	return nil
 }
 
