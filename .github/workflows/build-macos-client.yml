@@ -34,25 +34,28 @@ jobs:
       - name: Build and zip for ${{ matrix.goos }}/${{ matrix.goarch }}
         run: |
           mkdir -p builds
-          output_name="macos_client"
-          binary_path="builds/${{ matrix.goos }}-${{ matrix.goarch }}/$output_name"
+          ext=""
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            ext=".exe"
+          fi
 
-          mkdir -p "$(dirname "$binary_path")"
+          output_name="macos_client${ext}"
+          build_dir="builds/${{ matrix.goos }}-${{ matrix.goarch }}"
+          binary_path="${build_dir}/${output_name}"
 
-          # Build binary
+          mkdir -p "$build_dir"
+
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o "$binary_path" ./macos_client
-
-          # Ensure it's executable
           chmod +x "$binary_path"
 
-          # Zip the binary
-          (cd "$(dirname "$binary_path")" && zip "${output_name}.zip" "$output_name")
+          zip_name="macos_client-${{ matrix.goos }}-${{ matrix.goarch }}.zip"
+          (cd "$build_dir" && zip "$zip_name" "$output_name")
 
-      - name: Upload zipped artifact to workflow
+      - name: Upload zipped artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.goos }}-${{ matrix.goarch }}-zip
-          path: builds/${{ matrix.goos }}-${{ matrix.goarch }}/macos_client.zip
+          name: macos_client-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: builds/${{ matrix.goos }}-${{ matrix.goarch }}/macos_client-${{ matrix.goos }}-${{ matrix.goarch }}.zip
 
   release:
     name: Create 'latest' GitHub Release
@@ -87,7 +90,7 @@ jobs:
             --notes "Automated build for latest commit" \
             --latest
 
-      - name: Upload zip files to 'latest' release
+      - name: Upload all zips to release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
