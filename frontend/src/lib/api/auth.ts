@@ -15,6 +15,7 @@ export interface User {
     twitter_username?: string;
     instagram_username?: string;
     github_username?: string;
+    isConnectedToMacOsClient: boolean;
 }
 
 export interface RegisterData {
