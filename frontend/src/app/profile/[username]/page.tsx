@@ -3,11 +3,28 @@ import Link from "next/link";
 import { Note } from "@/lib/api/notes";
 import { getUserProfileCached, getAllNotesCached } from '@/lib/utils/profileCache';
 import { LucideEye, LucideGithub, LucideInstagram, LucideTwitter} from "lucide-react";
+import { Metadata } from "next";
 
 interface ProfilePageProps {
     params: Promise<{
         username: string;
     }>;
+}
+
+export async function generateMetadata({ params }: { params: { username: string } }): Promise<Metadata> {
+    const username = params.username;
+    const userProfile = await getUserProfileCached(username);
+    
+    if (!userProfile) {
+        return {
+            title: "Profile Not Found | WebNotes",
+        };
+    }
+    
+    return {
+        title: `${userProfile.name}'s Profile | WebNotes`,
+        description: userProfile.description || `View ${userProfile.name}'s published notes and profile`,
+    };
 }
 
 const backgroundImages: string[] = [
