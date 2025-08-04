@@ -3,7 +3,6 @@ import Link from "next/link";
 import { Note } from "@/lib/api/notes";
 import { getUserProfileCached, getAllNotesCached } from '@/lib/utils/profileCache';
 import { LucideEye, LucideGithub, LucideInstagram, LucideTwitter} from "lucide-react";
-import { Metadata } from "next";
 
 interface ProfilePageProps {
     params: Promise<{
@@ -11,21 +10,6 @@ interface ProfilePageProps {
     }>;
 }
 
-export async function generateMetadata({ params }: { params: { username: string } }): Promise<Metadata> {
-    const username = params.username;
-    const userProfile = await getUserProfileCached(username);
-    
-    if (!userProfile) {
-        return {
-            title: "Profile Not Found | MyNotes",
-        };
-    }
-    
-    return {
-        title: `${userProfile.name}'s Profile | MyNotes`,
-        description: userProfile.description || `View ${userProfile.name}'s published notes and profile`,
-    };
-}
 
 const backgroundImages: string[] = [
     "https://images.unsplash.com/photo-1699006599458-b8bd9e67c3d9?q=80&w=1828",
