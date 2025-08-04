@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { LucideBookOpen, LucideTriangleAlert, LucideX, Menu } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/dashboard/Sidebar";
 import AccountMenu from "@/components/dashboard/AccountMenu";
@@ -109,13 +110,13 @@ export default function DashboardClientLayout({
                             Your account needs to be connected to the MacOS client to sync and deploy notes. Please follow the guide below to set it up. 
                         </p>
                         <div className="flex gap-2 items-center justify-center w-max">
-                            <button
-                                onClick={() => setMacOsClientWarn(false)}
+                            <Link
+                                href="/user-guide"
                                 className="bg-blue-600 flex items-center justify-center gap-2 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                             >
                                 <LucideBookOpen size={18} />
                                 Visit User Guide
-                            </button>
+                            </Link>
                             <button
                                 onClick={() => setMacOsClientWarn(false)}
                                 className="bg-neutral-300 text-black/80 px-4 py-2 rounded-lg hover:bg-neutral-400/60 transition-colors"
