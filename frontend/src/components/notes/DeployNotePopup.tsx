@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X } from "lucide-react";
+import { LucideCheck, LucideTriangleAlert, Search, X } from "lucide-react";
 import { Note } from "@/lib/api/notes";
 import { useNotes } from "@/hooks/useNotes";
 import { useDeployment } from "@/hooks/useDeployment";
@@ -97,45 +97,75 @@ export function DeployNotePopup({ isOpen, onClose }: Props) {
                                 </div>
                             ) : (
                                 <>
-                                    {searchTerm && (
-                                        <div className="border-t border-neutral-200">
-                                            {matchingNotes.length > 0 ? (
-                                                <div className="py-2 divide-y divide-neutral-100">
-                                                    {matchingNotes.map(
-                                                        (note) => (
-                                                            <button
-                                                                key={note.id}
-                                                                onClick={() =>
-                                                                    setSelectedNote(
-                                                                        note
-                                                                    )
-                                                                }
-                                                                className={`w-full px-4 py-2 text-left hover:bg-neutral-50 ${
-                                                                    selectedNote?.id ===
-                                                                    note.id
-                                                                        ? "bg-neutral-50"
-                                                                        : ""
-                                                                }`}
-                                                            >
-                                                                <div className="font-medium text-neutral-900">
-                                                                    {note.title}
-                                                                </div>
-                                                                <div className="text-sm text-neutral-500">
-                                                                    Updated{" "}
-                                                                    {new Date(
-                                                                        note.updated_at
-                                                                    ).toLocaleDateString()}
-                                                                </div>
-                                                            </button>
-                                                        )
-                                                    )}
-                                                </div>
-                                            ) : (
-                                                <div className="py-8 text-center text-neutral-500">
-                                                    No matching notes found
-                                                </div>
-                                            )}
+                                    {recentNotes.length === 0 ? (
+                                        <div className="py-8 flex flex-col gap-3 text-center">
+                                            <div className="flex items-center justify-center gap-2 font-medium">
+                                                <LucideTriangleAlert
+                                                    size={24}
+                                                    className="text-yellow-600"
+                                                />
+                                                <span className="opacity-80">
+                                                    Uh oh
+                                                </span>
+                                            </div>
+                                            <div className="text-base text-neutral-500 font-normal">
+                                                You don&apos;t have any notes
+                                                yet.
+                                            </div>
                                         </div>
+                                    ) : (
+                                        searchTerm && (
+                                            <div className="border-t border-neutral-200">
+                                                {matchingNotes.length > 0 ? (
+                                                    <div className="py-2 divide-y divide-neutral-100">
+                                                        {matchingNotes.map(
+                                                            (note) => (
+                                                                <button
+                                                                    key={
+                                                                        note.id
+                                                                    }
+                                                                    onClick={() =>
+                                                                        setSelectedNote(
+                                                                            note
+                                                                        )
+                                                                    }
+                                                                    className={`w-full flex gap-3 items-center justify-start rounded-lg px-4 py-2 mb-1 text-left hover:bg-neutral-100 hover:outline outline-black/15 ${
+                                                                        selectedNote?.id ===
+                                                                        note.id
+                                                                            ? "bg-blue-50! outline! outline-blue-300"
+                                                                            : ""
+                                                                    }`}
+                                                                >
+                                                                    {
+                                                                        selectedNote?.id ===
+                                                                        note.id && (
+                                                                            <LucideCheck className="text-blue-600" />
+                                                                        ) 
+                                                                    }
+                                                                    <div className="flex flex-col gap-1">
+                                                                        <div className="font-medium text-neutral-900">
+                                                                            {
+                                                                                note.title
+                                                                            }
+                                                                        </div>
+                                                                        <div className="text-sm text-neutral-500">
+                                                                            Updated{" "}
+                                                                            {new Date(
+                                                                                note.updated_at
+                                                                            ).toLocaleDateString()}
+                                                                        </div>
+                                                                    </div>
+                                                                </button>
+                                                            )
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <div className="py-8 text-center text-neutral-500">
+                                                        No matching notes found
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )
                                     )}
                                 </>
                             )}
