@@ -83,7 +83,7 @@ export default function DashboardPage() {
                     {
                         label: "Deployed Notes",
                         value: stats?.deployed_notes.toString() || "0",
-                        change: "Updated in last 7 days",
+                        change: "Notes that are public",
                         icon: Rocket,
                         color: "amber",
                     },

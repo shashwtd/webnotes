@@ -86,16 +86,6 @@ export function RecentNoteCard({ note }: RecentNoteCardProps) {
                             transition={{ duration: 0.15, ease: "easeOut" }}
                             className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-10"
                         >
-                            <button
-                                onClick={() => {
-                                    setShowMenu(false);
-                                    // TODO: Implement edit
-                                }}
-                                className="w-full px-4 py-2 text-sm text-left text-neutral-700 hover:bg-neutral-50 flex items-center gap-2"
-                            >
-                                <Edit size={16} />
-                                Edit
-                            </button>
                             {note.source !== "deployed" && (
                                 <button
                                     onClick={async () => {
@@ -109,7 +99,7 @@ export function RecentNoteCard({ note }: RecentNoteCardProps) {
                                     Deploy
                                 </button>
                             )}
-                            <button
+                            {/* <button
                                 onClick={() => {
                                     setShowMenu(false);
                                     // TODO: Implement delete
@@ -118,7 +108,7 @@ export function RecentNoteCard({ note }: RecentNoteCardProps) {
                             >
                                 <Trash2 size={16} />
                                 Delete
-                            </button>
+                            </button> */}
                         </motion.div>
                     )}
                 </AnimatePresence>
