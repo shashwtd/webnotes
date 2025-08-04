@@ -27,7 +27,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
     const defaultMetadata: Metadata = {
         title: 'Note not found',
-        description: 'The requested note could not be found on WebNotes',
+        description: 'The requested note could not be found on MyNotes',
     };
     
     try {
@@ -38,10 +38,10 @@ export async function generateMetadata({
         if (note && userProfile) {
             return {
                 title: `${note.title} | by ${userProfile.name}`,
-                description: `Read "${note.title}" by ${userProfile.name} on WebNotes`,
+                description: `"${note.title}" by ${userProfile.name} on MyNotes`,
                 openGraph: {
                     title: note.title,
-                    description: `Read "${note.title}" by ${userProfile.name} on WebNotes`,
+                    description: `"${note.title}" by ${userProfile.name} on MyNotes`,
                     type: 'article',
                     authors: [userProfile.name],
                 },
@@ -142,7 +142,7 @@ export default async function NotePage({ params }: NotePageProps) {
                 <div className="mt-6 text-center text-sm text-black/40">
                     Written in Apple Notes • Published with{' '}
                     <Link href="/" className="text-black/60 hover:text-black transition-colors">
-                        WebNotes
+                        MyNotes
                     </Link>
                 </div>
             </div>

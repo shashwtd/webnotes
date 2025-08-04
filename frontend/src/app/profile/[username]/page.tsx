@@ -17,12 +17,12 @@ export async function generateMetadata({ params }: { params: { username: string 
     
     if (!userProfile) {
         return {
-            title: "Profile Not Found | WebNotes",
+            title: "Profile Not Found | MyNotes",
         };
     }
     
     return {
-        title: `${userProfile.name}'s Profile | WebNotes`,
+        title: `${userProfile.name}'s Profile | MyNotes`,
         description: userProfile.description || `View ${userProfile.name}'s published notes and profile`,
     };
 }

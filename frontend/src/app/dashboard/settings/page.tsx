@@ -73,11 +73,11 @@ export default function SettingsPage() {
                                     className="w-full pl-4 pr-32 py-2.5 rounded-lg border border-neutral-200 bg-neutral-50 text-neutral-500 cursor-not-allowed"
                                 />
                                 <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-400 pointer-events-none">
-                                    .webnotes.io
+                                    .mynotes.ink
                                 </div>
                             </div>
                             <p className="text-xs text-neutral-500 mt-1">
-                                Your public URL: <span className="font-medium">{user.username}.webnotes.io</span>
+                                Your public URL: <span className="font-medium">{user.username}.mynotes.ink</span>
                             </p>
                         </div>
 
