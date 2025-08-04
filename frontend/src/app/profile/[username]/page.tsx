@@ -10,6 +10,7 @@ interface ProfilePageProps {
     }>;
 }
 
+
 const backgroundImages: string[] = [
     "https://images.unsplash.com/photo-1699006599458-b8bd9e67c3d9?q=80&w=1828",
     "https://images.unsplash.com/photo-1698239307081-375b3f3da4c0?q=80&w=2072",

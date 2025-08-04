@@ -57,6 +57,10 @@ export default function UserGuidePage() {
         fetchDownloadLinks();
     }, []);
 
+    useEffect(() => {
+        document.title = "User Guide - Mynotes";
+    }, []);
+
     const renderChapterContent = () => {
         switch (activeChapter) {
             case "getting-started":

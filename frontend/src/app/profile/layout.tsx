@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import '@/styles/note.css';
 
 export const metadata: Metadata = {
-    title: "User Profile - WebNotes",
+    title: "User Profile - MyNotes",
     description: "View user profiles and Deployed notes",
 };
 

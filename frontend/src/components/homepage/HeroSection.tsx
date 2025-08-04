@@ -69,7 +69,7 @@ export default function HeroSection() {
                         Beautiful Web Pages, Instantly
                     </h1>
                     <p className="font-sans text-lg max-w-lg mt-6 text-center font-medium opacity-75">
-                        Webnotes transforms your everyday notes into elegant,
+                        MyNotes transforms your everyday notes into elegant,
                         shareable web pages. Write in your favorite app, and let
                         us handle the magic of web publishing.
                     </p>

@@ -13,7 +13,7 @@ interface ProfileLayoutProps {
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
     const defaultMetadata: Metadata = {
         title: "User not found",
-        description: "This user does not exist on WebNotes"
+        description: "This user does not exist on MyNotes"
     };
     
     try {
@@ -22,11 +22,11 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
         
         if (userProfile) {
             return {
-                title: `${userProfile.name} (@${resolvedParams.username}) · WebNotes`,
-                description: userProfile.description || `Check out ${userProfile.name}'s notes on WebNotes`,
+                title: `${userProfile.name} (@${resolvedParams.username}) · MyNotes`,
+                description: userProfile.description || `Check out ${userProfile.name}'s notes on MyNotes`,
                 openGraph: {
                     title: `${userProfile.name} (@${resolvedParams.username})`,
-                    description: userProfile.description || `Check out ${userProfile.name}'s notes on WebNotes`,
+                    description: userProfile.description || `Check out ${userProfile.name}'s notes on MyNotes`,
                     type: 'profile',
                 },
             };

@@ -128,7 +128,7 @@ function DownloadSection() {
                     
                     <div className="space-y-2 mb-12">
                         <h2 className="text-4xl font-bold tracking-tight">
-                            Webnotes for Mac
+                            MyNotes for Mac
                         </h2>
                         <p className="text-blue-100 text-lg max-w-md mx-auto opacity-80">
                             Select the version that matches your Mac&apos;s
@@ -243,7 +243,7 @@ export default function MacClientPage() {
                     Mac Client
                 </h1>
                 <p className="text-neutral-500 mt-1">
-                    Download and set up the Webnotes Mac client for seamless
+                    Download and set up the MyNotes Mac client for seamless
                     note synchronization.
                 </p>
             </div>
@@ -259,7 +259,7 @@ export default function MacClientPage() {
                     </div>
                     <h3 className="text-lg font-medium mb-2">Seamless Sync</h3>
                     <p className="text-neutral-500 text-sm">
-                        Automatically sync your Apple Notes with Webnotes in
+                        Automatically sync your Apple Notes with MyNotes in
                         real-time.
                     </p>
                 </div>
@@ -271,7 +271,7 @@ export default function MacClientPage() {
                     <h3 className="text-lg font-medium mb-2">Zero Config</h3>
                     <p className="text-neutral-500 text-sm">
                         No setup required. Just install and sign in with your
-                        Webnotes account.
+                        MyNotes account.
                     </p>
                 </div>
 
@@ -341,7 +341,7 @@ export default function MacClientPage() {
                                         Simple Setup
                                     </h3>
                                     <p className="text-sm text-neutral-500 mt-1">
-                                        Just sign in with your Webnotes account
+                                        Just sign in with your MyNotes account
                                         and you&apos;re ready to sync.
                                     </p>
                                 </div>

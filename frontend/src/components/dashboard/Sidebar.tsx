@@ -93,7 +93,7 @@ export default function Sidebar({ isOpen, onClose, isMobile }: SidebarProps) {
                                 href="/dashboard"
                                 className="text-lg font-semibold font-mono tracking-tight"
                             >
-                                Webnotes <span className="opacity-75 text-sm">[dashboard]</span>
+                                MyNotes <span className="opacity-75 text-sm">[dashboard]</span>
                             </Link>
                             {isMobile && (
                                 <button

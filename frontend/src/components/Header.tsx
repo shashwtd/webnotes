@@ -11,13 +11,13 @@ const publicLinks: {
     href: string;
     label: string;
 }[] = [
+    // {
+    //     href: "/about",
+    //     label: "about",
+    // },
     {
-        href: "/about",
-        label: "about",
-    },
-    {
-        href: "/get-started",
-        label: "guide",
+        href: "/user-guide",
+        label: "user guide",
     },
 ];
 

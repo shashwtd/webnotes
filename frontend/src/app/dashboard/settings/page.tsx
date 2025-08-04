@@ -1,8 +1,8 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { Bell, Shield, ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
+// import { ArrowRight } from "lucide-react";
+// import { motion } from "framer-motion";
 import ProfilePictureSection from "@/components/settings/ProfilePictureSection";
 import BioSection from "@/components/settings/BioSection";
 import SocialSection from "@/components/settings/SocialSection";
@@ -26,17 +26,14 @@ export default function SettingsPage() {
                 </p>
             </div>
 
-            {/* Profile Section */}
             <section className="bg-white border border-neutral-200 rounded-xl overflow-hidden transition-shadow hover:shadow-sm">
                 <div className="px-6 py-4 border-b border-neutral-200">
                     <h2 className="text-lg font-semibold">Profile</h2>
                 </div>
                 
                 <div className="p-6 space-y-8">
-                    {/* Profile Picture */}
                     <ProfilePictureSection />
 
-                    {/* Basic Info */}
                     <div className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
@@ -76,11 +73,11 @@ export default function SettingsPage() {
                                     className="w-full pl-4 pr-32 py-2.5 rounded-lg border border-neutral-200 bg-neutral-50 text-neutral-500 cursor-not-allowed"
                                 />
                                 <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-400 pointer-events-none">
-                                    .webnotes.io
+                                    .mynotes.ink
                                 </div>
                             </div>
                             <p className="text-xs text-neutral-500 mt-1">
-                                Your public URL: <span className="font-medium">{user.username}.webnotes.io</span>
+                                Your public URL: <span className="font-medium">{user.username}.mynotes.ink</span>
                             </p>
                         </div>
 
@@ -90,8 +87,7 @@ export default function SettingsPage() {
                 </div>
             </section>
 
-            {/* App Settings Section */}
-            <section className="bg-white border border-neutral-200 rounded-xl overflow-hidden transition-shadow hover:shadow-sm">
+            {/* <section className="bg-white border border-neutral-200 rounded-xl overflow-hidden transition-shadow hover:shadow-sm">
                 <div className="px-6 py-4 border-b border-neutral-200">
                     <h2 className="text-lg font-semibold">App Settings</h2>
                 </div>
@@ -153,7 +149,7 @@ export default function SettingsPage() {
                         </motion.button>
                     </div>
                 </div>
-            </section>
+            </section> */}
         </div>
     );
 }
