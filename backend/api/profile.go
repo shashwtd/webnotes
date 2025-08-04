@@ -32,12 +32,13 @@ func setProfileGroup(router fiber.Router) {
 
 func sendProfile(c *fiber.Ctx, user *database.User) error {
 	m := fiber.Map{
-		"id":                  user.ID,
-		"username":            user.Username,
-		"name":                user.Name,
-		"description":         user.Description,
-		"profile_picture_url": user.ProfilePictureURL,
-		"created_at":          user.CreatedAt,
+		"id":                   user.ID,
+		"username":             user.Username,
+		"name":                 user.Name,
+		"description":          user.Description,
+		"profile_picture_url":  user.ProfilePictureURL,
+		"created_at":           user.CreatedAt,
+		"has_connected_client": user.HasConnectedClient,
 	}
 	omitempty(m, "twitter_username", user.TwitterUsername)
 	omitempty(m, "instagram_username", user.InstagramUsername)

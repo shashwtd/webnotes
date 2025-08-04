@@ -73,6 +73,13 @@ func exchangeAuthCodeHandler() fiber.Handler {
 		}
 
 		setActivity(userID, ATClientAuthorized, onlineString(c, "Client Authorized"))
+		if err := env.Default.Database.SetHasConnectedClient(userID, true); err != nil {
+			slog.Error("set has connected client", "error", err)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "failed to set has connected client",
+			})
+		}
+		slog.Info("user has connected client", "user_id", userID)
 
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"error":         nil,

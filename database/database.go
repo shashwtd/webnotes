@@ -24,6 +24,8 @@ type User struct {
 	TwitterUsername   string `json:"twitter_username,omitempty"`
 	InstagramUsername string `json:"instagram_username,omitempty"`
 	GithubUsername    string `json:"github_username,omitempty"`
+
+	HasConnectedClient bool `json:"has_connected_client"` // whether the user has connected the client app
 }
 
 // Note represents a note in the database.

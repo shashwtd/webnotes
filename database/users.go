@@ -98,6 +98,13 @@ func (db *DB) UpdateUserSocials(user *User) error {
 	return err
 }
 
+func (db *DB) SetHasConnectedClient(userID string, hasConnected bool) error {
+	_, _, err := db.client.From("users").Update(map[string]bool{
+		"has_connected_client": hasConnected,
+	}, "", "").Eq("id", userID).Execute()
+	return err
+}
+
 // SaveProfilePicture saves a profile picture to the storage and returns its blob URL.
 func (db *DB) SaveProfilePicture(file io.Reader, name string) (string, error) {
 	id := uuid.New()
