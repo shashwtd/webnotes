@@ -7,7 +7,7 @@ import AnimatedText from "../AnimatedText";
 
 export default function HeroSection() {
     return (
-        <section className="w-full max-h-[800px] min-h-[700px] py-32 relative overflow-hidden">
+        <section className="w-full max-h-[800px] min-h-[700px] py-32 relative overflow-hidden pt-40">
             {/* Floating Elements - Background */}
             <div className="absolute inset-0 w-full h-full">
                 <div className="absolute left-20 top-20 w-[300px] h-[300px] bg-blue-100/20 rounded-full blur-[100px]"></div>
