@@ -31,14 +31,30 @@ export default function Header({ bg = "bg-neutral-100", isAuthPage = false }: He
     const { user } = useAuth();
 
     return (
-        <div
-            className={classNames(
-                "fixed z-50 top-0 w-screen h-max px-6 md:px-12 flex items-start py-4 justify-center",
-                bg ? bg : "bg-neutral-100"
-            )}
-        >
-            <div className="w-full flex items-start justify-between">
-                <Link
+        <>
+            <div className="fixed z-[60] top-0 w-full bg-slate-600 p-2 text-center text-white">
+                <p className="text-sm">
+                    ⚠️ This project is no longer maintained and the server has been shut down. 
+                    As an open-source project, you can view and fork the code anytime on{" "}
+                    <a 
+                        href="https://github.com/shashwtd/webnotes" 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline font-medium hover:text-slate-200"
+                    >
+                        GitHub
+                    </a>
+                    .
+                </p>
+            </div>
+            <div
+                className={classNames(
+                    "fixed z-50 top-10 w-screen h-max px-6 md:px-12 flex items-start py-4 justify-center",
+                    bg ? bg : "bg-neutral-100"
+                )}
+            >
+                <div className="w-full flex items-start justify-between">
+                    <Link
                     href="/"
                     className="group text-lg font-mono font-medium tracking-tight text-neutral-900 flex items-center justify-center gap-1"
                 >
@@ -117,7 +133,8 @@ export default function Header({ bg = "bg-neutral-100", isAuthPage = false }: He
                         </>
                     ))}
                 </nav>
+                </div>
             </div>
-        </div>
+        </>
     );
 }
